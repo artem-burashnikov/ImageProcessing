@@ -13,24 +13,18 @@ type Image =
     val Name: string
 
     new(data, width, height, name) =
-        {
-            Data = data
-            Width = width
-            Height = height
-            Name = name
-        }
+        { Data = data
+          Width = width
+          Height = height
+          Name = name }
 
 let loadAs2DArray (file: string) =
     let img = Image.Load<L8> file
     let res = Array2D.zeroCreate img.Height img.Width
 
-    for i in
-        0 .. img.Width
-             - 1 do
-        for j in
-            0 .. img.Height
-                 - 1 do
-            res.[j, i] <- img.Item(i, j).PackedValue
+    for i in 0 .. img.Width - 1 do
+        for j in 0 .. img.Height - 1 do
+            res[j, i] <- img.Item(i, j).PackedValue
 
     printfn $"H=%A{img.Height} W=%A{img.Width}"
     res
@@ -38,11 +32,7 @@ let loadAs2DArray (file: string) =
 let loadAsImage (file: string) =
     let img = Image.Load<L8> file
 
-    let buf =
-        Array.zeroCreate<byte> (
-            img.Width
-            * img.Height
-        )
+    let buf = Array.zeroCreate<byte> (img.Width * img.Height)
 
     img.CopyPixelDataTo(Span<byte> buf)
     Image(buf, img.Width, img.Height, System.IO.Path.GetFileName file)
@@ -52,23 +42,15 @@ let save2DByteArrayAsImage (imageData: byte[,]) file =
     let w = imageData.GetLength 1
     printfn $"H=%A{h} W=%A{w}"
 
-    let flat2Darray array2D =
+    let flatArray2D array2D =
         seq {
-            for x in
-                [
-                    0 .. (Array2D.length1 array2D)
-                         - 1
-                ] do
-                for y in
-                    [
-                        0 .. (Array2D.length2 array2D)
-                             - 1
-                    ] do
-                    yield array2D.[x, y]
+            for x in [ 0 .. (Array2D.length1 array2D) - 1 ] do
+                for y in [ 0 .. (Array2D.length2 array2D) - 1 ] do
+                    yield array2D[x, y]
         }
         |> Array.ofSeq
 
-    let img = Image.LoadPixelData<L8>(flat2Darray imageData, w, h)
+    let img = Image.LoadPixelData<L8>(flatArray2D imageData, w, h)
     img.Save file
 
 let saveImage (image: Image) file =
@@ -76,120 +58,37 @@ let saveImage (image: Image) file =
     img.Save file
 
 let gaussianBlurKernel =
-    [|
-        [|
-            1
-            4
-            6
-            4
-            1
-        |]
-        [|
-            4
-            16
-            24
-            16
-            4
-        |]
-        [|
-            6
-            24
-            36
-            24
-            6
-        |]
-        [|
-            4
-            16
-            24
-            16
-            4
-        |]
-        [|
-            1
-            4
-            6
-            4
-            1
-        |]
-    |]
-    |> Array.map (
-        Array.map (fun x ->
-            (float32 x)
-            / 256.0f
-        )
-    )
+    [| [| 1; 4; 6; 4; 1 |]
+       [| 4; 16; 24; 16; 4 |]
+       [| 6; 24; 36; 24; 6 |]
+       [| 4; 16; 24; 16; 4 |]
+       [| 1; 4; 6; 4; 1 |] |]
+    |> Array.map (Array.map (fun x -> (float32 x) / 256.0f))
 
 let edgesKernel =
-    [|
-        [|
-            0
-            0
-            -1
-            0
-            0
-        |]
-        [|
-            0
-            0
-            -1
-            0
-            0
-        |]
-        [|
-            0
-            0
-            2
-            0
-            0
-        |]
-        [|
-            0
-            0
-            0
-            0
-            0
-        |]
-        [|
-            0
-            0
-            0
-            0
-            0
-        |]
-    |]
+    [| [| 0; 0; -1; 0; 0 |]
+       [| 0; 0; -1; 0; 0 |]
+       [| 0; 0; 2; 0; 0 |]
+       [| 0; 0; 0; 0; 0 |]
+       [| 0; 0; 0; 0; 0 |] |]
     |> Array.map (Array.map float32)
 
 let applyFilter (filter: float32[][]) (img: byte[,]) =
     let imgH = img.GetLength 0
     let imgW = img.GetLength 1
 
-    let filterD =
-        (Array.length filter)
-        / 2
+    let filterD = (Array.length filter) / 2
 
     let filter = Array.concat filter
 
     let processPixel px py =
-        let dataToHandle = [|
-            for i in
-                px
-                - filterD .. px
-                             + filterD do
-                for j in
-                    py
-                    - filterD .. py
-                                 + filterD do
-                    if
-                        i < 0
-                        || i >= imgH
-                        || j < 0
-                        || j >= imgW
-                    then
-                        float32 img.[px, py]
-                    else
-                        float32 img.[i, j]
-        |]
+        let dataToHandle =
+            [| for i in px - filterD .. px + filterD do
+                   for j in py - filterD .. py + filterD do
+                       if i < 0 || i >= imgH || j < 0 || j >= imgW then
+                           float32 img[px, py]
+                       else
+                           float32 img[i, j] |]
 
         Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
 
@@ -206,55 +105,26 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
                 let ph = p / imgW
                 let mutable res = 0.0f
 
-                for i in
-                    ph
-                    - filterD .. ph
-                                 + filterD do
-                    for j in
-                        pw
-                        - filterD .. pw
-                                     + filterD do
+                for i in ph - filterD .. ph + filterD do
+                    for j in pw - filterD .. pw + filterD do
                         let mutable d = 0uy
 
-                        if
-                            i < 0
-                            || i >= imgH
-                            || j < 0
-                            || j >= imgW
-                        then
-                            d <- img.[p]
+                        if i < 0 || i >= imgH || j < 0 || j >= imgW then
+                            d <- img[p]
                         else
-                            d <-
-                                img.[i * imgW
-                                     + j]
+                            d <- img[i * imgW + j]
 
-                        let f =
-                            filter.[(i - ph
-                                     + filterD)
-                                    * (2
-                                       * filterD
-                                       + 1)
-                                    + (j - pw
-                                       + filterD)]
+                        let f = filter[(i - ph + filterD) * (2 * filterD + 1) + (j - pw + filterD)]
+                        res <- res + (float32 d) * f
 
-                        res <-
-                            res
-                            + (float32 d)
-                              * f
-
-                result.[p] <- byte (int res)
+                result[p] <- byte (int res)
         @>
 
     let kernel = clContext.Compile kernel
 
     fun (commandQueue: MailboxProcessor<_>) (filter: ClArray<float32>) filterD (img: ClArray<byte>) imgH imgW (result: ClArray<_>) ->
 
-        let ndRange =
-            Range1D.CreateValid(
-                imgH
-                * imgW,
-                localWorkSize
-            )
+        let ndRange = Range1D.CreateValid(imgH * imgW, localWorkSize)
 
         let kernel = kernel.GetKernel()
         commandQueue.Post(Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img imgW imgH filter filterD result))
@@ -278,11 +148,10 @@ let applyFiltersGPU (clContext: ClContext) localWorkSize =
             )
 
         for filter in filters do
-            let filter = Array.concat filter
 
-            let filterD =
-                (Array.length filter)
-                / 2
+            let filterD = (Array.length filter) / 2
+
+            let filter = Array.concat filter
 
             let clFilter =
                 clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
@@ -292,11 +161,7 @@ let applyFiltersGPU (clContext: ClContext) localWorkSize =
             output <- oldInput
             queue.Post(Msg.CreateFreeMsg clFilter)
 
-        let result =
-            Array.zeroCreate (
-                img.Height
-                * img.Width
-            )
+        let result = Array.zeroCreate (img.Height * img.Width)
 
         let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(input, result, ch))
         queue.Post(Msg.CreateFreeMsg input)
