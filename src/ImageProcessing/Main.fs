@@ -11,27 +11,4 @@ module Main =
     [<EntryPoint>]
     let main (argv: string array) =
 
-        (*
-        let amdDevice = ClDevice.GetAvailableDevices(platform = Platform.Amd) |> Seq.head
-
-        let amdContext = ClContext(amdDevice)
-        let applyFiltersOnAmdGPU = ImageProcessing.applyFiltersGPU amdContext 64
-
-        let filters =
-            [ ImageProcessing.gaussianBlurKernel
-              ImageProcessing.gaussianBlurKernel
-              ImageProcessing.edgesKernel ]
-
-        // let grayscaleImage = ImageProcessing.loadAs2DArray demoFile
-        // let blur = ImageProcessing.applyFilter ImageProcessing.gaussianBlurKernel grayscaleImage
-        // let edges = ImageProcessing.applyFilter ImageProcessing.edgesKernel blur
-        // let edges = applyFiltersGPU [ImageProcessing.gaussianBlurKernel; ImageProcessing.edgesKernel] grayscaleImage
-        // ImageProcessing.save2DByteArrayAsImage edges ""
-
-        let start = System.DateTime.Now
-
-        Streaming.processAllFiles inputFolder outputFolder [ applyFiltersOnAmdGPU filters ]
-
-        printfn $"TotalTime = %f{(System.DateTime.Now - start).TotalMilliseconds}"
-        *)
         0
