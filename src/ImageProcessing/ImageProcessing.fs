@@ -61,18 +61,22 @@ let rotate90Clockwise (array2D: 'A[,]) =
     let rows = Array2D.length1 array2D
     let columns = Array2D.length2 array2D
     let result = Array2D.zeroCreate columns rows
+
     for i in 0 .. rows - 1 do
         for j in 0 .. columns - 1 do
-            result[j, rows - i - 1] <- array2D[i,j]
+            result[j, rows - i - 1] <- array2D[i, j]
+
     result
 
 let rotate90Counterclockwise (array2D: 'A[,]) =
     let rows = Array2D.length1 array2D
     let columns = Array2D.length2 array2D
     let result = Array2D.zeroCreate columns rows
+
     for i in 0 .. rows - 1 do
         for j in 0 .. columns - 1 do
             result[rows - j - 1, i] <- array2D[i, j]
+
     result
 
 let gaussianBlurKernel =
