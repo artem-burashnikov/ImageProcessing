@@ -57,7 +57,7 @@ let saveImage (image: Image) file =
     let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
     img.Save file
 
-let rotate90Clockwise (array2D: 'A[,]) =
+let rotate90Clockwise (array2D: byte[,]) =
     let rows = Array2D.length1 array2D
     let columns = Array2D.length2 array2D
     let result = Array2D.zeroCreate columns rows
@@ -68,7 +68,7 @@ let rotate90Clockwise (array2D: 'A[,]) =
 
     result
 
-let rotate90Counterclockwise (array2D: 'A[,]) =
+let rotate90Counterclockwise (array2D: byte[,]) =
     let rows = Array2D.length1 array2D
     let columns = Array2D.length2 array2D
     let result = Array2D.zeroCreate columns rows
