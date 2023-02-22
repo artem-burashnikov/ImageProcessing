@@ -29,6 +29,17 @@ let loadAs2DArray (file: string) =
     printfn $"H=%A{img.Height} W=%A{img.Width}"
     res
 
+let loadAs2DArrayRGB32 (file: string) =
+    let img = Image.Load<Rgba32> file
+    let res = Array2D.zeroCreate img.Height img.Width
+
+    for i in 0 .. img.Width - 1 do
+        for j in 0 .. img.Height - 1 do
+            res[j, i] <- img.Item(i, j).PackedValue
+
+    printfn $"H=%A{img.Height} W=%A{img.Width}"
+    res
+
 let loadAsImage (file: string) =
     let img = Image.Load<L8> file
 
@@ -51,6 +62,22 @@ let save2DByteArrayAsImage (imageData: byte[,]) file =
         |> Array.ofSeq
 
     let img = Image.LoadPixelData<L8>(flatArray2D imageData, w, h)
+    img.Save file
+
+let save2DArrayAsImageRGB32 (imageData: uint32[,]) file =
+    let h = imageData.GetLength 0
+    let w = imageData.GetLength 1
+    printfn $"H=%A{h} W=%A{w}"
+
+    let flatArray2D array2D =
+        seq {
+            for x in [ 0 .. (Array2D.length1 array2D) - 1 ] do
+                for y in [ 0 .. (Array2D.length2 array2D) - 1 ] do
+                    yield Rgba32(array2D[x, y]: uint32)
+        }
+        |> Array.ofSeq
+
+    let img = Image.LoadPixelData<Rgba32>(flatArray2D imageData, w, h)
     img.Save file
 
 let saveImage (image: Image) file =
