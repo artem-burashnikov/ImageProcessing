@@ -5,7 +5,8 @@ open Argu
 
 module Main =
 
-    let extensions = set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
+    let extensions =
+        set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
 
     [<RequireQualifiedAccess>]
     type InputPath =
@@ -25,5 +26,4 @@ module Main =
         Set.contains (System.IO.Path.GetExtension file) extensions
 
     [<EntryPoint>]
-    let main (argv: string array) =
-        0
+    let main (argv: string array) = 0
