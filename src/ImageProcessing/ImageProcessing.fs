@@ -95,6 +95,30 @@ let edgesKernel =
        [| 0; 0; 0; 0; 0 |] |]
     |> Array.map (Array.map float32)
 
+let sharpenKernel =
+    [| [| -1; -1; -1; -1; -1 |]
+       [| -1; 2; 2; 2; -1 |]
+       [| -1; 2; 8; 2; -1 |]
+       [| -1; 2; 2; 2; -1 |]
+       [| -1; -1; -1; -1; -1 |] |]
+    |> Array.map (Array.map float32)
+
+let embossKernel =
+    [| [| -2; -1; 0; 1; 2 |]
+       [| -1; 0; 1; 2; 1 |]
+       [| 0; 1; 1; 1; 0 |]
+       [| -1; 2; 1; 0; -1 |]
+       [| -2; -1; 0; -1; -2 |] |]
+    |> Array.map (Array.map float32)
+
+let sobelKernel =
+    [| [| -1; -2; 0; 2; 1 |]
+       [| -2; -4; 0; 4; 2 |]
+       [| 0; 0; 0; 0; 0 |]
+       [| 2; 4; 0; -4; -2 |]
+       [| 1; 2; 0; -2; -1 |] |]
+    |> Array.map (Array.map float32)
+
 let applyFilter (filter: float32[][]) (img: byte[,]) =
     let imgH = img.GetLength 0
     let imgW = img.GetLength 1
