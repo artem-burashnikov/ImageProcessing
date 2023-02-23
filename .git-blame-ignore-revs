@@ -4,3 +4,9 @@
 # Like formatting with Fantomas
 # https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
 # Add formatting commits here
+
+# .git-blame-ignore-revs
+# Fix Main.fs formatting
+dca56aaef27215dce733992568ac18b581d55da3
+# Fix formatting
+bd6c906e4b951b8e15f0dfd03043c350d7b155c0
