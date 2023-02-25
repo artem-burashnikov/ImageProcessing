@@ -9,3 +9,7 @@ type Applicator =
     static member HighPass = applyFilter highPassKernel
     static member Laplacian = applyFilter laplacianKernel
     static member Sobel = applyFilter sobelKernel
+    /// Clockwise rotation
+    static member Rotate = rotate90Clockwise
+    /// Counterclockwise rotation
+    static member RotateCCW = rotate90Counterclockwise
