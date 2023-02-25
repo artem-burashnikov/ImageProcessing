@@ -2,6 +2,7 @@ namespace ImageProcessing.Tests
 
 open Expecto
 open ImageProcessing
+open ImageProcessing.ImageProcessing
 open Microsoft.VisualStudio.TestPlatform.ObjectModel
 
 module TestSamples =
@@ -26,8 +27,13 @@ module TestSamples =
                   // "+2" because minimum testing for 2x2 tables
                   let w, h = System.Convert.ToInt32 width + 2, System.Convert.ToInt32 height + 2
                   let originalImg = Array2D.init w h (fun _ _ -> byte (r.Next(0, 256)))
-                  let rotate = ImageProcessing.rotate90Clockwise
-                  let rotatedImg = rotate originalImg |> rotate |> rotate |> rotate
+
+                  let rotatedImg =
+                      rotate90Clockwise originalImg
+                      |> rotate90Clockwise
+                      |> rotate90Clockwise
+                      |> rotate90Clockwise
+
                   Expect.equal rotatedImg originalImg "Clockwise rotated 4 times failed to match the original image"
 
               testProperty "Rotating counterclockwise 4 times outputs the original image"
@@ -35,8 +41,12 @@ module TestSamples =
                   // "+2" because minimum testing for 2x2 tables
                   let w, h = System.Convert.ToInt32 width + 2, System.Convert.ToInt32 height + 2
                   let originalImg = Array2D.init w h (fun _ _ -> byte (r.Next(0, 256)))
-                  let rotate = ImageProcessing.rotate90Counterclockwise
-                  let rotatedImg = rotate originalImg |> rotate |> rotate |> rotate
+
+                  let rotatedImg =
+                      rotate90Counterclockwise originalImg
+                      |> rotate90Counterclockwise
+                      |> rotate90Counterclockwise
+                      |> rotate90Counterclockwise
 
                   Expect.equal
                       rotatedImg
@@ -49,13 +59,21 @@ module TestSamples =
                   let w, h = System.Convert.ToInt32 width + 2, System.Convert.ToInt32 height + 2
                   let originalImg = Array2D.init w h (fun _ _ -> byte (r.Next(0, 256)))
 
-                  let rotatedImg =
-                      ImageProcessing.rotate90Clockwise originalImg
-                      |> ImageProcessing.rotate90Counterclockwise
+                  let rotatedImg = rotate90Clockwise originalImg |> rotate90Counterclockwise
 
                   Expect.equal
                       rotatedImg
                       originalImg
                       "Clockwise and then counterclockwise failed to match the original image"
 
-              ]
+              testCase "Applying list of filters should produce the same result as applying each separately"
+              <| fun _ ->
+                  let img = Array2D.init 500 500 (fun _ _ -> byte (r.Next(0, 256)))
+                  let out1 = blur img
+                  let out2 = edges out1
+                  let out3 = laplacian out2
+                  let out4 = sobel out3
+                  let expectedResult = highPass out4
+                  let filters = [ blur; edges; laplacian; sobel; highPass ]
+                  let actualResult = applyFiltersCPU filters img
+                  Expect.equal actualResult expectedResult "" ]
