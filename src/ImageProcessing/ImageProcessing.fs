@@ -183,21 +183,6 @@ let highPass = applyFilter highPassKernel
 let laplacian = applyFilter laplacianKernel
 let sobel = applyFilter sobelKernel
 
-/// This function returns a function that needs an output path.
-/// So when using provide the last argument.
-let applyFiltersCPU (filterList: List<byte[,] -> byte[,]>) (img: byte[,]) =
-    let mutable input = img
-
-    let mutable output =
-        Array2D.zeroCreate (Array2D.length1 input) (Array2D.length2 input)
-
-    for filter in filterList do
-        let oldInput = input
-        input <- filter input
-        output <- oldInput
-
-    input
-
 let applyFiltersGPU (clContext: ClContext) localWorkSize =
     let kernel = applyFilterGPUKernel clContext localWorkSize
     let queue = clContext.QueueProvider.CreateQueue()

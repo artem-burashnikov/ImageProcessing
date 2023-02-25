@@ -3,7 +3,6 @@ namespace ImageProcessing.Tests
 open Expecto
 open ImageProcessing
 open ImageProcessing.ImageProcessing
-open Microsoft.VisualStudio.TestPlatform.ObjectModel
 
 module TestSamples =
 
@@ -64,12 +63,4 @@ module TestSamples =
                   Expect.equal
                       rotatedImg
                       originalImg
-                      "Clockwise and then counterclockwise failed to match the original image"
-
-              testCase "Applying list of filters should produce the same result as applying each separately"
-              <| fun _ ->
-                  let img = Array2D.init 500 500 (fun _ _ -> byte (r.Next(0, 256)))
-                  let filters = [ blur; edges; laplacian; sobel; highPass ]
-                  let expectedResult = List.fold (fun img filter -> filter img) img filters
-                  let actualResult = applyFiltersCPU filters img
-                  Expect.equal actualResult expectedResult "" ]
+                      "Clockwise and then counterclockwise failed to match the original image" ]
