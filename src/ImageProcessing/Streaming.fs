@@ -74,3 +74,12 @@ let processAllFiles inDir outDir filterApplicators =
 
     for imgProcessor in imgProcessors do
         imgProcessor.PostAndReply(EOS)
+
+let processAllFilesNaiveCPU inDir outDir filterList =
+
+    let filesToProcess = listAllFiles inDir
+
+    for file in filesToProcess do
+        let ImgName = System.IO.Path.GetFileName file
+        let img = loadAs2DArray file
+        applyFiltersCPU filterList img (System.IO.Path.Combine(outDir, ImgName))
