@@ -82,4 +82,5 @@ let processAllFilesNaiveCPU inDir outDir filterList =
     for file in filesToProcess do
         let ImgName = System.IO.Path.GetFileName file
         let img = loadAs2DArray file
-        applyFiltersCPU filterList img (System.IO.Path.Combine(outDir, ImgName))
+        let output = applyFiltersCPU filterList img
+        save2DByteArrayAsImage output (System.IO.Path.Combine(outDir, ImgName))
