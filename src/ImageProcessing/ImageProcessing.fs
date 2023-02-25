@@ -177,12 +177,6 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
 
-let blur = applyFilter gaussianBlurKernel
-let edges = applyFilter edgesKernel
-let highPass = applyFilter highPassKernel
-let laplacian = applyFilter laplacianKernel
-let sobel = applyFilter sobelKernel
-
 let applyFiltersGPU (clContext: ClContext) localWorkSize =
     let kernel = applyFilterGPUKernel clContext localWorkSize
     let queue = clContext.QueueProvider.CreateQueue()

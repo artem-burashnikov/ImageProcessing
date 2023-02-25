@@ -75,12 +75,12 @@ let processAllFiles inDir outDir filterApplicators =
     for imgProcessor in imgProcessors do
         imgProcessor.PostAndReply(EOS)
 
-let processAllFilesNaiveCPU inDir outDir filterList =
+let processAllFilesNaiveCPU inDir outDir filterApplicators =
 
     let filesToProcess = listAllFiles inDir
 
     for file in filesToProcess do
         let ImgName = System.IO.Path.GetFileName file
         let img = loadAs2DArray file
-        let output = List.fold (fun img filter -> filter img) img filterList
+        let output = List.fold (fun img filter -> filter img) img filterApplicators
         save2DByteArrayAsImage output (System.IO.Path.Combine(outDir, ImgName))
