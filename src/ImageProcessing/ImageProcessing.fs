@@ -196,7 +196,7 @@ let applyFiltersCPU (filterList: List<byte[,] -> byte[,]>) (img: byte[,]) =
         input <- filter input
         output <- oldInput
 
-    save2DByteArrayAsImage input
+    input
 
 let applyFiltersGPU (clContext: ClContext) localWorkSize =
     let kernel = applyFilterGPUKernel clContext localWorkSize
