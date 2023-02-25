@@ -9,9 +9,14 @@
         <Compile Include="AssemblyInfo.fs" />
         <Compile Include="Tests.fs" />
         <Compile Include="Main.fs" />
+        <Folder Include="TestSamples\Images\Input" />
+        <Folder Include="TestSamples\Images\Output" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="../../src/ImageProcessing/ImageProcessing.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Expecto.FsCheck" Version="9.0.4" />
     </ItemGroup>
     <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
