@@ -95,28 +95,28 @@ let edgesKernel =
        [| 0; 0; 0; 0; 0 |] |]
     |> Array.map (Array.map float32)
 
-let sharpenKernel =
+let laplacianKernel =
+    [| [| -1; -3; -4; -3; -1 |]
+       [| -3; 0; 6; 0; -3 |]
+       [| -4; 6; 20; 6; -4 |]
+       [| -3; 0; 6; 0; -3 |]
+       [| -1; -3; -4; -3; -1 |] |]
+    |> Array.map (Array.map float32)
+
+let highPassKernel =
     [| [| -1; -1; -1; -1; -1 |]
-       [| -1; 2; 2; 2; -1 |]
-       [| -1; 2; 8; 2; -1 |]
-       [| -1; 2; 2; 2; -1 |]
+       [| -1; -1; -1; -1; -1 |]
+       [| -1; -1; 24; 1; 1 |]
+       [| -1; -1; -1; -1; -1 |]
        [| -1; -1; -1; -1; -1 |] |]
     |> Array.map (Array.map float32)
 
-let embossKernel =
-    [| [| -2; -1; 0; 1; 2 |]
-       [| -1; 0; 1; 2; 1 |]
-       [| 0; 1; 1; 1; 0 |]
-       [| -1; 2; 1; 0; -1 |]
-       [| -2; -1; 0; -1; -2 |] |]
-    |> Array.map (Array.map float32)
-
 let sobelKernel =
-    [| [| -1; -2; 0; 2; 1 |]
-       [| -2; -4; 0; 4; 2 |]
+    [| [| 1; 4; 6; 4; 1 |]
+       [| 2; 8; 12; 8; 2 |]
        [| 0; 0; 0; 0; 0 |]
-       [| 2; 4; 0; -4; -2 |]
-       [| 1; 2; 0; -2; -1 |] |]
+       [| -2; -8; -12; -8; -2 |]
+       [| -1; -4; -6; -4; -1 |] |]
     |> Array.map (Array.map float32)
 
 let applyFilter (filter: float32[][]) (img: byte[,]) =
@@ -179,8 +179,8 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
 
 let blur = applyFilter gaussianBlurKernel
 let edges = applyFilter edgesKernel
-let sharpen = applyFilter sharpenKernel
-let emboss = applyFilter embossKernel
+let highPass = applyFilter highPassKernel
+let laplacian = applyFilter laplacianKernel
 let sobel = applyFilter sobelKernel
 
 /// This function returns a function that needs an output path.
