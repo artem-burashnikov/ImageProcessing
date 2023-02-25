@@ -3,6 +3,7 @@ namespace ImageProcessing.Tests
 open Expecto
 open ImageProcessing
 open ImageProcessing.ImageProcessing
+open FilterApplicators
 
 module TestSamples =
 
@@ -28,10 +29,10 @@ module TestSamples =
                   let originalImg = Array2D.init w h (fun _ _ -> byte (r.Next(0, 256)))
 
                   let rotatedImg =
-                      rotate90Clockwise originalImg
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
+                      Applicator.Rotate originalImg
+                      |> Applicator.Rotate
+                      |> Applicator.Rotate
+                      |> Applicator.Rotate
 
                   Expect.equal rotatedImg originalImg "Clockwise rotated 4 times failed to match the original image"
 
@@ -42,10 +43,10 @@ module TestSamples =
                   let originalImg = Array2D.init w h (fun _ _ -> byte (r.Next(0, 256)))
 
                   let rotatedImg =
-                      rotate90Counterclockwise originalImg
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
+                      Applicator.RotateCCW originalImg
+                      |> Applicator.RotateCCW
+                      |> Applicator.RotateCCW
+                      |> Applicator.RotateCCW
 
                   Expect.equal
                       rotatedImg
@@ -58,7 +59,7 @@ module TestSamples =
                   let w, h = System.Convert.ToInt32 width + 2, System.Convert.ToInt32 height + 2
                   let originalImg = Array2D.init w h (fun _ _ -> byte (r.Next(0, 256)))
 
-                  let rotatedImg = rotate90Clockwise originalImg |> rotate90Counterclockwise
+                  let rotatedImg = Applicator.Rotate originalImg |> Applicator.RotateCCW
 
                   Expect.equal
                       rotatedImg
