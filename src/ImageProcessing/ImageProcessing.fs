@@ -183,6 +183,8 @@ let sharpen = applyFilter sharpenKernel
 let emboss = applyFilter embossKernel
 let sobel = applyFilter sobelKernel
 
+/// This function returns a function that needs an output path.
+/// So when using provide the last argument.
 let applyFiltersCPU (filterList: List<byte[,] -> byte[,]>) (img: byte[,]) =
     let mutable input = img
 
