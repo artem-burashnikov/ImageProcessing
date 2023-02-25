@@ -69,11 +69,7 @@ module TestSamples =
               testCase "Applying list of filters should produce the same result as applying each separately"
               <| fun _ ->
                   let img = Array2D.init 500 500 (fun _ _ -> byte (r.Next(0, 256)))
-                  let out1 = blur img
-                  let out2 = edges out1
-                  let out3 = laplacian out2
-                  let out4 = sobel out3
-                  let expectedResult = highPass out4
                   let filters = [ blur; edges; laplacian; sobel; highPass ]
+                  let expectedResult = List.fold (fun img filter -> filter img) img filters
                   let actualResult = applyFiltersCPU filters img
                   Expect.equal actualResult expectedResult "" ]
