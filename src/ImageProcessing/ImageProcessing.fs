@@ -177,6 +177,25 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
 
+let blur = applyFilter gaussianBlurKernel
+let edges = applyFilter edgesKernel
+let sharpen = applyFilter sharpenKernel
+let emboss = applyFilter embossKernel
+let sobel = applyFilter sobelKernel
+
+let applyFiltersCPU (filterList: List<byte[,] -> byte[,]>) (img: byte[,]) =
+    let mutable input = img
+
+    let mutable output =
+        Array2D.zeroCreate (Array2D.length1 input) (Array2D.length2 input)
+
+    for filter in filterList do
+        let oldInput = input
+        input <- filter input
+        output <- oldInput
+
+    save2DByteArrayAsImage input
+
 let applyFiltersGPU (clContext: ClContext) localWorkSize =
     let kernel = applyFilterGPUKernel clContext localWorkSize
     let queue = clContext.QueueProvider.CreateQueue()
