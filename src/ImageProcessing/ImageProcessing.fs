@@ -75,7 +75,7 @@ let rotate90Counterclockwise (array2D: byte[,]) =
 
     for i in 0 .. rows - 1 do
         for j in 0 .. columns - 1 do
-            result[rows - j - 1, i] <- array2D[i, j]
+            result[columns - j - 1, i] <- array2D[i, j]
 
     result
 
