@@ -2,14 +2,36 @@ module FilterApplicators
 
 open ImageProcessing.ImageProcessing
 
+[<RequireQualifiedAccess>]
+type Filter =
+    | Blur
+    | Edges
+    | HighPass
+    | Laplacian
+    | Sobel
+    | Rotate
+    | RotateCWW
+    | Invalid
+
+    static member FilterFromStr str =
+        match str with
+        | "blur" -> Blur
+        | "edges" -> Edges
+        | "highpass" -> HighPass
+        | "laplacian" -> Laplacian
+        | "sobel" -> Sobel
+        | "rotate" -> Rotate
+        | "rotatecww" -> RotateCWW
+        | _ -> Invalid
+
 /// Following properties provide a function to be used on a 2d array.
-type Applicator =
-    static member Blur = applyFilter gaussianBlurKernel
-    static member Edges = applyFilter edgesKernel
-    static member HighPass = applyFilter highPassKernel
-    static member Laplacian = applyFilter laplacianKernel
-    static member Sobel = applyFilter sobelKernel
-    /// Clockwise rotation
-    static member Rotate = rotate90Clockwise
-    /// Counterclockwise rotation
-    static member RotateCCW = rotate90Counterclockwise
+let getApplicator (filter: Filter) =
+    match filter with
+    | Filter.Blur -> applyFilter gaussianBlurKernel
+    | Filter.Edges -> applyFilter edgesKernel
+    | Filter.HighPass -> applyFilter highPassKernel
+    | Filter.Laplacian -> applyFilter laplacianKernel
+    | Filter.Sobel -> applyFilter sobelKernel
+    | Filter.Rotate -> rotate90Clockwise
+    | Filter.RotateCWW -> rotate90Counterclockwise
+    | Filter.Invalid -> failwith "Not yet implemented"
