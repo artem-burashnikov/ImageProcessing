@@ -8,6 +8,14 @@ module Main =
     let extensions =
         set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
 
+    type Arguments =
+        | Test
+
+        interface IArgParserTemplate with
+            member s.Usage =
+                match s with
+                | Test -> "Testing"
+
     [<RequireQualifiedAccess>]
     type InputPath =
         | File of string
@@ -26,4 +34,18 @@ module Main =
         Set.contains (System.IO.Path.GetExtension file) extensions
 
     [<EntryPoint>]
-    let main (argv: string array) = 0
+    let main (argv: string array) =
+
+        let errorHandler =
+            ProcessExiter(
+                colorizer =
+                    function
+                    | ErrorCode.HelpText -> None
+                    | _ -> Some System.ConsoleColor.Blue
+            )
+
+        let parser = ArgumentParser.Create<Arguments>(errorHandler = errorHandler)
+
+        let results = parser.ParseCommandLine argv
+
+        0
