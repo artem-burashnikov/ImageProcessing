@@ -2,7 +2,7 @@ module FilterApplicators
 
 open ImageProcessing.ImageProcessing
 
-/// Following methods output a function to be used on a 2d array.
+/// Following properties provide a function to be used on a 2d array.
 type Applicator =
     static member Blur = applyFilter gaussianBlurKernel
     static member Edges = applyFilter edgesKernel
