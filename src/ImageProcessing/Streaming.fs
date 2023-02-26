@@ -2,9 +2,14 @@ module ImageProcessing.Streaming
 
 open ImageProcessing.ImageProcessing
 
+let extensions =
+    set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
+
+let isImg (file: string) =
+    Set.contains (System.IO.Path.GetExtension file) extensions
+
 let listAllFiles dir =
-    let files = System.IO.Directory.GetFiles dir
-    List.ofArray files
+    System.IO.Directory.GetFiles dir |> Seq.filter isImg |> List.ofSeq
 
 type msg =
     | Img of Image
