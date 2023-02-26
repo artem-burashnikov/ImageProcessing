@@ -102,11 +102,11 @@ module Main =
                     OutputPath.NotFound output
             | None -> OutputPath.Unspecified
 
-        let applicatorsList =
+        let filtersApplicators =
             match results.TryGetResult <@ Arguments.Filters @> with
             | Some applicators -> parseToFilter applicators
             | None -> [ Filter.Invalid ]
 
-
+        runImageFilterOnCPU filtersApplicators inputPath outputPath |> ignore
 
         0
