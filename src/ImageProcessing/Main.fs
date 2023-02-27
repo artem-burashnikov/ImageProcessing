@@ -1,28 +1,27 @@
 namespace ImageProcessing
 
 open System.IO
-open Argu.ArguAttributes
-open Brahma.FSharp
 open Argu
-open FilterApplicators
+open Applicators
 
 module Main =
 
     type Arguments =
-        | [<MainCommand; Mandatory>] Filters of string list
+        | [<MainCommand; Mandatory>] Applicators of string list
         | [<Mandatory>] Input of string
         | [<Mandatory>] Output of string
 
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
-                | Filters _ ->
-                    "Provide filter names. Available filters: blur, edges, highpass, laplacian, sobel, rotate, rotatecww"
+                | Applicators _ ->
+                    "Provide applicators to be used. Available applicators: blur, edges, highpass, laplacian, sobelv, rotate, rotateccw"
                 | Input _ -> "Input path: specify a path to a folder containing images"
                 | Output _ -> "Output path: give a path to a folder"
 
     [<RequireQualifiedAccess>]
     type InputPath =
+        | File of string
         | Folder of string
         | NoImgFile of string
         | NotFound of string
@@ -34,13 +33,20 @@ module Main =
         | NotFound of string
         | Unspecified
 
-    let rec parseToFilter lst = List.map Filter.FilterFromStr lst
+    let extensions =
+        set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
 
-    let runImageFilterOnCPU (filterApplicators: Filter list) (inputPath: InputPath) (outputPath: OutputPath) =
+    let isImg (file: string) =
+        Set.contains (Path.GetExtension file) extensions
 
-        match inputPath, outputPath, filterApplicators with
+    let parseToApplicator lst =
+        List.map Applicator.ApplicatorFromStr lst
+
+    let runEditImageOnCPU (applicators: Applicator list) (inputPath: InputPath) (outputPath: OutputPath) =
+
+        match inputPath, outputPath, applicators with
         | InputPath.NoImgFile sIn, _, _ ->
-            eprintfn $"Input path {sIn} is unsupported file type"
+            eprintfn $"Input {sIn} is unsupported file type"
             1
         | InputPath.NotFound sIn, _, _ ->
             eprintfn $"Input path {sIn} not found"
@@ -55,19 +61,26 @@ module Main =
             eprintfn "No output path provided. Call with --help for usage information."
             1
         | _, _, [] ->
-            eprintf "No filters provided. Call with --help for usage information."
+            eprintf "No applicators provided. Call with --help for usage information."
             1
-        | InputPath.Folder sIn, OutputPath.Folder sOut, applicators ->
-            let invalidFilter = Seq.tryFind (fun f -> f = Filter.Invalid) applicators
-
-            match invalidFilter with
-            | Some f ->
-                eprintf $"Invalid filter {f} provided. Call with --help for usage information."
-                1
-            | None ->
+        | InputPath.File sIn, OutputPath.Folder sOut, applicators ->
+            if isImg sIn then
                 let applicators = List.map getApplicator applicators
-                Streaming.processAllFilesNaiveCPU sIn sOut applicators
+                let imgFiles = [sIn]
+                Streaming.processAllFilesNaiveCPU imgFiles sOut applicators
+                0
+            else
+                eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
+        | InputPath.Folder sIn, OutputPath.Folder sOut, applicators ->
+            let imgFiles = Streaming.listAllFiles sIn |> Seq.filter isImg
+            if Seq.isEmpty imgFiles then
+                eprintf "No image files found in the specified folder."
+                1
+            else
+                let applicators = List.map getApplicator applicators
+                Streaming.processAllFilesNaiveCPU imgFiles sOut applicators
+                0
 
     [<EntryPoint>]
     let main (argv: string array) =
@@ -89,6 +102,10 @@ module Main =
             | Some input ->
                 if Directory.Exists input then
                     InputPath.Folder input
+                elif File.Exists input && isImg input then
+                    InputPath.File input
+                elif File.Exists input then
+                    InputPath.NoImgFile input
                 else
                     InputPath.NotFound input
             | None -> InputPath.Unspecified
@@ -102,11 +119,13 @@ module Main =
                     OutputPath.NotFound output
             | None -> OutputPath.Unspecified
 
-        let filtersApplicators =
-            match results.TryGetResult <@ Arguments.Filters @> with
-            | Some applicators -> parseToFilter applicators
-            | None -> [ Filter.Invalid ]
+        let applicators =
+            match results.TryGetResult <@ Arguments.Applicators @> with
+            | Some applicators ->
+                let applicatorsList = parseToApplicator applicators |> List.filter (fun f -> f <> Applicator.Invalid)
+                match applicatorsList with
+                | [] -> failwith "Could not find any applicators from a provided list of applicators."
+                | _ -> applicatorsList
+            | None -> [ Applicator.Invalid ]
 
-        runImageFilterOnCPU filtersApplicators inputPath outputPath |> ignore
-
-        0
+        runEditImageOnCPU applicators inputPath outputPath |> exit

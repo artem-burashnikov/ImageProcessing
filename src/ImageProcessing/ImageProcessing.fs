@@ -111,7 +111,7 @@ let highPassKernel =
        [| -1; -1; -1; -1; -1 |] |]
     |> Array.map (Array.map float32)
 
-let sobelKernel =
+let sobelVerticalKernel =
     [| [| 1; 4; 6; 4; 1 |]
        [| 2; 8; 12; 8; 2 |]
        [| 0; 0; 0; 0; 0 |]

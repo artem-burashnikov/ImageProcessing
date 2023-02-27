@@ -1,15 +1,10 @@
 module ImageProcessing.Streaming
 
+open System.Collections
 open ImageProcessing.ImageProcessing
 
-let extensions =
-    set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
-
-let isImg (file: string) =
-    Set.contains (System.IO.Path.GetExtension file) extensions
-
 let listAllFiles dir =
-    System.IO.Directory.GetFiles dir |> Seq.filter isImg |> List.ofSeq
+    System.IO.Directory.GetFiles dir
 
 type msg =
     | Img of Image
@@ -80,11 +75,9 @@ let processAllFiles inDir outDir filterApplicators =
     for imgProcessor in imgProcessors do
         imgProcessor.PostAndReply(EOS)
 
-let processAllFilesNaiveCPU inDir outDir filterApplicators =
+let processAllFilesNaiveCPU (files: string seq) outDir filterApplicators =
 
-    let filesToProcess = listAllFiles inDir
-
-    for file in filesToProcess do
+    for file in files do
         let ImgName = System.IO.Path.GetFileName file
         let img = loadAs2DArray file
         let output = List.fold (fun img filter -> filter img) img filterApplicators
