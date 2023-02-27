@@ -11,7 +11,6 @@ type Applicator =
     | SobelV
     | Rotate
     | RotateCCW
-    | Invalid
 
     static member ApplicatorFromStr str =
         match str with
@@ -22,7 +21,7 @@ type Applicator =
         | "sobelv" -> SobelV
         | "rotate" -> Rotate
         | "rotateccw" -> RotateCCW
-        | _ -> Invalid
+        | s -> failwith $"{s} applicator is undefined."
 
 /// Outputs a function to be used on a 2d array.
 let getApplicator (filter: Applicator) =
@@ -34,4 +33,3 @@ let getApplicator (filter: Applicator) =
     | Applicator.SobelV -> applyFilter sobelVerticalKernel
     | Applicator.Rotate -> rotate90Clockwise
     | Applicator.RotateCCW -> rotate90Counterclockwise
-    | Applicator.Invalid -> failwith "Not yet implemented"

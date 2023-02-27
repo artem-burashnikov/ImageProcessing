@@ -7,17 +7,21 @@ open Applicators
 module Main =
 
     type Arguments =
-        | [<MainCommand; Mandatory>] Applicators of string list
+        | [<Mandatory>] Applicators of Applicator list
         | [<Mandatory>] Input of string
         | [<Mandatory>] Output of string
 
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
-                | Applicators _ ->
-                    "Provide applicators to be used. Available applicators: blur, edges, highpass, laplacian, sobelv, rotate, rotateccw"
+                | Applicators _ -> "Provide applicators to be used."
                 | Input _ -> "Input path: specify a path to a folder containing images"
                 | Output _ -> "Output path: give a path to a folder"
+
+    [<RequireQualifiedAccess>]
+    type Editor =
+        | Editor of Applicator list
+        | Unspecified
 
     [<RequireQualifiedAccess>]
     type InputPath =
@@ -42,11 +46,11 @@ module Main =
     let parseToApplicator lst =
         List.map Applicator.ApplicatorFromStr lst
 
-    let runEditImageOnCPU (applicators: Applicator list) (inputPath: InputPath) (outputPath: OutputPath) =
+    let runEditImageOnCPU (editor: Editor) (inputPath: InputPath) (outputPath: OutputPath) =
 
-        match inputPath, outputPath, applicators with
+        match inputPath, outputPath, editor with
         | InputPath.NoImgFile sIn, _, _ ->
-            eprintfn $"Input {sIn} is unsupported file type"
+            eprintfn $"Input {Path.GetFileName sIn} is unsupported file type"
             1
         | InputPath.NotFound sIn, _, _ ->
             eprintfn $"Input path {sIn} not found"
@@ -60,10 +64,10 @@ module Main =
         | _, OutputPath.Unspecified, _ ->
             eprintfn "No output path provided. Call with --help for usage information."
             1
-        | _, _, [] ->
-            eprintf "No applicators provided. Call with --help for usage information."
+        | _, _, Editor.Unspecified ->
+            eprintfn "No applicator provided. Call with --help for usage information."
             1
-        | InputPath.File sIn, OutputPath.Folder sOut, applicators ->
+        | InputPath.File sIn, OutputPath.Folder sOut, Editor.Editor applicators ->
             if isImg sIn then
                 let applicators = List.map getApplicator applicators
                 let imgFiles = [ sIn ]
@@ -72,7 +76,7 @@ module Main =
             else
                 eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
-        | InputPath.Folder sIn, OutputPath.Folder sOut, applicators ->
+        | InputPath.Folder sIn, OutputPath.Folder sOut, Editor.Editor applicators ->
             let imgFiles = Streaming.listAllFiles sIn |> Seq.filter isImg
 
             if Seq.isEmpty imgFiles then
@@ -122,13 +126,7 @@ module Main =
 
         let applicators =
             match results.TryGetResult <@ Arguments.Applicators @> with
-            | Some applicators ->
-                let applicatorsList =
-                    parseToApplicator applicators |> List.filter (fun f -> f <> Applicator.Invalid)
-
-                match applicatorsList with
-                | [] -> failwith "Could not find any applicators from a provided list of applicators."
-                | _ -> applicatorsList
-            | None -> [ Applicator.Invalid ]
+            | Some applicators -> Editor.Editor applicators
+            | None -> Editor.Unspecified
 
         runEditImageOnCPU applicators inputPath outputPath |> exit
