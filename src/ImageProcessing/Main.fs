@@ -66,7 +66,7 @@ module Main =
         | InputPath.File sIn, OutputPath.Folder sOut, applicators ->
             if isImg sIn then
                 let applicators = List.map getApplicator applicators
-                let imgFiles = [sIn]
+                let imgFiles = [ sIn ]
                 Streaming.processAllFilesNaiveCPU imgFiles sOut applicators
                 0
             else
@@ -74,6 +74,7 @@ module Main =
                 1
         | InputPath.Folder sIn, OutputPath.Folder sOut, applicators ->
             let imgFiles = Streaming.listAllFiles sIn |> Seq.filter isImg
+
             if Seq.isEmpty imgFiles then
                 eprintf "No image files found in the specified folder."
                 1
@@ -122,7 +123,9 @@ module Main =
         let applicators =
             match results.TryGetResult <@ Arguments.Applicators @> with
             | Some applicators ->
-                let applicatorsList = parseToApplicator applicators |> List.filter (fun f -> f <> Applicator.Invalid)
+                let applicatorsList =
+                    parseToApplicator applicators |> List.filter (fun f -> f <> Applicator.Invalid)
+
                 match applicatorsList with
                 | [] -> failwith "Could not find any applicators from a provided list of applicators."
                 | _ -> applicatorsList

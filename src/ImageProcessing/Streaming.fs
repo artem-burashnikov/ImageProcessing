@@ -3,8 +3,7 @@ module ImageProcessing.Streaming
 open System.Collections
 open ImageProcessing.ImageProcessing
 
-let listAllFiles dir =
-    System.IO.Directory.GetFiles dir
+let listAllFiles dir = System.IO.Directory.GetFiles dir
 
 type msg =
     | Img of Image
