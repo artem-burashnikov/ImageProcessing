@@ -2,25 +2,25 @@ namespace ImageProcessing
 
 open System.IO
 open Argu
-open Applicators
+open Transformations
 
 module Main =
 
     type Arguments =
-        | [<Mandatory>] Applicators of Applicator list
+        | [<MainCommand; Mandatory>] Transformations of Transformation list
         | [<Mandatory>] Input of string
         | [<Mandatory>] Output of string
 
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
-                | Applicators _ -> "Provide applicators to be used."
-                | Input _ -> "Input path: specify a path to a folder containing images"
+                | Transformations _ -> "Provide transformations to be applied."
+                | Input _ -> "Input path: specify a path to an image file or to a folder containing images"
                 | Output _ -> "Output path: give a path to a folder"
 
     [<RequireQualifiedAccess>]
     type Editor =
-        | Editor of Applicator list
+        | Editor of Transformation list
         | Unspecified
 
     [<RequireQualifiedAccess>]
@@ -38,13 +38,20 @@ module Main =
         | Unspecified
 
     let extensions =
-        set [| ".gif"; ".jpg"; ".jpeg"; ".bmp"; ".pbm"; ".png"; ".tiff"; ".tga"; ".webp" |]
+        set
+            [| ".gif"
+               ".jpg"
+               ".jpeg"
+               ".bmp"
+               ".pbm"
+               ".png"
+               ".tif"
+               ".tiff"
+               ".tga"
+               ".webp" |]
 
     let isImg (file: string) =
         Set.contains (Path.GetExtension file) extensions
-
-    let parseToApplicator lst =
-        List.map Applicator.ApplicatorFromStr lst
 
     let runEditImageOnCPU (editor: Editor) (inputPath: InputPath) (outputPath: OutputPath) =
 
@@ -65,26 +72,26 @@ module Main =
             eprintfn "No output path provided. Call with --help for usage information."
             1
         | _, _, Editor.Unspecified ->
-            eprintfn "No applicator provided. Call with --help for usage information."
+            eprintfn "No transformation provided. Call with --help for usage information."
             1
-        | InputPath.File sIn, OutputPath.Folder sOut, Editor.Editor applicators ->
+        | InputPath.File sIn, OutputPath.Folder sOut, Editor.Editor transformations ->
             if isImg sIn then
-                let applicators = List.map getApplicator applicators
+                let transformations = List.map getTransformation transformations
                 let imgFiles = [ sIn ]
-                Streaming.processAllFilesNaiveCPU imgFiles sOut applicators
+                Streaming.processAllFilesNaiveCPU imgFiles sOut transformations
                 0
             else
                 eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
-        | InputPath.Folder sIn, OutputPath.Folder sOut, Editor.Editor applicators ->
+        | InputPath.Folder sIn, OutputPath.Folder sOut, Editor.Editor transformations ->
             let imgFiles = Streaming.listAllFiles sIn |> Seq.filter isImg
 
             if Seq.isEmpty imgFiles then
                 eprintf "No image files found in the specified folder."
                 1
             else
-                let applicators = List.map getApplicator applicators
-                Streaming.processAllFilesNaiveCPU imgFiles sOut applicators
+                let transformations = List.map getTransformation transformations
+                Streaming.processAllFilesNaiveCPU imgFiles sOut transformations
                 0
 
     [<EntryPoint>]
@@ -124,9 +131,9 @@ module Main =
                     OutputPath.NotFound output
             | None -> OutputPath.Unspecified
 
-        let applicators =
-            match results.TryGetResult <@ Arguments.Applicators @> with
-            | Some applicators -> Editor.Editor applicators
+        let editor =
+            match results.TryGetResult <@ Arguments.Transformations @> with
+            | Some transformations -> Editor.Editor transformations
             | None -> Editor.Unspecified
 
-        runEditImageOnCPU applicators inputPath outputPath |> exit
+        runEditImageOnCPU editor inputPath outputPath |> exit
