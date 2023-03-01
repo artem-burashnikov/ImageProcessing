@@ -57,6 +57,28 @@ let saveImage (image: Image) file =
     let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
     img.Save file
 
+let rotate90Clockwise (array2D: byte[,]) =
+    let rows = Array2D.length1 array2D
+    let columns = Array2D.length2 array2D
+    let result = Array2D.zeroCreate columns rows
+
+    for i in 0 .. rows - 1 do
+        for j in 0 .. columns - 1 do
+            result[j, rows - i - 1] <- array2D[i, j]
+
+    result
+
+let rotate90Counterclockwise (array2D: byte[,]) =
+    let rows = Array2D.length1 array2D
+    let columns = Array2D.length2 array2D
+    let result = Array2D.zeroCreate columns rows
+
+    for i in 0 .. rows - 1 do
+        for j in 0 .. columns - 1 do
+            result[columns - j - 1, i] <- array2D[i, j]
+
+    result
+
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
        [| 4; 16; 24; 16; 4 |]
@@ -71,6 +93,30 @@ let edgesKernel =
        [| 0; 0; 2; 0; 0 |]
        [| 0; 0; 0; 0; 0 |]
        [| 0; 0; 0; 0; 0 |] |]
+    |> Array.map (Array.map float32)
+
+let laplacianKernel =
+    [| [| -1; -3; -4; -3; -1 |]
+       [| -3; 0; 6; 0; -3 |]
+       [| -4; 6; 20; 6; -4 |]
+       [| -3; 0; 6; 0; -3 |]
+       [| -1; -3; -4; -3; -1 |] |]
+    |> Array.map (Array.map float32)
+
+let highPassKernel =
+    [| [| -1; -1; -1; -1; -1 |]
+       [| -1; -1; -1; -1; -1 |]
+       [| -1; -1; 24; 1; 1 |]
+       [| -1; -1; -1; -1; -1 |]
+       [| -1; -1; -1; -1; -1 |] |]
+    |> Array.map (Array.map float32)
+
+let sobelVerticalKernel =
+    [| [| 1; 4; 6; 4; 1 |]
+       [| 2; 8; 12; 8; 2 |]
+       [| 0; 0; 0; 0; 0 |]
+       [| -2; -8; -12; -8; -2 |]
+       [| -1; -4; -6; -4; -1 |] |]
     |> Array.map (Array.map float32)
 
 let applyFilter (filter: float32[][]) (img: byte[,]) =

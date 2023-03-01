@@ -1,10 +1,9 @@
 module ImageProcessing.Streaming
 
+open System.Collections
 open ImageProcessing.ImageProcessing
 
-let listAllFiles dir =
-    let files = System.IO.Directory.GetFiles dir
-    List.ofArray files
+let listAllFiles dir = System.IO.Directory.GetFiles dir
 
 type msg =
     | Img of Image
@@ -74,3 +73,11 @@ let processAllFiles inDir outDir filterApplicators =
 
     for imgProcessor in imgProcessors do
         imgProcessor.PostAndReply(EOS)
+
+let processAllFilesNaiveCPU (files: string seq) outDir filterApplicators =
+
+    for file in files do
+        let ImgName = System.IO.Path.GetFileName file
+        let img = loadAs2DArray file
+        let output = List.fold (fun img filter -> filter img) img filterApplicators
+        save2DByteArrayAsImage output (System.IO.Path.Combine(outDir, ImgName))

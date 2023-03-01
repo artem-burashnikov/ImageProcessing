@@ -230,40 +230,40 @@ var assemblies = [
   {
     "name": "FSharp.Core",
     "classes": [
-      { "name": "Microsoft.FSharp.Collections.Array2DModule", "rp": "FSharp.Core_Array2DModule.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 64, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.Array2DModule", "rp": "FSharp.Core_Array2DModule.html", "cl": 14, "ucl": 49, "cal": 63, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 10, "tb": 64, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.Array3DModule", "rp": "FSharp.Core_Array3DModule.html", "cl": 0, "ucl": 56, "cal": 56, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 78, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.Array4DModule", "rp": "FSharp.Core_Array4DModule.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 40, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.ArrayModule", "rp": "FSharp.Core_ArrayModule.html", "cl": 8, "ucl": 753, "cal": 761, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 1, "tb": 647, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.CachedSeq<T>", "rp": "FSharp.Core_CachedSeq_1.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.ArrayModule", "rp": "FSharp.Core_ArrayModule.html", "cl": 11, "ucl": 750, "cal": 761, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 5, "tb": 647, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.CachedSeq<T>", "rp": "FSharp.Core_CachedSeq_1.html", "cl": 1, "ucl": 4, "cal": 5, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.ComparisonIdentity", "rp": "FSharp.Core_ComparisonIdentity.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 8, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.FSharpList<T>", "rp": "FSharp.Core_FSharpList_1.html", "cl": 2, "ucl": 21, "cal": 23, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 6, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.FSharpMap<T1, T2>", "rp": "FSharp.Core_FSharpMap_2.html", "cl": 10, "ucl": 93, "cal": 103, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 18, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.FSharpSet<T>", "rp": "FSharp.Core_FSharpSet_1.html", "cl": 13, "ucl": 83, "cal": 96, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 3, "tb": 28, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.Generator", "rp": "FSharp.Core_Generator.html", "cl": 0, "ucl": 60, "cal": 60, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 18, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.FSharpList<T>", "rp": "FSharp.Core_FSharpList_1.html", "cl": 3, "ucl": 20, "cal": 23, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 6, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.FSharpMap<T1, T2>", "rp": "FSharp.Core_FSharpMap_2.html", "cl": 15, "ucl": 88, "cal": 103, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 18, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.FSharpSet<T>", "rp": "FSharp.Core_FSharpSet_1.html", "cl": 17, "ucl": 79, "cal": 96, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 3, "tb": 28, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.Generator", "rp": "FSharp.Core_Generator.html", "cl": 48, "ucl": 12, "cal": 60, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 15, "tb": 18, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.HashIdentity", "rp": "FSharp.Core_HashIdentity.html", "cl": 0, "ucl": 12, "cal": 12, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.IEnumerator", "rp": "FSharp.Core_IEnumerator.html", "cl": 9, "ucl": 72, "cal": 81, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 1, "tb": 18, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.Internal", "rp": "FSharp.Core_Internal.html", "cl": 53, "ucl": 142, "cal": 195, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 17, "tb": 69, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.Internal", "rp": "FSharp.Core_Internal.html", "cl": 53, "ucl": 142, "cal": 195, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 18, "tb": 69, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.KeyCollection<T1, T2>", "rp": "FSharp.Core_KeyCollection_2.html", "cl": 0, "ucl": 16, "cal": 16, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.KeyValuePairDebugFriendly<T1, T2>", "rp": "FSharp.Core_KeyValuePairDebugFriendly_2.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.ListDebugView<T>", "rp": "FSharp.Core_ListDebugView_1.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.ListModule", "rp": "FSharp.Core_ListModule.html", "cl": 11, "ucl": 335, "cal": 346, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 170, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.ListDebugView<T>", "rp": "FSharp.Core_ListDebugView_1.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 2, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.ListModule", "rp": "FSharp.Core_ListModule.html", "cl": 28, "ucl": 318, "cal": 346, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 9, "tb": 170, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.MapDebugView<T1, T2>", "rp": "FSharp.Core_MapDebugView_2.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.MapModule", "rp": "FSharp.Core_MapModule.html", "cl": 2, "ucl": 29, "cal": 31, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 4, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.MapTree<T1, T2>", "rp": "FSharp.Core_MapTree_2.html", "cl": 0, "ucl": 5, "cal": 5, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.MapTreeModule", "rp": "FSharp.Core_MapTreeModule.html", "cl": 5, "ucl": 242, "cal": 247, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 3, "tb": 168, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.MapTreeNode<T1, T2>", "rp": "FSharp.Core_MapTreeNode_2.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.PrivateListHelpers", "rp": "FSharp.Core_PrivateListHelpers.html", "cl": 15, "ucl": 31, "cal": 46, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 5, "tb": 26, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.SeqModule", "rp": "FSharp.Core_SeqModule.html", "cl": 17, "ucl": 506, "cal": 523, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 7, "tb": 312, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.MapModule", "rp": "FSharp.Core_MapModule.html", "cl": 6, "ucl": 25, "cal": 31, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 4, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.MapTree<T1, T2>", "rp": "FSharp.Core_MapTree_2.html", "cl": 2, "ucl": 3, "cal": 5, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.MapTreeModule", "rp": "FSharp.Core_MapTreeModule.html", "cl": 66, "ucl": 181, "cal": 247, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 41, "tb": 168, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.MapTreeNode<T1, T2>", "rp": "FSharp.Core_MapTreeNode_2.html", "cl": 2, "ucl": 2, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.PrivateListHelpers", "rp": "FSharp.Core_PrivateListHelpers.html", "cl": 20, "ucl": 26, "cal": 46, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 6, "tb": 26, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.SeqModule", "rp": "FSharp.Core_SeqModule.html", "cl": 61, "ucl": 462, "cal": 523, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 24, "tb": 312, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.SetDebugView<T>", "rp": "FSharp.Core_SetDebugView_1.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.SetModule", "rp": "FSharp.Core_SetModule.html", "cl": 2, "ucl": 29, "cal": 31, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.SetModule", "rp": "FSharp.Core_SetModule.html", "cl": 3, "ucl": 28, "cal": 31, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.SetTree<T>", "rp": "FSharp.Core_SetTree_1.html", "cl": 2, "ucl": 2, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Collections.SetTreeModule", "rp": "FSharp.Core_SetTreeModule.html", "cl": 38, "ucl": 222, "cal": 260, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 27, "tb": 208, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Collections.SetTreeModule", "rp": "FSharp.Core_SetTreeModule.html", "cl": 62, "ucl": 198, "cal": 260, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 39, "tb": 208, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.SetTreeNode<T>", "rp": "FSharp.Core_SetTreeNode_1.html", "cl": 2, "ucl": 2, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Collections.ValueCollection<T1, T2>", "rp": "FSharp.Core_ValueCollection_2.html", "cl": 0, "ucl": 16, "cal": 16, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Control.AsyncActivation<T>", "rp": "FSharp.Core_AsyncActivation_1.html", "cl": 6, "ucl": 28, "cal": 34, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 6, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Control.AsyncBuilderImpl", "rp": "FSharp.Core_AsyncBuilderImpl.html", "cl": 0, "ucl": 0, "cal": 0, "tl": 0, "ct": "MethodCoverage", "mc": 0, "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Control.AsyncActivation<T>", "rp": "FSharp.Core_AsyncActivation_1.html", "cl": 7, "ucl": 27, "cal": 34, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 6, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Control.AsyncBuilderImpl", "rp": "FSharp.Core_AsyncBuilderImpl.html", "cl": 0, "ucl": 0, "cal": 0, "tl": 0, "ct": "MethodCoverage", "mc": 100, "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.AsyncHelpers", "rp": "FSharp.Core_AsyncHelpers.html", "cl": 0, "ucl": 21, "cal": 21, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Control.AsyncPrimitives", "rp": "FSharp.Core_AsyncPrimitives.html", "cl": 142, "ucl": 213, "cal": 355, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 27, "tb": 106, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Control.AsyncPrimitives", "rp": "FSharp.Core_AsyncPrimitives.html", "cl": 188, "ucl": 167, "cal": 355, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 30, "tb": 106, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.AsyncResult<T>", "rp": "FSharp.Core_AsyncResult_1.html", "cl": 1, "ucl": 2, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.AsyncReturn", "rp": "FSharp.Core_AsyncReturn.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.BackgroundTaskBuilder", "rp": "FSharp.Core_BackgroundTaskBuilder.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 4, "lch": [], "bch": [], "hc": [] },
@@ -271,14 +271,14 @@ var assemblies = [
       { "name": "Microsoft.FSharp.Control.EventDelegee<T>", "rp": "FSharp.Core_EventDelegee_1.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.EventModule", "rp": "FSharp.Core_EventModule.html", "cl": 0, "ucl": 36, "cal": 36, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 6, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.ExceptionDispatchInfoHelpers", "rp": "FSharp.Core_ExceptionDispatchInfoHelpers.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Control.FSharpAsync", "rp": "FSharp.Core_FSharpAsync.html", "cl": 2, "ucl": 490, "cal": 492, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 1, "tb": 98, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Control.FSharpAsync", "rp": "FSharp.Core_FSharpAsync.html", "cl": 63, "ucl": 429, "cal": 492, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 3, "tb": 98, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.FSharpAsyncBuilder", "rp": "FSharp.Core_FSharpAsyncBuilder.html", "cl": 6, "ucl": 6, "cal": 12, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.FSharpAsyncReplyChannel<T>", "rp": "FSharp.Core_FSharpAsyncReplyChannel_1.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.FSharpDelegateEvent<T>", "rp": "FSharp.Core_FSharpDelegateEvent_1.html", "cl": 0, "ucl": 10, "cal": 10, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.FSharpEvent<T>", "rp": "FSharp.Core_FSharpEvent_1.html", "cl": 17, "ucl": 0, "cal": 17, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.FSharpEvent<T1, T2>", "rp": "FSharp.Core_FSharpEvent_2.html", "cl": 0, "ucl": 40, "cal": 40, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 16, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.FSharpMailboxProcessor<T>", "rp": "FSharp.Core_FSharpMailboxProcessor_1.html", "cl": 0, "ucl": 61, "cal": 61, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Control.Latch", "rp": "FSharp.Core_Latch.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Control.Latch", "rp": "FSharp.Core_Latch.html", "cl": 2, "ucl": 1, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.LazyExtensions", "rp": "FSharp.Core_LazyExtensions.html", "cl": 2, "ucl": 6, "cal": 8, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.LinkedSubSource", "rp": "FSharp.Core_LinkedSubSource.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Control.Mailbox<T>", "rp": "FSharp.Core_Mailbox_1.html", "cl": 0, "ucl": 157, "cal": 157, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 42, "lch": [], "bch": [], "hc": [] },
@@ -308,13 +308,13 @@ var assemblies = [
       { "name": "Microsoft.FSharp.Core.CompiledNameAttribute", "rp": "FSharp.Core_CompiledNameAttribute.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerMessageAttribute", "rp": "FSharp.Core_CompilerMessageAttribute.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.ArrayCollector<T>", "rp": "FSharp.Core_ArrayCollector_1.html", "cl": 0, "ucl": 35, "cal": 35, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 18, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.CompilerServices.GeneratedSequenceBase<T>", "rp": "FSharp.Core_GeneratedSequenceBase_1.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 17, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.CompilerServices.GeneratedSequenceBase<T>", "rp": "FSharp.Core_GeneratedSequenceBase_1.html", "cl": 18, "ucl": 10, "cal": 28, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 11, "tb": 17, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.ListCollector<T>", "rp": "FSharp.Core_ListCollector_1.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 14, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.MeasureProduct<T1, T2>", "rp": "FSharp.Core_MeasureProduct_2.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.ResumableCode", "rp": "FSharp.Core_ResumableCode.html", "cl": 0, "ucl": 203, "cal": 203, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 16, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.ResumableStateMachine<T>", "rp": "FSharp.Core_ResumableStateMachine_1.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.ResumptionDynamicInfo<T>", "rp": "FSharp.Core_ResumptionDynamicInfo_1.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.CompilerServices.RuntimeHelpers", "rp": "FSharp.Core_RuntimeHelpers.html", "cl": 57, "ucl": 53, "cal": 110, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 13, "tb": 32, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.CompilerServices.RuntimeHelpers", "rp": "FSharp.Core_RuntimeHelpers.html", "cl": 63, "ucl": 47, "cal": 110, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 13, "tb": 32, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers", "rp": "FSharp.Core_StateMachineHelpers.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.TypeProviderAssemblyAttribute", "rp": "FSharp.Core_TypeProviderAssemblyAttribute.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.CompilerServices.TypeProviderAttribute", "rp": "FSharp.Core_TypeProviderAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
@@ -343,7 +343,7 @@ var assemblies = [
       { "name": "Microsoft.FSharp.Core.GeneralizableValueAttribute", "rp": "FSharp.Core_GeneralizableValueAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.InlineIfLambdaAttribute", "rp": "FSharp.Core_InlineIfLambdaAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.InterfaceAttribute", "rp": "FSharp.Core_InterfaceAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.LanguagePrimitives", "rp": "FSharp.Core_LanguagePrimitives.html", "cl": 56, "ucl": 1201, "cal": 1257, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 39, "tb": 3092, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.LanguagePrimitives", "rp": "FSharp.Core_LanguagePrimitives.html", "cl": 110, "ucl": 1147, "cal": 1257, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 88, "tb": 3092, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.LiteralAttribute", "rp": "FSharp.Core_LiteralAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.MatchFailureException", "rp": "FSharp.Core_MatchFailureException.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 18, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.MeasureAnnotatedAbbreviationAttribute", "rp": "FSharp.Core_MeasureAnnotatedAbbreviationAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
@@ -352,14 +352,14 @@ var assemblies = [
       { "name": "Microsoft.FSharp.Core.NoDynamicInvocationAttribute", "rp": "FSharp.Core_NoDynamicInvocationAttribute.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.NoEqualityAttribute", "rp": "FSharp.Core_NoEqualityAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.NumericLiterals", "rp": "FSharp.Core_NumericLiterals.html", "cl": 0, "ucl": 28, "cal": 28, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 14, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.Operators", "rp": "FSharp.Core_Operators.html", "cl": 1, "ucl": 627, "cal": 628, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 714, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.OptimizedClosures", "rp": "FSharp.Core_OptimizedClosures.html", "cl": 14, "ucl": 32, "cal": 46, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 1, "tb": 20, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.Operators", "rp": "FSharp.Core_Operators.html", "cl": 7, "ucl": 621, "cal": 628, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 5, "tb": 714, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.OptimizedClosures", "rp": "FSharp.Core_OptimizedClosures.html", "cl": 16, "ucl": 30, "cal": 46, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 20, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.OptionalArgumentAttribute", "rp": "FSharp.Core_OptionalArgumentAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.OptionModule", "rp": "FSharp.Core_OptionModule.html", "cl": 6, "ucl": 20, "cal": 26, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 4, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.PrintfFormat<T1, T2, T3, T4>", "rp": "FSharp.Core_PrintfFormat_4.html", "cl": 1, "ucl": 5, "cal": 6, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.PrintfFormat<T1, T2, T3, T4, T5>", "rp": "FSharp.Core_PrintfFormat_5.html", "cl": 3, "ucl": 0, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.PrintfImpl", "rp": "FSharp.Core_PrintfImpl.html", "cl": 196, "ucl": 495, "cal": 691, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 67, "tb": 357, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.PrintfModule", "rp": "FSharp.Core_PrintfModule.html", "cl": 3, "ucl": 25, "cal": 28, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 1, "tb": 4, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.PrintfImpl", "rp": "FSharp.Core_PrintfImpl.html", "cl": 207, "ucl": 484, "cal": 691, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 69, "tb": 357, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.PrintfModule", "rp": "FSharp.Core_PrintfModule.html", "cl": 9, "ucl": 19, "cal": 28, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 2, "tb": 4, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.ProjectionParameterAttribute", "rp": "FSharp.Core_ProjectionParameterAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.ReferenceEqualityAttribute", "rp": "FSharp.Core_ReferenceEqualityAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.ReflectedDefinitionAttribute", "rp": "FSharp.Core_ReflectedDefinitionAttribute.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
@@ -368,7 +368,7 @@ var assemblies = [
       { "name": "Microsoft.FSharp.Core.ResultModule", "rp": "FSharp.Core_ResultModule.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.SealedAttribute", "rp": "FSharp.Core_SealedAttribute.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.SR", "rp": "FSharp.Core_SR.html", "cl": 0, "ucl": 3, "cal": 3, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Core.StringModule", "rp": "FSharp.Core_StringModule.html", "cl": 0, "ucl": 87, "cal": 87, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 70, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Core.StringModule", "rp": "FSharp.Core_StringModule.html", "cl": 6, "ucl": 81, "cal": 87, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 5, "tb": 70, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.StructAttribute", "rp": "FSharp.Core_StructAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.StructuralComparisonAttribute", "rp": "FSharp.Core_StructuralComparisonAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Core.StructuralEqualityAttribute", "rp": "FSharp.Core_StructuralEqualityAttribute.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
@@ -399,8 +399,8 @@ var assemblies = [
       { "name": "Microsoft.FSharp.Linq.RuntimeHelpers.Grouping<T1, T2>", "rp": "FSharp.Core_Grouping_2.html", "cl": 0, "ucl": 4, "cal": 4, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Linq.RuntimeHelpers.LeafExpressionConverter", "rp": "FSharp.Core_LeafExpressionConverter.html", "cl": 0, "ucl": 306, "cal": 306, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 668, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.NativeInterop.NativePtrModule", "rp": "FSharp.Core_NativePtrModule.html", "cl": 0, "ucl": 19, "cal": 19, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Primitives.Basics.Array", "rp": "FSharp.Core_Array.html", "cl": 0, "ucl": 124, "cal": 124, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 96, "lch": [], "bch": [], "hc": [] },
-      { "name": "Microsoft.FSharp.Primitives.Basics.List", "rp": "FSharp.Core_List.html", "cl": 16, "ucl": 474, "cal": 490, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 3, "tb": 146, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Primitives.Basics.Array", "rp": "FSharp.Core_Array.html", "cl": 24, "ucl": 100, "cal": 124, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 16, "tb": 96, "lch": [], "bch": [], "hc": [] },
+      { "name": "Microsoft.FSharp.Primitives.Basics.List", "rp": "FSharp.Core_List.html", "cl": 77, "ucl": 413, "cal": 490, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 22, "tb": 146, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Primitives.Basics.Seq", "rp": "FSharp.Core_Seq.html", "cl": 0, "ucl": 11, "cal": 11, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Quotations.DerivedPatternsModule", "rp": "FSharp.Core_DerivedPatternsModule.html", "cl": 0, "ucl": 58, "cal": 58, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 22, "lch": [], "bch": [], "hc": [] },
       { "name": "Microsoft.FSharp.Quotations.ExprShapeModule", "rp": "FSharp.Core_ExprShapeModule.html", "cl": 0, "ucl": 48, "cal": 48, "tl": 0, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 177, "lch": [], "bch": [], "hc": [] },
@@ -427,9 +427,10 @@ var assemblies = [
   {
     "name": "ImageProcessing",
     "classes": [
-      { "name": "ImageProcessing.ImageProcessing", "rp": "ImageProcessing_ImageProcessing.html", "cl": 0, "ucl": 93, "cal": 93, "tl": 169, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 26, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.Main", "rp": "ImageProcessing_Main.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 37, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.Streaming", "rp": "ImageProcessing_Streaming.html", "cl": 0, "ucl": 52, "cal": 52, "tl": 76, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 10, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.ImageProcessing", "rp": "ImageProcessing_ImageProcessing.html", "cl": 14, "ucl": 93, "cal": 107, "tl": 215, "ct": "LineCoverage", "mc": "-", "cb": 12, "tb": 42, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Main", "rp": "ImageProcessing_Main.html", "cl": 0, "ucl": 59, "cal": 59, "tl": 139, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 41, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Streaming", "rp": "ImageProcessing_Streaming.html", "cl": 0, "ucl": 56, "cal": 56, "tl": 83, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
+      { "name": "Transformations", "rp": "ImageProcessing_Transformations.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 24, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 7, "lch": [], "bch": [], "hc": [] },
     ]},
 ];
 
@@ -566,7 +567,7 @@ var riskHotspots = [
     "metrics": [
       { "value": 383, "exceeded": true },
       { "value": 2147483647, "exceeded": true },
-      { "value": 147072, "exceeded": true },
+      { "value": 103411.24, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Linq.QueryModule", "reportPath": "FSharp.Core_QueryModule.html", "methodName": "System.Tuple`2<Microsoft.FSharp.Linq.QueryModule/TransInnerResult,Microsoft.FSharp.Linq.RuntimeHelpers.Adapters/ConversionDescription> Microsoft.FSharp.Linq.QueryModule::TransInner(Microsoft.FSharp.Linq.QueryModule/CanEliminate,System.Boolean,Microsoft.FSharp.Quotations.FSharpExpr)", "methodShortName": "TransInner(...)", "fileIndex": 0, "line": 1278,
@@ -699,7 +700,7 @@ var riskHotspots = [
     "metrics": [
       { "value": 57, "exceeded": true },
       { "value": 10240, "exceeded": true },
-      { "value": 2474.81, "exceeded": true },
+      { "value": 2008.95, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Text.StructuredPrintfImpl.Display", "reportPath": "FSharp.Core_Display.html", "methodName": "Microsoft.FSharp.Text.StructuredPrintfImpl.TaggedText Microsoft.FSharp.Text.StructuredPrintfImpl.Display::leafFormatter(Microsoft.FSharp.Text.StructuredPrintfImpl.FormatOptions,System.Object)", "methodShortName": "leafFormatter(...)", "fileIndex": 0, "line": 1279,
@@ -734,14 +735,14 @@ var riskHotspots = [
     "metrics": [
       { "value": 20, "exceeded": false },
       { "value": 4096, "exceeded": true },
-      { "value": 292.59, "exceeded": true },
+      { "value": 257.08, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Boolean Microsoft.FSharp.Core.LanguagePrimitives/HashCompare::GenericEqualityArbArray(System.Boolean,System.Collections.IEqualityComparer,System.Array,System.Array)", "methodShortName": "GenericEqualityArbArray(...)", "fileIndex": 0, "line": 1390,
     "metrics": [
       { "value": 13, "exceeded": false },
       { "value": 4096, "exceeded": true },
-      { "value": 182, "exceeded": true },
+      { "value": 34.12, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.Operators", "reportPath": "FSharp.Core_Operators.html", "methodName": "T[0...,0...,0...] Microsoft.FSharp.Core.Operators/OperatorIntrinsics::GetArraySlice3D(T[0...,0...,0...],Microsoft.FSharp.Core.FSharpOption`1<System.Int32>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>)", "methodShortName": "GetArraySlice3D(...)", "fileIndex": 0, "line": 5628,
@@ -874,14 +875,14 @@ var riskHotspots = [
     "metrics": [
       { "value": 10, "exceeded": false },
       { "value": 512, "exceeded": true },
-      { "value": 24.58, "exceeded": true },
+      { "value": 17.47, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Void Microsoft.FSharp.Core.LanguagePrimitives/FastGenericComparerTable`1::.cctor()", "methodShortName": ".cctor()", "fileIndex": 0, "line": 2180,
     "metrics": [
       { "value": 10, "exceeded": false },
       { "value": 512, "exceeded": true },
-      { "value": 15.99, "exceeded": true },
+      { "value": 14.21, "exceeded": false },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Text.StructuredPrintfImpl.Display", "reportPath": "FSharp.Core_Display.html", "methodName": "Microsoft.FSharp.Text.StructuredPrintfImpl.Layout Microsoft.FSharp.Text.StructuredPrintfImpl.Display/ObjectGraphFormatter::objL(Microsoft.FSharp.Text.StructuredPrintfImpl.Display/ShowMode,System.Int32,Microsoft.FSharp.Text.StructuredPrintfImpl.Display/Precedence,System.Object,System.Type)", "methodShortName": "objL(...)", "fileIndex": 0, "line": 893,
@@ -889,13 +890,6 @@ var riskHotspots = [
       { "value": 12, "exceeded": false },
       { "value": 512, "exceeded": true },
       { "value": 156, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Boolean Microsoft.FSharp.Core.LanguagePrimitives/HashCompare::GenericEqualityObj(System.Boolean,System.Collections.IEqualityComparer,System.Object,System.Object)", "methodShortName": "GenericEqualityObj(...)", "fileIndex": 0, "line": 1360,
-    "metrics": [
-      { "value": 28, "exceeded": false },
-      { "value": 36, "exceeded": false },
-      { "value": 503.05, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Linq.RuntimeHelpers.Adapters", "reportPath": "FSharp.Core_Adapters.html", "methodName": "System.Type Microsoft.FSharp.Linq.RuntimeHelpers.Adapters::ConvImmutableTypeToMutableType(Microsoft.FSharp.Linq.RuntimeHelpers.Adapters/ConversionDescription,System.Type)", "methodShortName": "ConvImmutableTypeToMutableType(...)", "fileIndex": 0, "line": 195,
@@ -912,11 +906,11 @@ var riskHotspots = [
       { "value": 210, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SeqModule", "reportPath": "FSharp.Core_SeqModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.SeqModule/InsertManyAt@1547::GenerateNext(System.Collections.Generic.IEnumerable`1<T>&)", "methodShortName": "GenerateNext(...)", "fileIndex": 1, "line": 1547,
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Boolean Microsoft.FSharp.Core.LanguagePrimitives/HashCompare::GenericEqualityObj(System.Boolean,System.Collections.IEqualityComparer,System.Object,System.Object)", "methodShortName": "GenericEqualityObj(...)", "fileIndex": 0, "line": 1360,
     "metrics": [
-      { "value": 16, "exceeded": false },
-      { "value": 128, "exceeded": false },
-      { "value": 272, "exceeded": true },
+      { "value": 28, "exceeded": false },
+      { "value": 36, "exceeded": false },
+      { "value": 288.14, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Quotations.DerivedPatternsModule", "reportPath": "FSharp.Core_DerivedPatternsModule.html", "methodName": "Microsoft.FSharp.Core.FSharpOption`1<System.Decimal> Microsoft.FSharp.Quotations.DerivedPatternsModule::DecimalPattern(Microsoft.FSharp.Quotations.FSharpExpr)", "methodShortName": "DecimalPattern(...)", "fileIndex": 0, "line": 2233,
@@ -1150,6 +1144,13 @@ var riskHotspots = [
       { "value": 110, "exceeded": true },
     ]},
   {
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.Int32 ImageProcessing.Main::main(System.String[])", "methodShortName": "main(...)", "fileIndex": 0, "line": 100,
+    "metrics": [
+      { "value": 9, "exceeded": false },
+      { "value": 256, "exceeded": true },
+      { "value": 90, "exceeded": true },
+    ]},
+  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.ListModule", "reportPath": "FSharp.Core_ListModule.html", "methodName": "TState Microsoft.FSharp.Collections.ListModule::foldBack2$cont@327(Microsoft.FSharp.Core.FSharpFunc`2<T1,Microsoft.FSharp.Core.FSharpFunc`2<T2,Microsoft.FSharp.Core.FSharpFunc`2<TState,TState>>>,Microsoft.FSharp.Collections.FSharpList`1<T1>,Microsoft.FSharp.Collections.FSharpList`1<T2>,TState,Microsoft.FSharp.Collections.FSharpList`1<T2>,Microsoft.FSharp.Collections.FSharpList`1<T1>,T2,T1,Microsoft.FSharp.Core.Unit)", "methodShortName": "foldBack2$cont@327(...)", "fileIndex": 0, "line": 327,
     "metrics": [
       { "value": 15, "exceeded": false },
@@ -1168,6 +1169,13 @@ var riskHotspots = [
     "metrics": [
       { "value": 14, "exceeded": false },
       { "value": 128, "exceeded": false },
+      { "value": 210, "exceeded": true },
+    ]},
+  {
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.Int32 ImageProcessing.Main::runEditImageOnCPU(ImageProcessing.Main/Editor,ImageProcessing.Main/InputPath,ImageProcessing.Main/OutputPath)", "methodShortName": "runEditImageOnCPU(...)", "fileIndex": 0, "line": 58,
+    "metrics": [
+      { "value": 14, "exceeded": false },
+      { "value": 68, "exceeded": false },
       { "value": 210, "exceeded": true },
     ]},
   {
@@ -1199,24 +1207,10 @@ var riskHotspots = [
       { "value": 156, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.StringModule", "reportPath": "FSharp.Core_StringModule.html", "methodName": "System.String Microsoft.FSharp.Core.StringModule::Replicate(System.Int32,System.String)", "methodShortName": "Replicate(...)", "fileIndex": 0, "line": 133,
-    "metrics": [
-      { "value": 12, "exceeded": false },
-      { "value": 192, "exceeded": false },
-      { "value": 156, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.ArrayModule", "reportPath": "FSharp.Core_ArrayModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.ArrayModule::CompareWith(Microsoft.FSharp.Core.FSharpFunc`2<T,Microsoft.FSharp.Core.FSharpFunc`2<T,System.Int32>>,T[],T[])", "methodShortName": "CompareWith(...)", "fileIndex": 0, "line": 1174,
     "metrics": [
       { "value": 11, "exceeded": false },
       { "value": 64, "exceeded": false },
-      { "value": 132, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SeqModule", "reportPath": "FSharp.Core_SeqModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.SeqModule/Windowed@952::GenerateNext(System.Collections.Generic.IEnumerable`1<T[]>&)", "methodShortName": "GenerateNext(...)", "fileIndex": 1, "line": 952,
-    "metrics": [
-      { "value": 11, "exceeded": false },
-      { "value": 16, "exceeded": false },
       { "value": 132, "exceeded": true },
     ]},
   {
@@ -1367,13 +1361,6 @@ var riskHotspots = [
       { "value": 110, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.Array", "reportPath": "FSharp.Core_Array.html", "methodName": "System.Void Microsoft.FSharp.Primitives.Basics.Array::stableSortWithKeysAndComparer(System.Collections.Generic.IComparer`1<TKey>,System.Collections.Generic.IComparer`1<TKey>,T[],TKey[])", "methodShortName": "stableSortWithKeysAndComparer(...)", "fileIndex": 0, "line": 1092,
-    "metrics": [
-      { "value": 10, "exceeded": false },
-      { "value": 128, "exceeded": false },
-      { "value": 110, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Quotations.FSharpVar", "reportPath": "FSharp.Core_FSharpVar.html", "methodName": "System.Int32 Microsoft.FSharp.Quotations.FSharpVar::System.IComparable.CompareTo(System.Object)", "methodShortName": "System.IComparable.CompareTo(...)", "fileIndex": 0, "line": 123,
     "metrics": [
       { "value": 10, "exceeded": false },
@@ -1448,13 +1435,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 9, "exceeded": false },
       { "value": 0, "exceeded": false },
-      { "value": 90, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.MapTreeModule", "reportPath": "FSharp.Core_MapTreeModule.html", "methodName": "Microsoft.FSharp.Collections.MapTree`2<TKey,TValue> Microsoft.FSharp.Collections.MapTreeModule::rebalance(Microsoft.FSharp.Collections.MapTree`2<TKey,TValue>,TKey,TValue,Microsoft.FSharp.Collections.MapTree`2<TKey,TValue>)", "methodShortName": "rebalance(...)", "fileIndex": 0, "line": 108,
-    "metrics": [
-      { "value": 9, "exceeded": false },
-      { "value": 16, "exceeded": false },
       { "value": 90, "exceeded": true },
     ]},
   {
@@ -1654,7 +1634,7 @@ var riskHotspots = [
       { "value": 90, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.ImageProcessing", "reportPath": "ImageProcessing_ImageProcessing.html", "methodName": "System.Single ImageProcessing.ImageProcessing/processPixel@85::Invoke(System.Int32,System.Int32)", "methodShortName": "Invoke(...)", "fileIndex": 0, "line": 85,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.ImageProcessing", "reportPath": "ImageProcessing_ImageProcessing.html", "methodName": "System.Single ImageProcessing.ImageProcessing/processPixel@131::Invoke(System.Int32,System.Int32)", "methodShortName": "Invoke(...)", "fileIndex": 0, "line": 131,
     "metrics": [
       { "value": 9, "exceeded": false },
       { "value": 64, "exceeded": false },
@@ -1794,20 +1774,6 @@ var riskHotspots = [
       { "value": 72, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Collections.Generic.IEqualityComparer`1<T> Microsoft.FSharp.Core.LanguagePrimitives::.cctor$cont@2085(System.Type,Microsoft.FSharp.Core.Unit)", "methodShortName": ".cctor$cont@2085(...)", "fileIndex": 0, "line": 2088,
-    "metrics": [
-      { "value": 8, "exceeded": false },
-      { "value": 128, "exceeded": false },
-      { "value": 72, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Collections.Generic.IEqualityComparer`1<T> Microsoft.FSharp.Core.LanguagePrimitives::.cctor$cont@2085-1(System.Type,Microsoft.FSharp.Core.Unit)", "methodShortName": ".cctor$cont@2085-1(...)", "fileIndex": 0, "line": 2095,
-    "metrics": [
-      { "value": 8, "exceeded": false },
-      { "value": 128, "exceeded": false },
-      { "value": 72, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.UInt32 Microsoft.FSharp.Core.LanguagePrimitives::ParseUInt32(System.String)", "methodShortName": "ParseUInt32(...)", "fileIndex": 0, "line": 2360,
     "metrics": [
       { "value": 8, "exceeded": false },
@@ -1833,13 +1799,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 8, "exceeded": false },
       { "value": 24, "exceeded": false },
-      { "value": 72, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Int32 Microsoft.FSharp.Core.LanguagePrimitives/HashCompare::GenericHashParamObj(System.Collections.IEqualityComparer,System.Object)", "methodShortName": "GenericHashParamObj(...)", "fileIndex": 0, "line": 1695,
-    "metrics": [
-      { "value": 8, "exceeded": false },
-      { "value": 16, "exceeded": false },
       { "value": 72, "exceeded": true },
     ]},
   {
@@ -2025,6 +1984,13 @@ var riskHotspots = [
       { "value": 72, "exceeded": true },
     ]},
   {
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.StringModule", "reportPath": "FSharp.Core_StringModule.html", "methodName": "System.String Microsoft.FSharp.Core.StringModule::Replicate(System.Int32,System.String)", "methodShortName": "Replicate(...)", "fileIndex": 0, "line": 133,
+    "metrics": [
+      { "value": 12, "exceeded": false },
+      { "value": 192, "exceeded": false },
+      { "value": 64.48, "exceeded": true },
+    ]},
+  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.Array3DModule", "reportPath": "FSharp.Core_Array3DModule.html", "methodName": "T[0...,0...,0...] Microsoft.FSharp.Collections.Array3DModule::Create(System.Int32,System.Int32,System.Int32,T)", "methodShortName": "Create(...)", "fileIndex": 0, "line": 44,
     "metrics": [
       { "value": 7, "exceeded": false },
@@ -2110,13 +2076,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.ArrayModule", "reportPath": "FSharp.Core_ArrayModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.ArrayModule/Filter::createMask(Microsoft.FSharp.Core.FSharpFunc`2<a,System.Boolean>,a[],System.UInt32[]&,System.UInt32&)", "methodShortName": "createMask(...)", "fileIndex": 0, "line": 566,
-    "metrics": [
-      { "value": 7, "exceeded": false },
-      { "value": 16, "exceeded": false },
-      { "value": 56, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.MapTreeModule", "reportPath": "FSharp.Core_MapTreeModule.html", "methodName": "Microsoft.FSharp.Collections.MapTree`2<TKey,TValue> Microsoft.FSharp.Collections.MapTreeModule::add(System.Collections.Generic.IComparer`1<TKey>,TKey,TValue,Microsoft.FSharp.Collections.MapTree`2<TKey,TValue>)", "methodShortName": "add(...)", "fileIndex": 0, "line": 131,
     "metrics": [
       { "value": 7, "exceeded": false },
       { "value": 16, "exceeded": false },
@@ -2218,13 +2177,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 7, "exceeded": false },
       { "value": 64, "exceeded": false },
-      { "value": 56, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.CompilerServices.GeneratedSequenceBase<T>", "reportPath": "FSharp.Core_GeneratedSequenceBase_1.html", "methodName": "System.Boolean Microsoft.FSharp.Core.CompilerServices.GeneratedSequenceBase`1::MoveNextImpl()", "methodShortName": "MoveNextImpl()", "fileIndex": 0, "line": 369,
-    "metrics": [
-      { "value": 7, "exceeded": false },
-      { "value": 24, "exceeded": false },
       { "value": 56, "exceeded": true },
     ]},
   {
@@ -2361,13 +2313,6 @@ var riskHotspots = [
       { "value": 56, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.List", "reportPath": "FSharp.Core_List.html", "methodName": "System.Tuple`2<Microsoft.FSharp.Collections.FSharpList`1<T>,Microsoft.FSharp.Collections.FSharpList`1<T>> Microsoft.FSharp.Primitives.Basics.List::splitAt(System.Int32,Microsoft.FSharp.Collections.FSharpList`1<T>)", "methodShortName": "splitAt(...)", "fileIndex": 0, "line": 604,
-    "metrics": [
-      { "value": 7, "exceeded": false },
-      { "value": 64, "exceeded": false },
-      { "value": 56, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.List", "reportPath": "FSharp.Core_List.html", "methodName": "System.Tuple`3<Microsoft.FSharp.Collections.FSharpList`1<a>,Microsoft.FSharp.Collections.FSharpList`1<Microsoft.FSharp.Collections.FSharpList`1<a>>,System.Int32> Microsoft.FSharp.Primitives.Basics.List::transposeGetHeads(Microsoft.FSharp.Collections.FSharpList`1<Microsoft.FSharp.Collections.FSharpList`1<a>>)", "methodShortName": "transposeGetHeads(...)", "fileIndex": 0, "line": 694,
     "metrics": [
       { "value": 7, "exceeded": false },
@@ -2452,11 +2397,25 @@ var riskHotspots = [
       { "value": 56, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Streaming", "reportPath": "ImageProcessing_Streaming.html", "methodName": "System.Void ImageProcessing.Streaming::processAllFiles(System.String,System.String,Microsoft.FSharp.Collections.FSharpList`1<Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/Image,ImageProcessing.ImageProcessing/Image>>)", "methodShortName": "processAllFiles(...)", "fileIndex": 0, "line": 58,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Streaming", "reportPath": "ImageProcessing_Streaming.html", "methodName": "System.Void ImageProcessing.Streaming::processAllFiles(System.String,System.String,Microsoft.FSharp.Collections.FSharpList`1<Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/Image,ImageProcessing.ImageProcessing/Image>>)", "methodShortName": "processAllFiles(...)", "fileIndex": 0, "line": 57,
     "metrics": [
       { "value": 7, "exceeded": false },
       { "value": 8, "exceeded": false },
       { "value": 56, "exceeded": true },
+    ]},
+  {
+    "assembly": "ImageProcessing", "class": "Transformations", "reportPath": "ImageProcessing_Transformations.html", "methodName": "Microsoft.FSharp.Core.FSharpFunc`2<System.Byte[0...,0...],System.Byte[0...,0...]> Transformations::getTransformation(Transformations/Transformation)", "methodShortName": "getTransformation(...)", "fileIndex": 0, "line": 17,
+    "metrics": [
+      { "value": 7, "exceeded": false },
+      { "value": 7, "exceeded": false },
+      { "value": 56, "exceeded": true },
+    ]},
+  {
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SeqModule", "reportPath": "FSharp.Core_SeqModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.SeqModule/Windowed@952::GenerateNext(System.Collections.Generic.IEnumerable`1<T[]>&)", "methodShortName": "GenerateNext(...)", "fileIndex": 1, "line": 952,
+    "metrics": [
+      { "value": 11, "exceeded": false },
+      { "value": 16, "exceeded": false },
+      { "value": 46.86, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.PrintfImpl", "reportPath": "FSharp.Core_PrintfImpl.html", "methodName": "Microsoft.FSharp.Core.FSharpValueOption`1<System.String> Microsoft.FSharp.Core.PrintfImpl/FormatString::parseInterpolatedHoleDotNetFormat(System.Char,System.String,System.Int32&)", "methodShortName": "parseInterpolatedHoleDotNetFormat(...)", "fileIndex": 0, "line": 204,
@@ -2464,6 +2423,13 @@ var riskHotspots = [
       { "value": 8, "exceeded": false },
       { "value": 16, "exceeded": false },
       { "value": 45.03, "exceeded": true },
+    ]},
+  {
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SeqModule", "reportPath": "FSharp.Core_SeqModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.SeqModule/InsertManyAt@1547::GenerateNext(System.Collections.Generic.IEnumerable`1<T>&)", "methodShortName": "GenerateNext(...)", "fileIndex": 1, "line": 1547,
+    "metrics": [
+      { "value": 16, "exceeded": false },
+      { "value": 128, "exceeded": false },
+      { "value": 42.02, "exceeded": true },
     ]},
   {
     "assembly": "AltCover.Monitor", "class": "AltCover.Carrier", "reportPath": "AltCover.Monitor_Carrier.html", "methodName": "System.Void AltCover.Carrier::Dispose(System.Boolean)", "methodShortName": "Dispose(...)", "fileIndex": 0, "line": 79,
@@ -2536,13 +2502,6 @@ var riskHotspots = [
       { "value": 42, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.FSharpList<T>", "reportPath": "FSharp.Core_FSharpList_1.html", "methodName": "Microsoft.FSharp.Collections.FSharpList`1<T> Microsoft.FSharp.Collections.FSharpList`1::GetSlice(Microsoft.FSharp.Core.FSharpOption`1<System.Int32>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>)", "methodShortName": "GetSlice(...)", "fileIndex": 0, "line": 3763,
-    "metrics": [
-      { "value": 6, "exceeded": false },
-      { "value": 4, "exceeded": false },
-      { "value": 42, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.KeyCollection<T1, T2>", "reportPath": "FSharp.Core_KeyCollection_2.html", "methodName": "System.Void Microsoft.FSharp.Collections.KeyCollection`2::System.Collections.Generic.ICollection<'Key>.CopyTo(TKey[],System.Int32)", "methodShortName": "System.Collections.Generic.ICollection<'Key>.CopyTo(...)", "fileIndex": 0, "line": 836,
     "metrics": [
       { "value": 6, "exceeded": false },
@@ -2561,13 +2520,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 6, "exceeded": false },
       { "value": 2, "exceeded": false },
-      { "value": 42, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.ListModule", "reportPath": "FSharp.Core_ListModule.html", "methodName": "TState Microsoft.FSharp.Collections.ListModule::FoldBack(Microsoft.FSharp.Core.FSharpFunc`2<T,Microsoft.FSharp.Core.FSharpFunc`2<TState,TState>>,Microsoft.FSharp.Collections.FSharpList`1<T>,TState)", "methodShortName": "FoldBack(...)", "fileIndex": 0, "line": 262,
-    "metrics": [
-      { "value": 6, "exceeded": false },
-      { "value": 10, "exceeded": false },
       { "value": 42, "exceeded": true },
     ]},
   {
@@ -2921,6 +2873,13 @@ var riskHotspots = [
       { "value": 42, "exceeded": true },
     ]},
   {
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Int32 Microsoft.FSharp.Core.LanguagePrimitives/HashCompare::GenericHashParamObj(System.Collections.IEqualityComparer,System.Object)", "methodShortName": "GenericHashParamObj(...)", "fileIndex": 0, "line": 1695,
+    "metrics": [
+      { "value": 8, "exceeded": false },
+      { "value": 16, "exceeded": false },
+      { "value": 35, "exceeded": true },
+    ]},
+  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SetTreeModule", "reportPath": "FSharp.Core_SetTreeModule.html", "methodName": "Microsoft.FSharp.Collections.SetTree`1<a> Microsoft.FSharp.Collections.SetTreeModule::rebalance(Microsoft.FSharp.Collections.SetTree`1<a>,a,Microsoft.FSharp.Collections.SetTree`1<a>)", "methodShortName": "rebalance(...)", "fileIndex": 0, "line": 107,
     "metrics": [
       { "value": 9, "exceeded": false },
@@ -2929,13 +2888,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.Array2DModule", "reportPath": "FSharp.Core_Array2DModule.html", "methodName": "T[0...,0...] Microsoft.FSharp.Collections.Array2DModule::CreateBased(System.Int32,System.Int32,System.Int32,System.Int32,T)", "methodShortName": "CreateBased(...)", "fileIndex": 0, "line": 66,
-    "metrics": [
-      { "value": 5, "exceeded": false },
-      { "value": 16, "exceeded": false },
-      { "value": 30, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.Array2DModule", "reportPath": "FSharp.Core_Array2DModule.html", "methodName": "T[0...,0...] Microsoft.FSharp.Collections.Array2DModule::InitializeBased(System.Int32,System.Int32,System.Int32,System.Int32,Microsoft.FSharp.Core.FSharpFunc`2<System.Int32,Microsoft.FSharp.Core.FSharpFunc`2<System.Int32,T>>)", "methodShortName": "InitializeBased(...)", "fileIndex": 0, "line": 74,
     "metrics": [
       { "value": 5, "exceeded": false },
       { "value": 16, "exceeded": false },
@@ -3156,20 +3108,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 5, "exceeded": false },
       { "value": 2, "exceeded": false },
-      { "value": 30, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.MapTreeModule", "reportPath": "FSharp.Core_MapTreeModule.html", "methodName": "Microsoft.FSharp.Collections.MapTree`2<TKey,TValue> Microsoft.FSharp.Collections.MapTreeModule::mk(Microsoft.FSharp.Collections.MapTree`2<TKey,TValue>,TKey,TValue,Microsoft.FSharp.Collections.MapTree`2<TKey,TValue>)", "methodShortName": "mk(...)", "fileIndex": 0, "line": 99,
-    "metrics": [
-      { "value": 5, "exceeded": false },
-      { "value": 4, "exceeded": false },
-      { "value": 30, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.MapTreeModule", "reportPath": "FSharp.Core_MapTreeModule.html", "methodName": "System.Boolean Microsoft.FSharp.Collections.MapTreeModule::tryGetValue(System.Collections.Generic.IComparer`1<TKey>,TKey,TValue&,Microsoft.FSharp.Collections.MapTree`2<TKey,TValue>)", "methodShortName": "tryGetValue(...)", "fileIndex": 0, "line": 145,
-    "metrics": [
-      { "value": 5, "exceeded": false },
-      { "value": 8, "exceeded": false },
       { "value": 30, "exceeded": true },
     ]},
   {
@@ -3670,6 +3608,13 @@ var riskHotspots = [
       { "value": 30, "exceeded": true },
     ]},
   {
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.List", "reportPath": "FSharp.Core_List.html", "methodName": "System.Tuple`2<Microsoft.FSharp.Collections.FSharpList`1<T>,Microsoft.FSharp.Collections.FSharpList`1<T>> Microsoft.FSharp.Primitives.Basics.List::splitAt(System.Int32,Microsoft.FSharp.Collections.FSharpList`1<T>)", "methodShortName": "splitAt(...)", "fileIndex": 0, "line": 604,
+    "metrics": [
+      { "value": 7, "exceeded": false },
+      { "value": 64, "exceeded": false },
+      { "value": 27.67, "exceeded": true },
+    ]},
+  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.PrintfImpl", "reportPath": "FSharp.Core_PrintfImpl.html", "methodName": "System.Object Microsoft.FSharp.Core.PrintfImpl/FormatParser`4::parseAndCreateFunctionFactory()", "methodShortName": "parseAndCreateFunctionFactory()", "fileIndex": 0, "line": 1253,
     "metrics": [
       { "value": 13, "exceeded": false },
@@ -3677,11 +3622,11 @@ var riskHotspots = [
       { "value": 23.82, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.List", "reportPath": "FSharp.Core_List.html", "methodName": "Microsoft.FSharp.Collections.FSharpList`1<T> Microsoft.FSharp.Primitives.Basics.List::filter(Microsoft.FSharp.Core.FSharpFunc`2<T,System.Boolean>,Microsoft.FSharp.Collections.FSharpList`1<T>)", "methodShortName": "filter(...)", "fileIndex": 0, "line": 486,
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.ListModule", "reportPath": "FSharp.Core_ListModule.html", "methodName": "TState Microsoft.FSharp.Collections.ListModule::FoldBack(Microsoft.FSharp.Core.FSharpFunc`2<T,Microsoft.FSharp.Core.FSharpFunc`2<TState,TState>>,Microsoft.FSharp.Collections.FSharpList`1<T>,TState)", "methodShortName": "FoldBack(...)", "fileIndex": 0, "line": 262,
     "metrics": [
-      { "value": 5, "exceeded": false },
-      { "value": 4, "exceeded": false },
-      { "value": 22.56, "exceeded": true },
+      { "value": 6, "exceeded": false },
+      { "value": 10, "exceeded": false },
+      { "value": 22.94, "exceeded": true },
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.PrintfImpl", "reportPath": "FSharp.Core_PrintfImpl.html", "methodName": "System.Void Microsoft.FSharp.Core.PrintfImpl/FormatString::skipInterpolationHole(System.Char,System.String,System.Int32&)", "methodShortName": "skipInterpolationHole(...)", "fileIndex": 0, "line": 220,
@@ -3828,13 +3773,6 @@ var riskHotspots = [
     "metrics": [
       { "value": 4, "exceeded": false },
       { "value": 0, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.Generator", "reportPath": "FSharp.Core_Generator.html", "methodName": "System.Boolean Microsoft.FSharp.Collections.Generator/EnumeratorWrappingLazyGenerator`1::System.Collections.IEnumerator.MoveNext()", "methodShortName": "System.Collections.IEnumerator.MoveNext()", "fileIndex": 0, "line": 399,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 8, "exceeded": false },
       { "value": 20, "exceeded": true },
     ]},
   {
@@ -3992,13 +3930,6 @@ var riskHotspots = [
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SeqModule", "reportPath": "FSharp.Core_SeqModule.html", "methodName": "System.Void Microsoft.FSharp.Collections.SeqModule::Iterate(Microsoft.FSharp.Core.FSharpFunc`2<T,Microsoft.FSharp.Core.Unit>,System.Collections.Generic.IEnumerable`1<T>)", "methodShortName": "Iterate(...)", "fileIndex": 1, "line": 495,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 2, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SeqModule", "reportPath": "FSharp.Core_SeqModule.html", "methodName": "T Microsoft.FSharp.Collections.SeqModule::Item(System.Int32,System.Collections.Generic.IEnumerable`1<T>)", "methodShortName": "Item(...)", "fileIndex": 1, "line": 502,
     "metrics": [
       { "value": 4, "exceeded": false },
@@ -4076,20 +4007,6 @@ var riskHotspots = [
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SetTreeModule", "reportPath": "FSharp.Core_SetTreeModule.html", "methodName": "Microsoft.FSharp.Collections.FSharpList`1<Microsoft.FSharp.Collections.SetTree`1<T>> Microsoft.FSharp.Collections.SetTreeModule::collapseLHS(Microsoft.FSharp.Collections.FSharpList`1<Microsoft.FSharp.Collections.SetTree`1<T>>)", "methodShortName": "collapseLHS(...)", "fileIndex": 0, "line": 411,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 4, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SetTreeModule", "reportPath": "FSharp.Core_SetTreeModule.html", "methodName": "System.Boolean Microsoft.FSharp.Collections.SetTreeModule::moveNext(Microsoft.FSharp.Collections.SetTreeModule/SetIterator`1<a>)", "methodShortName": "moveNext(...)", "fileIndex": 0, "line": 438,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 8, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Collections.SetTreeModule", "reportPath": "FSharp.Core_SetTreeModule.html", "methodName": "System.Int32 Microsoft.FSharp.Collections.SetTreeModule::compare(System.Collections.Generic.IComparer`1<T>,Microsoft.FSharp.Collections.SetTree`1<T>,Microsoft.FSharp.Collections.SetTree`1<T>)", "methodShortName": "compare(...)", "fileIndex": 0, "line": 515,
     "metrics": [
       { "value": 4, "exceeded": false },
@@ -4097,24 +4014,10 @@ var riskHotspots = [
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Control.AsyncPrimitives", "reportPath": "FSharp.Core_AsyncPrimitives.html", "methodName": "Microsoft.FSharp.Control.AsyncReturn Microsoft.FSharp.Control.AsyncPrimitives/get_AwaitResult_NoDirectCancelOrTimeout@949::Invoke(Microsoft.FSharp.Control.AsyncActivation`1<T>)", "methodShortName": "Invoke(...)", "fileIndex": 0, "line": 952,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 2, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Control.AsyncPrimitives", "reportPath": "FSharp.Core_AsyncPrimitives.html", "methodName": "T Microsoft.FSharp.Control.AsyncPrimitives/AsyncIAsyncResult`1::GetResult()", "methodShortName": "GetResult()", "fileIndex": 0, "line": 1216,
     "metrics": [
       { "value": 4, "exceeded": false },
       { "value": 4, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Control.FSharpAsync", "reportPath": "FSharp.Core_FSharpAsync.html", "methodName": "Microsoft.FSharp.Control.FSharpAsync`1<T> Microsoft.FSharp.Control.FSharpAsync::AwaitAndBindChildResult(System.Threading.CancellationTokenSource,Microsoft.FSharp.Control.AsyncPrimitives/ResultCell`1<Microsoft.FSharp.Control.AsyncResult`1<T>>,Microsoft.FSharp.Core.FSharpOption`1<System.Int32>)", "methodShortName": "AwaitAndBindChildResult(...)", "fileIndex": 0, "line": 1710,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 0, "exceeded": false },
       { "value": 20, "exceeded": true },
     ]},
   {
@@ -4328,13 +4231,6 @@ var riskHotspots = [
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.Operators", "reportPath": "FSharp.Core_Operators.html", "methodName": "Microsoft.FSharp.Collections.FSharpList`1<T> Microsoft.FSharp.Core.Operators::op_Append(Microsoft.FSharp.Collections.FSharpList`1<T>,Microsoft.FSharp.Collections.FSharpList`1<T>)", "methodShortName": "op_Append(...)", "fileIndex": 0, "line": 4172,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 4, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.Operators", "reportPath": "FSharp.Core_Operators.html", "methodName": "T Microsoft.FSharp.Core.Operators::PowInteger(T,System.Int32)", "methodShortName": "PowInteger(...)", "fileIndex": 0, "line": 6510,
     "metrics": [
       { "value": 4, "exceeded": false },
@@ -4518,13 +4414,6 @@ var riskHotspots = [
     ]},
   {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.Array", "reportPath": "FSharp.Core_Array.html", "methodName": "System.Void Microsoft.FSharp.Primitives.Basics.Array::unstableSortInPlaceBy(Microsoft.FSharp.Core.FSharpFunc`2<T,TKey>,T[])", "methodShortName": "unstableSortInPlaceBy(...)", "fileIndex": 0, "line": 1079,
-    "metrics": [
-      { "value": 4, "exceeded": false },
-      { "value": 8, "exceeded": false },
-      { "value": 20, "exceeded": true },
-    ]},
-  {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Primitives.Basics.Array", "reportPath": "FSharp.Core_Array.html", "methodName": "System.Void Microsoft.FSharp.Primitives.Basics.Array::stableSortInPlaceBy(Microsoft.FSharp.Core.FSharpFunc`2<T,TKey>,T[])", "methodShortName": "stableSortInPlaceBy(...)", "fileIndex": 0, "line": 1122,
     "metrics": [
       { "value": 4, "exceeded": false },
       { "value": 8, "exceeded": false },
@@ -4944,13 +4833,6 @@ var riskHotspots = [
       { "value": 20, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Collections.Generic.IComparer`1<T> Microsoft.FSharp.Core.LanguagePrimitives::.cctor$cont@2201-4(System.Type,Microsoft.FSharp.Core.Unit)", "methodShortName": ".cctor$cont@2201-4(...)", "fileIndex": 0, "line": 2211,
-    "metrics": [
-      { "value": 8, "exceeded": false },
-      { "value": 128, "exceeded": false },
-      { "value": 17.71, "exceeded": true },
-    ]},
-  {
     "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.PrintfImpl", "reportPath": "FSharp.Core_PrintfImpl.html", "methodName": "Microsoft.FSharp.Core.PrintfImpl/FormatFlags Microsoft.FSharp.Core.PrintfImpl/FormatString::parseFlags(System.String,System.Int32&)", "methodShortName": "parseFlags(...)", "fileIndex": 0, "line": 157,
     "metrics": [
       { "value": 7, "exceeded": false },
@@ -4958,7 +4840,7 @@ var riskHotspots = [
       { "value": 16.14, "exceeded": true },
     ]},
   {
-    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Collections.Generic.IComparer`1<T> Microsoft.FSharp.Core.LanguagePrimitives::.cctor$cont@2201-3(System.Type,Microsoft.FSharp.Core.Unit)", "methodShortName": ".cctor$cont@2201-3(...)", "fileIndex": 0, "line": 2204,
+    "assembly": "FSharp.Core", "class": "Microsoft.FSharp.Core.LanguagePrimitives", "reportPath": "FSharp.Core_LanguagePrimitives.html", "methodName": "System.Collections.Generic.IEqualityComparer`1<T> Microsoft.FSharp.Core.LanguagePrimitives::.cctor$cont@2085(System.Type,Microsoft.FSharp.Core.Unit)", "methodShortName": ".cctor$cont@2085(...)", "fileIndex": 0, "line": 2088,
     "metrics": [
       { "value": 8, "exceeded": false },
       { "value": 128, "exceeded": false },
