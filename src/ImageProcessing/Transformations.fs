@@ -12,7 +12,6 @@ type Transformation =
     | Rotate
     | RotateCCW
 
-/// Outputs a function to be used on a 2d array.
 let getTransformation (transformation: Transformation) =
     match transformation with
     | Transformation.Blur -> applyFilter gaussianBlurKernel
