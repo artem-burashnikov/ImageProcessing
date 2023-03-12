@@ -44,7 +44,7 @@ module ImageTransformationTests =
                   // "+2" because minimum testing for 2x2 tables
                   let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
                   let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = Image(VirtualArray.create data, w, h, "")
 
                   let rotatedImg =
                       originalImg
@@ -54,8 +54,8 @@ module ImageTransformationTests =
                       |> rotate90Clockwise
 
                   Expect.equal
-                      rotatedImg.Data
-                      originalImg.Data
+                      rotatedImg.Data.Memory
+                      originalImg.Data.Memory
                       "Clockwise rotated 4 times failed to match the original image"
 
               testProperty "Rotating counterclockwise 4 times outputs the original image"
@@ -63,7 +63,7 @@ module ImageTransformationTests =
                   // "+2" because minimum testing for 2x2 tables
                   let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
                   let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = Image(VirtualArray.create data, w, h, "")
 
                   let rotatedImg =
                       originalImg
@@ -73,8 +73,8 @@ module ImageTransformationTests =
                       |> rotate90Counterclockwise
 
                   Expect.equal
-                      rotatedImg.Data
-                      originalImg.Data
+                      rotatedImg.Data.Memory
+                      originalImg.Data.Memory
                       "Counterclockwise rotated 4 times failed to match the original image"
 
               testProperty "Rotating clockwise then counterclockwise outputs the original image"
@@ -82,13 +82,13 @@ module ImageTransformationTests =
                   // "+2" because minimum testing for 2x2 tables
                   let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
                   let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = Image(VirtualArray.create data, w, h, "")
 
                   let rotatedImg = rotate90Clockwise originalImg |> rotate90Counterclockwise
 
                   Expect.equal
-                      rotatedImg.Data
-                      originalImg.Data
+                      rotatedImg.Data.Memory
+                      originalImg.Data.Memory
                       "Clockwise and then counterclockwise failed to match the original image"
 
               testProperty "Applying filter to a 2DArray and a 1DArray should produce the same output"
@@ -99,11 +99,12 @@ module ImageTransformationTests =
 
                   let data1D = flatArray2D data2D
 
-                  let actualResult = applyFilter edgesKernel (Image(data1D, w, h, ""))
+                  let actualResult =
+                      applyFilter edgesKernel (Image(VirtualArray.create data1D, w, h, ""))
 
                   let expectedResult = applyFilter2DArray edgesKernel data2D |> flatArray2D
 
-                  Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}" ]
+                  Expect.equal actualResult.Data.Memory expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}" ]
 
 module GeneralTests =
 

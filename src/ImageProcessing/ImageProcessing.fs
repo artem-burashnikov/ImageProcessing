@@ -53,9 +53,14 @@ type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
 
             res
 
+    /// Create an instance of VirtualArray from a given array.
+    /// Initializes head index to 0 and length equals to the length of the given array.
+    static member create(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
+
+
 [<Struct>]
 type Image =
-    val Data: array<byte>
+    val Data: VirtualArray<byte>
     val Width: int
     val Height: int
     val Name: string
@@ -72,10 +77,10 @@ let loadAsImage (file: string) =
     let buf = Array.zeroCreate<byte> (img.Width * img.Height)
 
     img.CopyPixelDataTo(Span<byte> buf)
-    Image(buf, img.Width, img.Height, System.IO.Path.GetFileName file)
+    Image(VirtualArray.create buf, img.Width, img.Height, System.IO.Path.GetFileName file)
 
 let saveImage (image: Image) file =
-    let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
+    let img = Image.LoadPixelData<L8>(image.Data.Memory, image.Width, image.Height)
     img.Save file
 
 let rotate90Clockwise (img: Image) =
@@ -85,9 +90,9 @@ let rotate90Clockwise (img: Image) =
 
     for i in 0 .. height - 1 do
         for j in 0 .. width - 1 do
-            result[j * height + height - i - 1] <- img.Data[i * width + j]
+            result[j * height + height - i - 1] <- img.Data.Memory[i * width + j]
 
-    Image(result, height, width, img.Name)
+    Image(VirtualArray.create result, height, width, img.Name)
 
 let rotate90Counterclockwise (img: Image) =
     let width = img.Width
@@ -96,9 +101,9 @@ let rotate90Counterclockwise (img: Image) =
 
     for i in 0 .. height - 1 do
         for j in 0 .. width - 1 do
-            result[(width - j - 1) * height + i] <- img.Data[i * width + j]
+            result[(width - j - 1) * height + i] <- img.Data.Memory[i * width + j]
 
-    Image(result, height, width, img.Name)
+    Image(VirtualArray.create result, height, width, img.Name)
 
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
@@ -156,14 +161,14 @@ let applyFilter (filter: float32[][]) (img: Image) =
             [| for i in pi - filterD .. pi + filterD do
                    for j in pj - filterD .. pj + filterD do
                        if i < 0 || i >= height || j < 0 || j >= width then
-                           float32 img.Data[p]
+                           float32 img.Data.Memory[p]
                        else
-                           float32 img.Data[i * width + j] |]
+                           float32 img.Data.Memory[i * width + j] |]
 
         Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
 
-    let data = Array.mapi (fun i _ -> byte (processPixel i)) img.Data
-    Image(data, width, height, img.Name)
+    let data = Array.mapi (fun i _ -> byte (processPixel i)) img.Data.Memory
+    Image(VirtualArray.create data, width, height, img.Name)
 
 
 let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
@@ -209,11 +214,11 @@ let applyFiltersGPU (clContext: ClContext) localWorkSize =
     fun (filters: list<float32[][]>) (img: Image) ->
 
         let mutable input =
-            clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
+            clContext.CreateClArray<_>(img.Data.Memory, HostAccessMode.NotAccessible)
 
         let mutable output =
             clContext.CreateClArray(
-                img.Data.Length,
+                img.Data.Memory.Length,
                 HostAccessMode.NotAccessible,
                 allocationMode = AllocationMode.Default
             )
@@ -237,4 +242,4 @@ let applyFiltersGPU (clContext: ClContext) localWorkSize =
         let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(input, result, ch))
         queue.Post(Msg.CreateFreeMsg input)
         queue.Post(Msg.CreateFreeMsg output)
-        Image(result, img.Width, img.Height, img.Name)
+        Image(VirtualArray.create result, img.Width, img.Height, img.Name)
