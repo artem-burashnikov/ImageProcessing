@@ -4,7 +4,7 @@ open System
 open Expecto
 open ImageProcessing.ImageProcessing
 
-module TestSamples =
+module ImageTransformationTests =
 
     let r = Random()
 
@@ -104,3 +104,45 @@ module TestSamples =
                   let expectedResult = applyFilter2DArray edgesKernel data2D |> flatArray2D
 
                   Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}" ]
+
+module GeneralTests =
+
+    let r = Random()
+
+    [<Tests>]
+    let tests =
+        testList
+            "samples"
+            [ testCase "VirtualArray.splitInto given a 0 count"
+              <| fun _ ->
+                  let arr = VirtualArray([| 0 |], 0, 1)
+
+                  let actualResult =
+                      Expect.throws (fun _ -> VirtualArray.splitInto 0 arr |> ignore) "Count <= 0 is not defined"
+
+                  actualResult
+
+              testProperty "VirtualArray splitInto should match Array splitInto"
+              <| fun (memory: array<_>) ->
+
+                  // Counts <= 0 will throw an exception in custom and built-in methods.
+                  let count = r.Next(1, memory.Length * 2 + 1)
+
+                  // Get a random starting index from a given memory to initialize a VirtualArray
+                  let head = r.Next(0, memory.Length)
+                  let vArray = VirtualArray(memory, head, memory.Length - head)
+
+                  // Use custom method to split a VirtualArray ...
+                  let actualResult =
+                      let arr = VirtualArray.splitInto count vArray
+                      // ... and convert split VirtualArrays into actual arrays
+                      let res = Array.zeroCreate arr.Length
+
+                      for i in 0 .. arr.Length - 1 do
+                          res[i] <- arr[i].Memory[arr[i].Head .. arr[i].Head + arr[i].Length - 1]
+
+                      res
+
+                  let expectedResult = Array.splitInto count memory[head..]
+
+                  Expect.equal actualResult expectedResult "" ]

@@ -5,6 +5,54 @@ open Brahma.FSharp
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
 
+type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
+    // When an instance is created, check that it is within the specified memory limits
+    do
+        if head + length - 1 >= memory.Length then
+            failwith
+                $"Failed to allocate required memory: %A{length} for VirtualArray at the specified starting index: %A{head}"
+
+    member this.Memory = memory
+    member this.Head = head
+    member this.Length = length
+    member this.IsEmpty = length = 0
+
+    member this.Item
+        with get i =
+            if head + i >= memory.Length then
+                failwith "VirtualArray.get: Index out of bounds of the general memory"
+            else
+                this.Memory[this.Head + i]
+        and set i value =
+            if head + i >= memory.Length then
+                failwith "VirtualArray.set: Index out of bounds of the general memory"
+            else
+                this.Memory[ this.Head + i ] <- value
+
+    static member splitInto count (vArray: VirtualArray<'A>) =
+        if count <= 0 then
+            failwith $"VirtualArray.SplitIntoCount count argument: {count} must be positive"
+
+        let len = vArray.Length
+
+        if len = 0 then
+            [||]
+        else
+            let count = min count len
+            let res = Array.zeroCreate count
+            let minChunkSize = len / count
+            let mutable startIndex = vArray.Head
+
+            for i in 0 .. len % count - 1 do
+                res[i] <- VirtualArray(vArray.Memory, startIndex, minChunkSize + 1)
+                startIndex <- startIndex + minChunkSize + 1
+
+            for i in len % count .. count - 1 do
+                res[i] <- VirtualArray(vArray.Memory, startIndex, minChunkSize)
+                startIndex <- startIndex + minChunkSize
+
+            res
+
 [<Struct>]
 type Image =
     val Data: array<byte>
