@@ -95,24 +95,24 @@ let saveImage (image: Image) file =
 let rotate90Clockwise (img: Image) =
     let width = img.Width
     let height = img.Height
-    let res = Array.zeroCreate (width * height)
+    let copy = img
 
     for i in 0 .. height - 1 do
         for j in 0 .. width - 1 do
-            res[j * height + height - i - 1] <- img.Data[i * width + j]
+            img.Data[ j * height + height - i - 1 ] <- copy.VirtualData[i * width + j]
 
-    Image(res, height, width, img.Name)
+    Image(img.Data, height, width, img.Name)
 
 let rotate90Counterclockwise (img: Image) =
     let width = img.Width
     let height = img.Height
-    let result = Array.zeroCreate (height * width)
+    let copy = img
 
     for i in 0 .. height - 1 do
         for j in 0 .. width - 1 do
-            result[(width - j - 1) * height + i] <- img.Data[i * width + j]
+            img.Data[ (width - j - 1) * height + i ] <- copy.VirtualData[i * width + j]
 
-    Image(result, height, width, img.Name)
+    Image(img.Data, height, width, img.Name)
 
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
