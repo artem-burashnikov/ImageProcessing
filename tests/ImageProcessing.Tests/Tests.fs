@@ -8,7 +8,7 @@ module ImageTransformationTests =
 
     let r = Random()
 
-    /// Applies filter kernel on a 2d table
+    /// Applies filter kernel to a 2D-table
     let applyFilter2DArray (filter: float32[][]) (img: byte[,]) =
         let height = Array2D.length1 img
         let width = Array2D.length2 img
@@ -30,6 +30,39 @@ module ImageTransformationTests =
 
         Array2D.mapi (fun x y _ -> byte (processPixel x y)) img
 
+    // Applies filter kernel to a 1D-array
+    let applyFilterNaive (filter: float32[][]) (img: Image) =
+        let height = img.Height
+        let width = img.Width
+
+        let filterD = (Array.length filter) / 2
+
+        let filter = Array.concat filter
+
+        let processPixel p =
+            let pi = p / width
+            let pj = p % width
+
+            let dataToHandle =
+                [| for i in pi - filterD .. pi + filterD do
+                       for j in pj - filterD .. pj + filterD do
+                           if i < 0 || i >= height || j < 0 || j >= width then
+                               float32 img.Data[p]
+                           else
+                               float32 img.Data[i * width + j] |]
+
+            Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
+
+        let data = Array.mapi (fun i _ -> byte (processPixel i)) img.Data
+        Image(data, width, height, img.Name)
+
+    // Initialize 1D-array from given width and height
+    let initDataFromWH (width: uint) (height: uint) =
+        let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
+        let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
+        data, w, h
+
+    // 2D-table to 1D-array
     let flatArray2D array2D =
         [| for x in 0 .. (Array2D.length1 array2D) - 1 do
                for y in 0 .. (Array2D.length2 array2D) - 1 do
@@ -42,8 +75,7 @@ module ImageTransformationTests =
             [ testProperty "Rotating clockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
                   // "+2" because minimum testing for 2x2 tables
-                  let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
-                  let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
+                  let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
                   let rotatedImg =
@@ -61,8 +93,7 @@ module ImageTransformationTests =
               testProperty "Rotating counterclockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
                   // "+2" because minimum testing for 2x2 tables
-                  let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
-                  let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
+                  let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
                   let rotatedImg =
@@ -80,11 +111,10 @@ module ImageTransformationTests =
               testProperty "Rotating clockwise then counterclockwise outputs the original image"
               <| fun (width: uint) (height: uint) ->
                   // "+2" because minimum testing for 2x2 tables
-                  let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
-                  let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
+                  let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
-                  let rotatedImg = rotate90Clockwise originalImg |> rotate90Counterclockwise
+                  let rotatedImg = originalImg |> rotate90Clockwise |> rotate90Counterclockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -99,7 +129,7 @@ module ImageTransformationTests =
 
                   let data1D = flatArray2D data2D
 
-                  let actualResult = applyFilter edgesKernel (Image(data1D, w, h, ""))
+                  let actualResult = applyFilterNaive edgesKernel (Image(data1D, w, h, ""))
 
                   let expectedResult = applyFilter2DArray edgesKernel data2D |> flatArray2D
 
@@ -143,6 +173,28 @@ module GeneralTests =
 
                       res
 
+                  // Apply build-int splitInto method
                   let expectedResult = Array.splitInto count memory[head..]
 
-                  Expect.equal actualResult expectedResult "" ]
+                  // Results should match
+                  Expect.equal actualResult expectedResult ""
+
+              testProperty "VirtualArray.mapi equals Array.mapi"
+              <| fun (memory: array<byte>) ->
+                  // Make a copy of original data so changes differ.
+                  let actualResult = Array.copy memory
+
+                  // Virtually split the copy in two parts ...
+                  let head = r.Next(0, memory.Length)
+                  let part1 = VirtualArray(actualResult, 0, head)
+                  let part2 = VirtualArray(actualResult, head, actualResult.Length - head)
+
+                  // ... and apply mapi on virtual parts separately.
+                  VirtualArray.mapi (fun i value -> byte i + value) part1 |> ignore
+                  VirtualArray.mapi (fun i value -> byte i + value) part2 |> ignore
+
+                  // Apply mapi on original data
+                  let expectedResult = Array.mapi (fun i value -> byte i + value) memory
+
+                  // Results should be the same
+                  Expect.equal actualResult[head..] expectedResult[head..] "" ]

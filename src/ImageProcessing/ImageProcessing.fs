@@ -53,9 +53,25 @@ type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
 
             res
 
-    /// Create an instance of VirtualArray from a given array.
-    /// Initializes head index to 0 and length equals to the length of the given array.
-    static member create(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
+    static member copy(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
+
+    static member fold2 folder (state: 'State) (vArray1: VirtualArray<'A>) (vArray2: VirtualArray<'B>) =
+        if vArray1.Length <> vArray2.Length then
+            failwith $"Invalid argument vArray1.Length: %A{vArray1.Length} vArray2.Length: %A{vArray2.Length}"
+
+        let mutable state = state
+
+        for i in 0 .. vArray1.Length - 1 do
+            state <- folder state vArray1[i] vArray2[i]
+
+        state
+
+    /// Mapi from a virtual memory to a general memory of itself
+    static member mapi mapping (vArray: VirtualArray<'A>) =
+        for i in 0 .. vArray.Length - 1 do
+            vArray.Memory[ vArray.Head + i ] <- mapping (vArray.Head + i) vArray.Memory[vArray.Head + i]
+
+        vArray
 
 
 [<Struct>]
@@ -75,7 +91,7 @@ type Image =
 
     new(data, width, height, name) =
         { Data = data
-          VirtualData = VirtualArray.create data
+          VirtualData = VirtualArray.copy data
           Width = width
           Height = height
           Name = name }
@@ -95,24 +111,24 @@ let saveImage (image: Image) file =
 let rotate90Clockwise (img: Image) =
     let width = img.Width
     let height = img.Height
-    let copy = img
+    let res = Array.zeroCreate (width * height)
 
     for i in 0 .. height - 1 do
         for j in 0 .. width - 1 do
-            img.Data[ j * height + height - i - 1 ] <- copy.VirtualData[i * width + j]
+            res[j * height + height - i - 1] <- img.Data[i * width + j]
 
-    Image(img.Data, height, width, img.Name)
+    Image(res, height, width, img.Name)
 
 let rotate90Counterclockwise (img: Image) =
     let width = img.Width
     let height = img.Height
-    let copy = img
+    let res = Array.zeroCreate (width * height)
 
     for i in 0 .. height - 1 do
         for j in 0 .. width - 1 do
-            img.Data[ (width - j - 1) * height + i ] <- copy.VirtualData[i * width + j]
+            res[(width - j - 1) * height + i] <- img.Data[i * width + j]
 
-    Image(img.Data, height, width, img.Name)
+    Image(res, height, width, img.Name)
 
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
