@@ -57,14 +57,10 @@ let imgProcessor (transformation: Image -> Image) (imgSaver: MailboxProcessor<_>
 let processAllFilesAgentsCPU (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
     let transformation = List.reduce (>>) transformations
-    let numFiles = Seq.length files
-    let numCores = System.Environment.ProcessorCount
-
-    let numWorkers = min numCores numFiles
 
     let workers =
         match runStrategy with
-        | Async1CPU -> [| for _ in 1..numWorkers -> imgProcessor transformation (imgSaver outDir) |]
+        | Async1CPU -> [| imgProcessor transformation (imgSaver outDir) |]
         | _ -> failwith $"{runStrategy} is not yet implemented"
 
     // Start time it ...
