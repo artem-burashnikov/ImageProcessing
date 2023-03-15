@@ -20,5 +20,5 @@ type RunStrategy =
         | GPU -> "GPU"
         | Async1CPU -> "Async1CPU"
         | Async2CPU -> "Async2CPU"
-        | Async1GPU -> "AsyncGPU"
-        | Async2GPU -> "AsyncGPU"
+        | Async1GPU -> "Async1GPU"
+        | Async2GPU -> "Async2GPU"
