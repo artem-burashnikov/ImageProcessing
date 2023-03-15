@@ -54,27 +54,27 @@ module Main =
     let runEditImage
         (inputPath: InputPath)
         (outputPath: OutputPath)
-        (editor: Transformation list)
+        (transformations: Transformation list)
         (strategy: RunStrategy)
         =
 
-        match inputPath, outputPath, editor, strategy with
-        | InputPath.NoImgFile sIn, _, _, _ ->
+        match inputPath, outputPath with
+        | InputPath.NoImgFile sIn, _ ->
             eprintfn $"Input {Path.GetFileName sIn} is unsupported file type"
             1
-        | InputPath.NotFound sIn, _, _, _ ->
+        | InputPath.NotFound sIn, _ ->
             eprintfn $"Input path {sIn} not found"
             1
-        | InputPath.Unspecified, _, _, _ ->
+        | InputPath.Unspecified, _ ->
             eprintfn "No input path provided. Call with --help for usage information."
             1
-        | _, OutputPath.NotFound sOut, _, _ ->
+        | _, OutputPath.NotFound sOut ->
             eprintfn $"Output path {sOut} not found"
             1
-        | _, OutputPath.Unspecified, _, _ ->
+        | _, OutputPath.Unspecified ->
             eprintfn "No output path provided. Call with --help for usage information."
             1
-        | InputPath.File sIn, OutputPath.Folder sOut, transformations, strategy ->
+        | InputPath.File sIn, OutputPath.Folder sOut ->
             if isImg sIn then
                 let transformations = List.map getTransformation transformations
                 let imgFiles = [ sIn ]
@@ -95,7 +95,7 @@ module Main =
             else
                 eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
-        | InputPath.Folder sIn, OutputPath.Folder sOut, transformations, strategy ->
+        | InputPath.Folder sIn, OutputPath.Folder sOut ->
             let imgFiles = Streaming.listAllFiles sIn |> Seq.filter isImg
 
             if Seq.isEmpty imgFiles then
@@ -155,8 +155,8 @@ module Main =
                     OutputPath.NotFound output
             | None -> OutputPath.Unspecified
 
-        let editor = results.GetResult(Transformations)
+        let transformations = results.GetResult(Transformations)
 
         let strategy = results.GetResult(Strategy)
 
-        runEditImage inputPath outputPath editor strategy |> exit
+        runEditImage inputPath outputPath transformations strategy |> exit
