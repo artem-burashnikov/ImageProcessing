@@ -10,7 +10,9 @@ type RunStrategy =
     /// Image processing on CPU: Each worker processes and saves images
     | Async2CPU
     /// Image processing on GPU: Some workers process images, while others save them
-    | AsyncGPU
+    | Async1GPU
+    /// Image processing on GPU: Each worker processes and saves images
+    | Async2GPU
 
     override this.ToString() =
         match this with
@@ -18,4 +20,5 @@ type RunStrategy =
         | GPU -> "GPU"
         | Async1CPU -> "Async1CPU"
         | Async2CPU -> "Async2CPU"
-        | AsyncGPU -> "AsyncGPU"
+        | Async1GPU -> "AsyncGPU"
+        | Async2GPU -> "AsyncGPU"

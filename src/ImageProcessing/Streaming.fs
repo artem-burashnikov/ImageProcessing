@@ -1,9 +1,13 @@
 module ImageProcessing.Streaming
 
 open ImageProcessing.ImageProcessing
+open ImageProcessing.Transformation
 open RunStrategy
 
 let listAllFiles dir = System.IO.Directory.GetFiles dir
+
+let composeFinalCPUTsf transformations =
+    transformations |> List.map getCPUTsf |> List.reduce (>>)
 
 type msg =
     | Img of Image
@@ -54,14 +58,17 @@ let imgProcessor (transformation: Image -> Image) (imgSaver: MailboxProcessor<_>
 
         loop ())
 
-let processAllFilesAgentsCPU (runStrategy: RunStrategy) (files: string seq) outDir transformations =
-
-    let transformation = List.reduce (>>) transformations
+let processAllFilesAgents (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
     let workers =
         match runStrategy with
-        | Async1CPU -> [| imgProcessor transformation (imgSaver outDir) |]
-        | _ -> failwith $"{runStrategy} is not yet implemented"
+        | Async1CPU ->
+            let transform = composeFinalCPUTsf transformations
+            [| imgProcessor transform (imgSaver outDir) |]
+        | Async2CPU -> failwith $"{runStrategy} is not yet implemented"
+        | Async1GPU -> failwith $"{runStrategy} is not yet implemented"
+        | Async2GPU -> failwith $"{runStrategy} is not yet implemented"
+        | _ -> failwith $"{runStrategy} is not a valid strategy to use with agents"
 
     // Start time it ...
     let stopwatch = System.Diagnostics.Stopwatch.StartNew()
@@ -77,18 +84,24 @@ let processAllFilesAgentsCPU (runStrategy: RunStrategy) (files: string seq) outD
     stopwatch.Stop()
     printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
 
-let processAllFilesNaiveCPU (files: string seq) outDir transformations =
+let processAllFilesNaive (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
-    // Start time it ...
-    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+    match runStrategy with
+    | CPU ->
+        let transform = composeFinalCPUTsf transformations
 
-    for file in files do
-        let img = loadAsImage file
-        printfn $"Filtering: %A{img.Name}"
-        let output = List.fold (fun img filter -> filter img) img transformations
-        printfn $"Saving: %A{img.Name}"
-        saveImage output (System.IO.Path.Combine(outDir, img.Name))
+        // Start time it ...
+        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
-    // ... stop time it
-    stopwatch.Stop()
-    printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
+        for file in files do
+            let img = loadAsImage file
+            printfn $"Filtering: %A{img.Name}"
+            let output = transform img
+            printfn $"Saving: %A{img.Name}"
+            saveImage output (System.IO.Path.Combine(outDir, img.Name))
+
+        // ... stop time it
+        stopwatch.Stop()
+        printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
+    | GPU -> failwith $"%A{runStrategy} is not yet implemented"
+    | _ -> failwith $"{runStrategy} is not a valid strategy to use without agents"

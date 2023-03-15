@@ -52,7 +52,12 @@ module Main =
     let isImg (file: string) =
         Set.contains (Path.GetExtension file) extensions
 
-    let runEditImage (inputPath: InputPath) (outputPath: OutputPath) transformations (strategy: RunStrategy) =
+    let runEditImage
+        (inputPath: InputPath)
+        (outputPath: OutputPath)
+        (transformations: Transformation list)
+        (strategy: RunStrategy)
+        =
 
         match inputPath, outputPath with
         | InputPath.NoImgFile sIn, _ ->
@@ -76,19 +81,16 @@ module Main =
                 let imgFiles = [ sIn ]
 
                 match strategy with
-                | CPU ->
-                    Streaming.processAllFilesNaiveCPU imgFiles sOut transformations
+                | CPU
+                | GPU ->
+                    Streaming.processAllFilesNaive strategy imgFiles sOut transformations
                     0
                 | Async1CPU
-                | Async2CPU ->
-                    Streaming.processAllFilesAgentsCPU strategy imgFiles sOut transformations
+                | Async2CPU
+                | Async1GPU
+                | Async2GPU ->
+                    Streaming.processAllFilesAgents strategy imgFiles sOut transformations
                     0
-                | GPU ->
-                    eprintfn "Not yet implemented"
-                    1
-                | AsyncGPU ->
-                    eprintfn "Not yet implemented"
-                    1
             else
                 eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
@@ -100,19 +102,17 @@ module Main =
                 1
             else
                 match strategy with
-                | CPU ->
-                    Streaming.processAllFilesNaiveCPU imgFiles sOut transformations
+                | CPU
+                | GPU ->
+                    Streaming.processAllFilesNaive strategy imgFiles sOut transformations
                     0
                 | Async1CPU
-                | Async2CPU ->
-                    Streaming.processAllFilesAgentsCPU strategy imgFiles sOut transformations
+                | Async2CPU
+                | Async1GPU
+                | Async2GPU ->
+                    Streaming.processAllFilesAgents strategy imgFiles sOut transformations
                     0
-                | GPU ->
-                    eprintfn "Not yet implemented"
-                    1
-                | AsyncGPU ->
-                    eprintfn "Not yet implemented"
-                    1
+
 
     [<EntryPoint>]
     let main (argv: string array) =
@@ -151,7 +151,7 @@ module Main =
                     OutputPath.NotFound output
             | None -> OutputPath.Unspecified
 
-        let transformations = results.GetResult(Transformations) |> List.map getCPUTsf
+        let transformations = results.GetResult(Transformations)
 
         let strategy = results.GetResult(Strategy)
 
