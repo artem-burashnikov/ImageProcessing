@@ -53,7 +53,7 @@ type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
 
             res
 
-    static member copy(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
+    static member mirror(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
 
     static member fold2 folder (state: 'State) (vArray1: VirtualArray<'A>) (vArray2: VirtualArray<'B>) =
         if vArray1.Length <> vArray2.Length then
@@ -91,7 +91,7 @@ type Image =
 
     new(data, width, height, name) =
         { Data = data
-          VirtualData = VirtualArray.copy data
+          VirtualData = VirtualArray.mirror data
           Width = width
           Height = height
           Name = name }

@@ -28,12 +28,10 @@ let imgSaver outDir =
 
         loop ())
 
-let imgProcessor filterApplicator (imgSaver: MailboxProcessor<_>) =
-
-    let filter = filterApplicator
+let imgProcessor (transformation: Image -> Image) (imgSaver: MailboxProcessor<_>) =
 
     MailboxProcessor.Start(fun inbox ->
-        let rec loop cnt =
+        let rec loop () =
             async {
                 let! msg = inbox.Receive()
 
@@ -45,33 +43,31 @@ let imgProcessor filterApplicator (imgSaver: MailboxProcessor<_>) =
                     ch.Reply()
                 | Img img ->
                     printfn $"Filter: %A{img.Name}"
-                    let filtered = filter img
-                    imgSaver.Post(Img filtered)
-                    return! loop (not cnt)
+                    let transformedImg = transformation img
+                    imgSaver.Post(Img transformedImg)
+                    return! loop ()
             }
 
-        loop true)
+        loop ())
 
-let processAllFiles inDir outDir filterApplicators =
-    let mutable cnt = 0
+let processAllFilesAgents1 (files: string seq) outDir transformations =
 
-    let imgProcessors =
-        filterApplicators
-        |> List.map (fun x ->
-            let imgSaver = imgSaver outDir
-            imgProcessor x imgSaver)
-        |> Array.ofList
+    let transformation = List.reduce (>>) transformations
 
-    let filesToProcess = listAllFiles inDir
+    // Get the number of available logical processors on a machine
+    let numCores = System.Environment.ProcessorCount
 
-    for file in filesToProcess do
-        (imgProcessors |> Array.minBy (fun p -> p.CurrentQueueLength))
+    let applicators =
+        [| for _ in 1..numCores do
+               yield imgProcessor transformation (imgSaver outDir) |]
+
+    for file in files do
+        (applicators |> Array.minBy (fun p -> p.CurrentQueueLength))
             .Post(Img(loadAsImage file))
 
-        cnt <- cnt + 1
 
-    for imgProcessor in imgProcessors do
-        imgProcessor.PostAndReply(EOS)
+    for applicator in applicators do
+        applicator.PostAndReply(EOS)
 
 let processAllFilesNaiveCPU (files: string seq) outDir transformations =
 

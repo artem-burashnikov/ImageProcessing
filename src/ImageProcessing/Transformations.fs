@@ -1,4 +1,4 @@
-module Transformations
+module ImageProcessing.Transformations
 
 open ImageProcessing.ImageProcessing
 
