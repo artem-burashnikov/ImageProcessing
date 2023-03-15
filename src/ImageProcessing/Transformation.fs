@@ -1,4 +1,4 @@
-module ImageProcessing.Transformations
+module ImageProcessing.Transformation
 
 open ImageProcessing.ImageProcessing
 
@@ -12,7 +12,7 @@ type Transformation =
     | Rotate
     | RotateCCW
 
-let getTransformation (transformation: Transformation) =
+let getCPUTsf (transformation: Transformation) =
     match transformation with
     | Transformation.Blur -> applyFilter gaussianBlurKernel
     | Transformation.Edges -> applyFilter edgesKernel

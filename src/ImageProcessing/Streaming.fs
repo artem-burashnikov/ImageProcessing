@@ -1,6 +1,7 @@
 module ImageProcessing.Streaming
 
 open ImageProcessing.ImageProcessing
+open RunStrategy
 
 let listAllFiles dir = System.IO.Directory.GetFiles dir
 
@@ -18,11 +19,12 @@ let imgSaver outDir =
 
                 match msg with
                 | EOS ch ->
-                    printfn "Image saver is finished!"
+                    printfn "Saver is finished!"
                     ch.Reply()
                 | Img img ->
-                    printfn $"Save: %A{img.Name}"
+                    printfn $"Saving: %A{img.Name}"
                     saveImage img (outFile img.Name)
+                    printfn $"Saved: %A{img.Name}"
                     return! loop ()
             }
 
@@ -42,36 +44,55 @@ let imgProcessor (transformation: Image -> Image) (imgSaver: MailboxProcessor<_>
                     printfn "Image processor is finished!"
                     ch.Reply()
                 | Img img ->
-                    printfn $"Filter: %A{img.Name}"
+                    printfn $"Filtering: %A{img.Name}"
                     let transformedImg = transformation img
+                    printfn $"Filtered: %A{img.Name}"
                     imgSaver.Post(Img transformedImg)
+                    printfn $"Sent: %A{img.Name} to saver"
                     return! loop ()
             }
 
         loop ())
 
-let processAllFilesAgents1 (files: string seq) outDir transformations =
+let processAllFilesAgentsCPU (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
     let transformation = List.reduce (>>) transformations
-
-    // Get the number of available logical processors on a machine
+    let numFiles = Seq.length files
     let numCores = System.Environment.ProcessorCount
 
-    let applicators =
-        [| for _ in 1..numCores do
-               yield imgProcessor transformation (imgSaver outDir) |]
+    let numWorkers = min numCores numFiles
+
+    let workers =
+        match runStrategy with
+        | Async1CPU -> [| for _ in 1..numWorkers -> imgProcessor transformation (imgSaver outDir) |]
+        | _ -> failwith $"{runStrategy} is not yet implemented"
+
+    // Start time it ...
+    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
     for file in files do
-        (applicators |> Array.minBy (fun p -> p.CurrentQueueLength))
+        (workers |> Array.minBy (fun p -> p.CurrentQueueLength))
             .Post(Img(loadAsImage file))
 
+    for worker in workers do
+        worker.PostAndReply(EOS)
 
-    for applicator in applicators do
-        applicator.PostAndReply(EOS)
+    // ... stop time it
+    stopwatch.Stop()
+    printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
 
 let processAllFilesNaiveCPU (files: string seq) outDir transformations =
 
+    // Start time it ...
+    let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+
     for file in files do
         let img = loadAsImage file
+        printfn $"Filtering: %A{img.Name}"
         let output = List.fold (fun img filter -> filter img) img transformations
+        printfn $"Saving: %A{img.Name}"
         saveImage output (System.IO.Path.Combine(outDir, img.Name))
+
+    // ... stop time it
+    stopwatch.Stop()
+    printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"

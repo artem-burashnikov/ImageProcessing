@@ -2,24 +2,25 @@ namespace ImageProcessing
 
 open System.IO
 open Argu
-open ImageProcessing.Transformations
+open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 
 module Main =
 
     type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
+        | [<Mandatory>] Strategy of RunStrategy
         | [<Mandatory>] Input of string
         | [<Mandatory>] Output of string
-        | [<Mandatory>] Strategy of RunStrategy
 
         interface IArgParserTemplate with
             member s.Usage =
                 match s with
                 | Transformations _ -> "Provide transformations to be applied."
+                | Strategy _ -> "Specify the run strategy to use"
                 | Input _ -> "Input path: specify a path to an image file or to a folder containing images"
                 | Output _ -> "Output path: give a path to a folder"
-                | Strategy _ -> "Specify the run strategy to use"
+
 
     [<RequireQualifiedAccess>]
     type InputPath =
@@ -51,12 +52,7 @@ module Main =
     let isImg (file: string) =
         Set.contains (Path.GetExtension file) extensions
 
-    let runEditImage
-        (inputPath: InputPath)
-        (outputPath: OutputPath)
-        (transformations: Transformation list)
-        (strategy: RunStrategy)
-        =
+    let runEditImage (inputPath: InputPath) (outputPath: OutputPath) transformations (strategy: RunStrategy) =
 
         match inputPath, outputPath with
         | InputPath.NoImgFile sIn, _ ->
@@ -76,20 +72,21 @@ module Main =
             1
         | InputPath.File sIn, OutputPath.Folder sOut ->
             if isImg sIn then
-                let transformations = List.map getTransformation transformations
+
                 let imgFiles = [ sIn ]
 
                 match strategy with
                 | CPU ->
                     Streaming.processAllFilesNaiveCPU imgFiles sOut transformations
                     0
-                | AsyncCPU1 ->
-                    Streaming.processAllFilesAgents1 imgFiles sOut transformations
+                | Async1CPU
+                | Async2CPU ->
+                    Streaming.processAllFilesAgentsCPU strategy imgFiles sOut transformations
                     0
-                | AsyncCPU2 ->
+                | GPU ->
                     eprintfn "Not yet implemented"
                     1
-                | GPU ->
+                | AsyncGPU ->
                     eprintfn "Not yet implemented"
                     1
             else
@@ -102,19 +99,18 @@ module Main =
                 eprintf "No image files found in the specified folder."
                 1
             else
-                let transformations = List.map getTransformation transformations
-
                 match strategy with
                 | CPU ->
                     Streaming.processAllFilesNaiveCPU imgFiles sOut transformations
                     0
-                | AsyncCPU1 ->
-                    Streaming.processAllFilesAgents1 imgFiles sOut transformations
+                | Async1CPU
+                | Async2CPU ->
+                    Streaming.processAllFilesAgentsCPU strategy imgFiles sOut transformations
                     0
-                | AsyncCPU2 ->
+                | GPU ->
                     eprintfn "Not yet implemented"
                     1
-                | GPU ->
+                | AsyncGPU ->
                     eprintfn "Not yet implemented"
                     1
 
@@ -155,7 +151,7 @@ module Main =
                     OutputPath.NotFound output
             | None -> OutputPath.Unspecified
 
-        let transformations = results.GetResult(Transformations)
+        let transformations = results.GetResult(Transformations) |> List.map getCPUTsf
 
         let strategy = results.GetResult(Strategy)
 
