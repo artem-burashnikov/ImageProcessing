@@ -72,17 +72,17 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
             |> Array.ofSeq
 
         // Start agents
-        let workers =
+        let agents =
             Array.init numWorkers (fun id -> Agent.startSuperAgent (id + 1) transform outDir)
 
         // Queue jobs in parallel
-        Array.Parallel.iteri (fun i -> Array.iter workers[i].Post) splitWork
+        Array.Parallel.iteri (fun i -> Array.iter agents[i].Post) splitWork
 
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
         // Terminate agents
-        Array.iter (fun (processor: MailboxProcessor<_>) -> processor.PostAndReply EOS) workers
+        Array.iter (fun (processor: MailboxProcessor<_>) -> processor.PostAndReply EOS) agents
 
         // ... end time it
         stopwatch.Stop()
