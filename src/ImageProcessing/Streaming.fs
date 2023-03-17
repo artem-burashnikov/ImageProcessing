@@ -26,7 +26,7 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         for file in files do
             let img = loadAsImage file
             let output = transform img
-            saveImage output (Agent.outFile outDir img.Name)
+            saveImage output (outFile outDir img.Name)
 
         // ... stop time it
         stopwatch.Stop()
