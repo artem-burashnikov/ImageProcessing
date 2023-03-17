@@ -25,7 +25,21 @@ type Logger() =
 
             loop ())
 
-    static member startLogger() = logger
+    static member start() = logger
+
+    static member currentWork time imgName agentName work agentId (logger: MailboxProcessor<_>) =
+        let logMessage =
+            $"{time} : %s{imgName} is being %s{work} by %s{agentName}#%d{agentId}"
+
+        logger.Post(logMessage)
+
+    static member saveStatus time imgName (logger: MailboxProcessor<_>) =
+        let logMessage = $"{time} : %s{imgName} has been saved"
+        logger.Post(logMessage)
+
+    static member finishStatus time agentName agentId status (logger: MailboxProcessor<_>) =
+        let logMessage = $"{time} : %s{agentName}#%d{agentId} is %s{status}"
+        logger.Post(logMessage)
 
 type ImageAgent() =
     static let processorAndSaver id (transformation: Image -> Image) outDir (logger: MailboxProcessor<_>) =
@@ -38,18 +52,14 @@ type ImageAgent() =
 
                         match msg with
                         | EOS ch ->
-                            let logMessage =
-                                $"{getTime ()} : Agent#%d{id} has finished processing and saving images"
-
-                            logger.Post(logMessage)
+                            Logger.finishStatus (getTime ()) "Agent" id "finished" logger
                             ch.Reply()
                         | Img img ->
-                            let logMessage = $"{getTime ()} : %s{img.Name} is being processed by Agent#%d{id}"
-                            logger.Post(logMessage)
+                            Logger.currentWork (getTime ()) img.Name "Agent" "processed" id logger
                             let transformedImg = transformation img
-                            let logMessage = $"{getTime ()} : %s{img.Name} is being saved by Agent#%d{id}"
+                            Logger.currentWork (getTime ()) img.Name "Agent" "saved" id logger
                             saveImage transformedImg (outFile outDir img.Name)
-                            logger.Post(logMessage)
+                            Logger.saveStatus (getTime ()) img.Name logger
                             return! loop ()
                     }
 
@@ -70,20 +80,13 @@ type ImageAgent() =
 
                         match msg with
                         | EOS ch ->
-                            let logMessage = $"{getTime ()} : ProcessorAgent#%d{id} is ready to finish"
-                            logger.Post(logMessage)
+                            Logger.finishStatus (getTime ()) "ProcessorAgent" id "ready to finish" logger
                             imgSaver.PostAndReply(EOS)
-                            let logMessage = $"{getTime ()} : ProcessorAgent#%d{id} is finished"
-                            logger.Post(logMessage)
+                            Logger.finishStatus (getTime ()) "ProcessorAgent" id "finished" logger
                             ch.Reply()
                         | Img img ->
-                            let logMessage =
-                                $"{getTime ()} : %s{img.Name} is being processed by ProcessorAgent#%d{id}"
-
-                            logger.Post(logMessage)
+                            Logger.currentWork (getTime ()) img.Name "ProcessingAgent" "processed" id logger
                             let transformedImg = transformation img
-                            let logMessage = $"{getTime ()} : %s{img.Name} is ready to be saved"
-                            logger.Post(logMessage)
                             imgSaver.Post(Img transformedImg)
                             return! loop ()
                     }
@@ -100,21 +103,18 @@ type ImageAgent() =
 
                         match msg with
                         | EOS ch ->
-                            let logMessage = $"{getTime ()} : SavingAgent#%d{id} is finished"
-                            logger.Post(logMessage)
+                            Logger.finishStatus (getTime ()) "SavingAgent" id "ready to finish" logger
                             ch.Reply()
                         | Img img ->
-                            let logMessage = $"{getTime ()} : %s{img.Name} is being saved by SavingAgent#%d{id}"
-                            logger.Post(logMessage)
+                            Logger.currentWork (getTime ()) img.Name "SavingAgent" "saved" id logger
                             saveImage img (outFile outDir img.Name)
-                            let logMessage = $"{getTime ()} : %s{img.Name} has been saved"
-                            logger.Post(logMessage)
+                            Logger.saveStatus (getTime ()) img.Name logger
                             return! loop ()
                     }
 
                 loop ())
 
-    static let logger = Logger.startLogger ()
+    static let logger = Logger.start ()
 
     static member startProcessorAndSaver id transformation outDir =
         processorAndSaver id transformation outDir logger
