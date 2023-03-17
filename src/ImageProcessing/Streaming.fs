@@ -29,15 +29,15 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
 
         // ... stop time it
         stopwatch.Stop()
-        printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
+        printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
 
     | Async1CPU ->
         // Make a single composition out of every transformation
         let transform = composeFinalCPUTsf transformations
 
         // Start agents for processing and saving images
-        let imgSaver = ImageAgent.startSaver outDir
-        let agent = ImageAgent.startProcessor transform imgSaver
+        let imgSaver = ImageAgent.startSaver 1 outDir
+        let agent = ImageAgent.startProcessor 1 transform imgSaver
 
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
@@ -50,7 +50,7 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
 
         // ... end time it
         stopwatch.Stop()
-        printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
+        printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
 
     | Async2CPU ->
         // Make a single composition out of every transformation
@@ -85,6 +85,6 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
 
         // ... end time it
         stopwatch.Stop()
-        printfn $"%A{stopwatch.Elapsed.TotalMilliseconds}"
+        printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
 
     | _ -> failwith $"{runStrategy} is not is not yet implemented"
