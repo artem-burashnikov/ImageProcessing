@@ -10,8 +10,8 @@ module Main =
     type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
         | [<Mandatory>] Strategy of RunStrategy
-        | [<Mandatory>] Input of string
-        | [<Mandatory>] Output of string
+        | [<Mandatory; AltCommandLine("-i")>] Input of string
+        | [<Mandatory; AltCommandLine("-o")>] Output of string
 
         interface IArgParserTemplate with
             member s.Usage =
@@ -77,20 +77,9 @@ module Main =
             1
         | InputPath.File sIn, OutputPath.Folder sOut ->
             if isImg sIn then
-
                 let imgFiles = [ sIn ]
-
-                match strategy with
-                | CPU
-                | GPU ->
-                    Streaming.processAllFilesNaive strategy imgFiles sOut transformations
-                    0
-                | Async1CPU
-                | Async2CPU
-                | Async1GPU
-                | Async2GPU ->
-                    Streaming.processAllFilesAgents strategy imgFiles sOut transformations
-                    0
+                Streaming.processAllFiles strategy imgFiles sOut transformations
+                0
             else
                 eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
@@ -101,18 +90,8 @@ module Main =
                 eprintf "No image files found in the specified folder."
                 1
             else
-                match strategy with
-                | CPU
-                | GPU ->
-                    Streaming.processAllFilesNaive strategy imgFiles sOut transformations
-                    0
-                | Async1CPU
-                | Async2CPU
-                | Async1GPU
-                | Async2GPU ->
-                    Streaming.processAllFilesAgents strategy imgFiles sOut transformations
-                    0
-
+                Streaming.processAllFiles strategy imgFiles sOut transformations
+                0
 
     [<EntryPoint>]
     let main (argv: string array) =
