@@ -64,24 +64,23 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         let splitWork =
             // For each file ...
             files
-            // ... load it as Image and pack it as a Message
-            |> Seq.map (fun s -> Img(loadAsImage s))
-            // Then split into optimal number of arrays
+            // ... load it as an Image and pack it as a Message
+            |> Seq.map (fun file -> loadAsImage file |> Img)
+            // Then split all elements into optimal number of arrays
             |> Seq.splitInto numAgents
-            |> Array.ofSeq
 
         // Start agents
         let agents =
             Array.init numAgents (fun id -> ImageAgent.startProcessorAndSaver (id + 1) transform outDir)
 
         // Queue jobs in parallel
-        Array.Parallel.iteri (fun i -> Array.iter agents[i].Post) splitWork
+        Seq.iteri (fun i -> Array.iter agents[i].Post) splitWork
 
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
         // Terminate agents
-        Array.iter (fun (processor: MailboxProcessor<_>) -> processor.PostAndReply EOS) agents
+        Seq.iter (fun (agent: MailboxProcessor<_>) -> agent.PostAndReply EOS) agents
 
         // ... end time it
         stopwatch.Stop()
