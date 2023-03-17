@@ -20,6 +20,7 @@
     <Compile Include="RunStrategy.fs" />
     <Compile Include="ImageProcessing.fs" />
     <Compile Include="Transformation.fs" />
+    <Compile Include="Agent.fs" />
     <Compile Include="Streaming.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
