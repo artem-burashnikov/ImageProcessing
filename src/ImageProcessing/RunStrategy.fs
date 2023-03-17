@@ -5,13 +5,13 @@ type RunStrategy =
     | CPU
     /// Naive image processing on GPU without workers
     | GPU
-    /// Image processing on CPU: Some workers process images, while others save them
+    /// Image processing on CPU: pipeline of agents passing parts of completed work to each other
     | Async1CPU
-    /// Image processing on CPU: Each worker processes and saves images
+    /// Image processing on CPU: images are split between agents who do all processing themselves
     | Async2CPU
-    /// Image processing on GPU: Some workers process images, while others save them
+    /// Image processing on GPU: pipeline of agents
     | Async1GPU
-    /// Image processing on GPU: Each worker processes and saves images
+    /// Image processing on GPU: images are split between agents who do all processing themselves
     | Async2GPU
 
     override this.ToString() =
