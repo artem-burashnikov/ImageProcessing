@@ -8,8 +8,8 @@ type Message =
 
 let outFile outDir (imgName: string) = System.IO.Path.Combine(outDir, imgName)
 
-type Agent() =
-    static let superAgent id (transformation: Image -> Image) outDir =
+type ImageAgent() =
+    static let processorAndSaver id (transformation: Image -> Image) outDir =
 
         MailboxProcessor<Message>.Start
             (fun inbox ->
@@ -31,7 +31,7 @@ type Agent() =
 
                 loop id)
 
-    static let imgProcessor (transformation: Image -> Image) (imgSaver: MailboxProcessor<_>) =
+    static let processor (transformation: Image -> Image) (imgSaver: MailboxProcessor<_>) =
 
         MailboxProcessor<Message>.Start
             (fun inbox ->
@@ -41,9 +41,11 @@ type Agent() =
 
                         match msg with
                         | EOS ch ->
+                            printfn "Ending processor"
                             imgSaver.PostAndReply(EOS)
                             ch.Reply()
                         | Img img ->
+                            printfn $"Filtering %A{img.Name}"
                             let transformedImg = transformation img
                             imgSaver.Post(Img transformedImg)
                             return! loop ()
@@ -51,7 +53,7 @@ type Agent() =
 
                 loop ())
 
-    static let imgSaver outDir =
+    static let saver outDir =
 
         MailboxProcessor<Message>.Start
             (fun inbox ->
@@ -60,14 +62,19 @@ type Agent() =
                         let! msg = inbox.Receive()
 
                         match msg with
-                        | EOS ch -> ch.Reply()
+                        | EOS ch ->
+                            printfn "Ending saver"
+                            ch.Reply()
                         | Img img ->
+                            printfn $"Saving %A{img.Name}"
                             saveImage img (outFile outDir img.Name)
                             return! loop ()
                     }
 
                 loop ())
 
-    static member startSuperAgent id transformation outDir = superAgent id transformation outDir
-    static member startImageProcessor transformation imgSaver = imgProcessor transformation imgSaver
-    static member startImageSaver outDir = imgSaver outDir
+    static member startProcessorAndSaver id transformation outDir =
+        processorAndSaver id transformation outDir
+
+    static member startProcessor transformation imgSaver = processor transformation imgSaver
+    static member startSaver outDir = saver outDir

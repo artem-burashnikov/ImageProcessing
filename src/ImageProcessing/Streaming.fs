@@ -36,18 +36,17 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         let transform = composeFinalCPUTsf transformations
 
         // Start agents for processing and saving images
-        let imgSaver = Agent.startImageSaver outDir
-        let processor = Agent.startImageProcessor transform imgSaver
+        let imgSaver = ImageAgent.startSaver outDir
+        let agent = ImageAgent.startProcessor transform imgSaver
 
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
         // Process all files using previously started agents
-        for file in files do
-            processor.Post(Img(loadAsImage file))
+        Seq.iter (fun file -> Img(loadAsImage file) |> agent.Post) files
 
-        // Terminate agents after processing
-        processor.PostAndReply(EOS)
+        // Terminate agent after processing
+        agent.PostAndReply(EOS)
 
         // ... end time it
         stopwatch.Stop()
@@ -60,7 +59,7 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         // Get optimal parameters for parallel computations
         let numCores = System.Environment.ProcessorCount
         let numFiles = Seq.length files
-        let numWorkers = min numCores numFiles
+        let numAgents = min numCores numFiles
 
         let splitWork =
             // For each file ...
@@ -68,12 +67,12 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
             // ... load it as Image and pack it as a Message
             |> Seq.map (fun s -> Img(loadAsImage s))
             // Then split into optimal number of arrays
-            |> Seq.splitInto numWorkers
+            |> Seq.splitInto numAgents
             |> Array.ofSeq
 
         // Start agents
         let agents =
-            Array.init numWorkers (fun id -> Agent.startSuperAgent (id + 1) transform outDir)
+            Array.init numAgents (fun id -> ImageAgent.startProcessorAndSaver (id + 1) transform outDir)
 
         // Queue jobs in parallel
         Array.Parallel.iteri (fun i -> Array.iter agents[i].Post) splitWork
