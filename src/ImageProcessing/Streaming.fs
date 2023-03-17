@@ -11,7 +11,6 @@ let listAllFiles dir = System.IO.Directory.GetFiles dir
 let composeFinalCPUTsf transformations =
     transformations |> List.map getCPUTsf |> List.reduce (>>)
 
-/// Process image files utilizing agents
 let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
     match runStrategy with
