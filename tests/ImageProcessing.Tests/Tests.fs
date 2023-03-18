@@ -148,7 +148,7 @@ module ImageTransformationTests =
                   Expect.equal
                       reflectedImage.Data
                       originalImg.Data
-                      "Counterclockwise rotated 4 times failed to match the original image"
+                      "Reflecting horizontally two times failed to match the original"
 
               testProperty "Consecutively reflecting vertically two times outputs the original pixel data"
               <| fun (width: uint) (height: uint) ->
@@ -161,7 +161,7 @@ module ImageTransformationTests =
                   Expect.equal
                       reflectedImage.Data
                       originalImg.Data
-                      "Counterclockwise rotated 4 times failed to match the original image"
+                      "Reflecting vertically two times failed to match the original"
 
               testProperty "Horizontal reflection is the same as vertical reflection followed by two rotations"
               <| fun (width: uint) (height: uint) ->
@@ -177,7 +177,7 @@ module ImageTransformationTests =
                   Expect.equal
                       actualResult.Data
                       expectedResult.Data
-                      "Counterclockwise rotated 4 times failed to match the original image"
+                      "Horizontal reflection failed to match vertical reflection followed by two rotations"
 
               testProperty "Vertical reflection is the same as horizontal reflection followed by two rotations"
               <| fun (width: uint) (height: uint) ->
@@ -193,7 +193,7 @@ module ImageTransformationTests =
                   Expect.equal
                       actualResult.Data
                       expectedResult.Data
-                      "Counterclockwise rotated 4 times failed to match the original image"
+                      "Vertical reflection failed to match horizontal reflection followed by two rotations"
 
               testProperty
                   "Applying all available transformations on GPU should produce the same pixel matrix as applying them on CPU"
