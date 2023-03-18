@@ -20,12 +20,12 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         // Iteratively process all files
         for file in files do
             let img = loadAsImage file
-            Logger.general (sprintf $"%A{getTime ()}: Loaded %s{img.Name} for processing") logger
+            Logger.general $"{getTime ()}: Loaded {img.Name} for processing" logger
             let output = transformations img
-            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} was processed") logger
-            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} is being saved") logger
+            Logger.general $"{getTime ()}: {img.Name} was processed" logger
+            Logger.general $"{getTime ()}: {img.Name} is being saved" logger
             saveImage output (outFile outDir img.Name)
-            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} has been saved") logger
+            Logger.general $"{getTime ()}: {img.Name} has been saved" logger
 
         // ... stop time it
         stopwatch.Stop()
