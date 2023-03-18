@@ -228,43 +228,38 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
         let ndRange = Range1D.CreateValid(imgH * imgW, localWorkSize)
 
         let kernel = kernel.GetKernel()
-        commandQueue.Post(Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img imgW imgH filter filterD result))
+        kernel.KernelFunc ndRange img imgW imgH filter filterD result
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
 
-let applyFiltersGPU (clContext: ClContext) localWorkSize =
+let applyFilterGPU (clContext: ClContext) localWorkSize =
     let kernel = applyFilterGPUKernel clContext localWorkSize
     let queue = clContext.QueueProvider.CreateQueue()
 
-    fun (filters: list<float32[][]>) (img: Image) ->
+    fun (filters: float32[][]) (img: Image) ->
 
-        let mutable input =
-            clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
+        let input = clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
 
-        let mutable output =
+        let output =
             clContext.CreateClArray(
                 img.Data.Length,
                 HostAccessMode.NotAccessible,
                 allocationMode = AllocationMode.Default
             )
 
-        for filter in filters do
+        let filterD = (Array.length filters) / 2
 
-            let filterD = (Array.length filter) / 2
+        let filter = Array.concat filters
 
-            let filter = Array.concat filter
+        let clFilter =
+            clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
 
-            let clFilter =
-                clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
-
-            let oldInput = input
-            input <- kernel queue clFilter filterD input img.Height img.Width output
-            output <- oldInput
-            queue.Post(Msg.CreateFreeMsg clFilter)
+        let output = kernel queue clFilter filterD input img.Height img.Width output
+        queue.Post(Msg.CreateFreeMsg clFilter)
 
         let result = Array.zeroCreate (img.Height * img.Width)
 
-        let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(input, result, ch))
+        let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(output, result, ch))
         queue.Post(Msg.CreateFreeMsg input)
         queue.Post(Msg.CreateFreeMsg output)
         Image(result, img.Width, img.Height, img.Name)

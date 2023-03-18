@@ -12,12 +12,12 @@ type Transformation =
     | Rotate
     | RotateCCW
 
-let getCPUTsf (transformation: Transformation) =
+let getTsf applicatorFunction (transformation: Transformation) =
     match transformation with
-    | Transformation.Blur -> applyFilter gaussianBlurKernel
-    | Transformation.Edges -> applyFilter edgesKernel
-    | Transformation.HighPass -> applyFilter highPassKernel
-    | Transformation.Laplacian -> applyFilter laplacianKernel
-    | Transformation.SobelV -> applyFilter sobelVerticalKernel
+    | Transformation.Blur -> applicatorFunction gaussianBlurKernel
+    | Transformation.Edges -> applicatorFunction edgesKernel
+    | Transformation.HighPass -> applicatorFunction highPassKernel
+    | Transformation.Laplacian -> applicatorFunction laplacianKernel
+    | Transformation.SobelV -> applicatorFunction sobelVerticalKernel
     | Transformation.Rotate -> rotate90Clockwise
     | Transformation.RotateCCW -> rotate90Counterclockwise
