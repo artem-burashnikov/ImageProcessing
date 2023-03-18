@@ -34,4 +34,4 @@ type Logger() =
         let logMessage = $"{time} : %s{agentName}#%d{agentId} is %s{status}"
         logger.Post(logMessage)
 
-    static member general msg = logger.Post msg
+    static member general msg (logger: MailboxProcessor<_>) = logger.Post(msg)

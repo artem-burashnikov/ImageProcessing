@@ -15,15 +15,17 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
+        let logger = Logger.start ()
+
         // Iteratively process all files
         for file in files do
             let img = loadAsImage file
-            Logger.general (sprintf $"%A{getTime ()}: Loaded %s{img.Name} for processing")
+            Logger.general (sprintf $"%A{getTime ()}: Loaded %s{img.Name} for processing") logger
             let output = transformations img
-            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} was processed")
-            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} is being saved")
+            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} was processed") logger
+            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} is being saved") logger
             saveImage output (outFile outDir img.Name)
-            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} has been saved")
+            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} has been saved") logger
 
         // ... stop time it
         stopwatch.Stop()
