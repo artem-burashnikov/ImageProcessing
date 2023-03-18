@@ -24,7 +24,7 @@ type ImageAgent() =
 
                         match msg with
                         | EOS ch ->
-                            Logger.finishStatus (getTime ()) "Agent" id "finished" logger
+                            Logger.finishStatus (getTime ()) "Agent" "finished" id logger
                             ch.Reply()
                         | Img img ->
                             Logger.currentWork (getTime ()) img.Name "Agent" "processed" id logger
@@ -52,9 +52,9 @@ type ImageAgent() =
 
                         match msg with
                         | EOS ch ->
-                            Logger.finishStatus (getTime ()) "ProcessorAgent" id "ready to finish" logger
+                            Logger.finishStatus (getTime ()) "ProcessorAgent" "ready to finish" id logger
                             imgSaver.PostAndReply(EOS)
-                            Logger.finishStatus (getTime ()) "ProcessorAgent" id "finished" logger
+                            Logger.finishStatus (getTime ()) "ProcessorAgent" "finished" id logger
                             ch.Reply()
                         | Img img ->
                             Logger.currentWork (getTime ()) img.Name "ProcessingAgent" "processed" id logger
@@ -75,7 +75,7 @@ type ImageAgent() =
 
                         match msg with
                         | EOS ch ->
-                            Logger.finishStatus (getTime ()) "SavingAgent" id "ready to finish" logger
+                            Logger.finishStatus (getTime ()) "SavingAgent" "ready to finish" id logger
                             ch.Reply()
                         | Img img ->
                             Logger.currentWork (getTime ()) img.Name "SavingAgent" "saved" id logger

@@ -26,6 +26,6 @@ type Logger() =
         let logMessage = $"{time} : %s{imgName} has been saved"
         logger.Post(logMessage)
 
-    static member finishStatus time agentName agentId status (logger: MailboxProcessor<_>) =
+    static member finishStatus time agentName status agentId (logger: MailboxProcessor<_>) =
         let logMessage = $"{time} : %s{agentName}#%d{agentId} is %s{status}"
         logger.Post(logMessage)
