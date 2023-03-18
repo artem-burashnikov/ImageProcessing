@@ -5,6 +5,7 @@ open ImageProcessing.Agent
 open ImageProcessing.ImageProcessing
 open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
+open Logging
 
 let listAllFiles dir = System.IO.Directory.GetFiles dir
 
@@ -17,8 +18,12 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         // Iteratively process all files
         for file in files do
             let img = loadAsImage file
+            Logger.general (sprintf $"%A{getTime ()}: Loaded %s{img.Name} for processing")
             let output = transformations img
+            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} was processed")
+            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} is being saved")
             saveImage output (outFile outDir img.Name)
+            Logger.general (sprintf $"%A{getTime ()}: %s{img.Name} has been saved")
 
         // ... stop time it
         stopwatch.Stop()
