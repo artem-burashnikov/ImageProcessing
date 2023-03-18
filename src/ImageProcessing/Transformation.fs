@@ -11,6 +11,8 @@ type Transformation =
     | SobelV
     | Rotate
     | RotateCCW
+    | ReflectH
+    | ReflectV
 
 let getTsf applicatorFunction (transformation: Transformation) =
     match transformation with
@@ -21,3 +23,5 @@ let getTsf applicatorFunction (transformation: Transformation) =
     | Transformation.SobelV -> applicatorFunction sobelVerticalKernel
     | Transformation.Rotate -> rotate90Clockwise
     | Transformation.RotateCCW -> rotate90Counterclockwise
+    | Transformation.ReflectH -> horizontalReflect
+    | Transformation.ReflectV -> verticalReflect

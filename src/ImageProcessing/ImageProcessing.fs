@@ -130,6 +130,45 @@ let rotate90Counterclockwise (img: Image) =
 
     Image(res, height, width, img.Name)
 
+let verticalReflect (img: Image) =
+    let width = img.Width
+    let height = img.Height
+    let res = Array.zeroCreate (width * height)
+
+    for i in 0 .. (height - 1) / 2 do
+        for j in 0 .. (width - 1) / 2 do
+            (* | NW | NE |
+               |____|____|
+               | SW | SE | *)
+            // nw <- ne
+            res[i * width + j] <- img.Data[i * width + width - 1 - j]
+            // ne <- nw
+            res[i * width + width - 1 - j] <- img.Data[i * width + j]
+            // sw <- se
+            res[(height - 1) * width - (i * width) + j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+            // se <- sw
+            res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + j]
+
+    Image(res, width, height, img.Name)
+
+let horizontalReflect (img: Image) =
+    let width = img.Width
+    let height = img.Height
+    let res = Array.zeroCreate (width * height)
+
+    for i in 0 .. (height - 1) / 2 do
+        for j in 0 .. (width - 1) / 2 do
+            // nw <- sw
+            res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
+            // sw <- nw
+            res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
+            // ne <- se
+            res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+            // se <- ne
+            res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
+
+    Image(res, width, height, img.Name)
+
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
        [| 4; 16; 24; 16; 4 |]
