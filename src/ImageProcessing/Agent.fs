@@ -7,10 +7,6 @@ type Message =
     | Img of Image
     | EOS of AsyncReplyChannel<unit>
 
-let getTime () =
-    let now = System.DateTime.Now
-    sprintf $"%02d{now.Hour}:%02d{now.Minute}:%02d{now.Second}:%03d{now.Millisecond}"
-
 let outFile outDir (imgName: string) = System.IO.Path.Combine(outDir, imgName)
 
 type ImageAgent() =

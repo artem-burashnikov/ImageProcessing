@@ -1,5 +1,9 @@
 module ImageProcessing.Logging
 
+let getTime () =
+    let now = System.DateTime.Now
+    sprintf $"%02d{now.Hour}:%02d{now.Minute}:%02d{now.Second}:%03d{now.Millisecond}"
+
 type Logger() =
 
     static let logger =
@@ -29,3 +33,5 @@ type Logger() =
     static member finishStatus time agentName status agentId (logger: MailboxProcessor<_>) =
         let logMessage = $"{time} : %s{agentName}#%d{agentId} is %s{status}"
         logger.Post(logMessage)
+
+    static member general msg = logger.Post msg
