@@ -14,6 +14,17 @@ type Transformation =
     | ReflectH
     | ReflectV
 
+    static member all =
+        [| Blur
+           Edges
+           HighPass
+           Laplacian
+           SobelV
+           Rotate
+           RotateCCW
+           ReflectH
+           ReflectV |]
+
 let getTsf applicatorFunction (transformation: Transformation) =
     match transformation with
     | Transformation.Blur -> applicatorFunction gaussianBlurKernel
