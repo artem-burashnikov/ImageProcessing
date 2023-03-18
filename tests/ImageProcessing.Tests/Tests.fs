@@ -3,6 +3,8 @@ namespace ImageProcessing.Tests
 open System
 open Expecto
 open ImageProcessing.ImageProcessing
+open Brahma.FSharp
+open ImageProcessing.Transformation
 
 module ImageTransformationTests =
 
@@ -141,10 +143,7 @@ module ImageTransformationTests =
                   let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
-                  let reflectedImage =
-                      originalImg
-                      |> horizontalReflect
-                      |> horizontalReflect
+                  let reflectedImage = originalImg |> horizontalReflect |> horizontalReflect
 
                   Expect.equal
                       reflectedImage.Data
@@ -157,10 +156,7 @@ module ImageTransformationTests =
                   let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
-                  let reflectedImage =
-                      originalImg
-                      |> verticalReflect
-                      |> verticalReflect
+                  let reflectedImage = originalImg |> verticalReflect |> verticalReflect
 
                   Expect.equal
                       reflectedImage.Data
@@ -173,15 +169,10 @@ module ImageTransformationTests =
                   let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
-                  let actualResult =
-                      originalImg
-                      |> horizontalReflect
+                  let actualResult = originalImg |> horizontalReflect
 
                   let expectedResult =
-                      originalImg
-                      |> verticalReflect
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
+                      originalImg |> verticalReflect |> rotate90Clockwise |> rotate90Clockwise
 
                   Expect.equal
                       actualResult.Data
@@ -194,20 +185,54 @@ module ImageTransformationTests =
                   let data, w, h = initDataFromWH width height
                   let originalImg = Image(data, w, h, "")
 
-                  let actualResult =
-                      originalImg
-                      |> verticalReflect
+                  let actualResult = originalImg |> verticalReflect
 
                   let expectedResult =
-                      originalImg
-                      |> horizontalReflect
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
+                      originalImg |> horizontalReflect |> rotate90Clockwise |> rotate90Clockwise
 
                   Expect.equal
                       actualResult.Data
                       expectedResult.Data
-                      "Counterclockwise rotated 4 times failed to match the original image" ]
+                      "Counterclockwise rotated 4 times failed to match the original image"
+
+              testProperty
+                  "Applying all available transformations on GPU should produce the same pixel matrix as applying them on CPU"
+              <| fun (width: uint) (height: uint) ->
+                  // Initialize pixel data
+                  // "+2" because minimum testing for 2x2 tables
+                  let data, w, h = initDataFromWH width height
+                  let originalImg = Image(data, w, h, "")
+                  let originalDataArray = Array.create Transformation.all.Length originalImg
+
+                  // Initialize parameters for GPU
+                  let device = ClDevice.GetFirstAppropriateDevice()
+                  let context = ClContext(device)
+
+                  // These are partially applied functions that require transformation and Image to produce the result
+                  let gpuApplicator = applyFilterGPU context 64 |> getTsf
+                  let cpuApplicator = applyFilter |> getTsf
+
+                  // Create two arrays which elements are these partially applied functions
+                  let GPUTransformationArray = Array.create Transformation.all.Length gpuApplicator
+                  let CPUTransformationArray = Array.create Transformation.all.Length cpuApplicator
+
+                  // map3 partially applied functions to array of all transformations and to array of original pixel data to produce results
+                  let arrayOfActualResults =
+                      Array.map3 id GPUTransformationArray Transformation.all originalDataArray
+
+                  let arrayOfExpectedResults =
+                      Array.map3 id CPUTransformationArray Transformation.all originalDataArray
+
+                  // The comparison of results should fold to true.
+                  let actualResult =
+                      Array.fold2
+                          (fun _ (data1: Image) (data2: Image) -> data1.Data = data2.Data)
+                          false
+                          arrayOfActualResults
+                          arrayOfExpectedResults
+
+                  Expect.equal actualResult true "Results on CPU and GPU differ" ]
+
 module GeneralTests =
 
     let r = Random()
