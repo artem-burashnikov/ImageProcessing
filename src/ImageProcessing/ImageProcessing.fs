@@ -228,7 +228,7 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
         let ndRange = Range1D.CreateValid(imgH * imgW, localWorkSize)
 
         let kernel = kernel.GetKernel()
-        kernel.KernelFunc ndRange img imgW imgH filter filterD result
+        commandQueue.Post(Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img imgW imgH filter filterD result))
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
 
