@@ -6,8 +6,7 @@ open ImageProcessing.ImageProcessing
 open Brahma.FSharp
 open ImageProcessing.Transformation
 
-module ImageTransformationTests =
-
+module TestHelperFunctions =
     let r = Random()
 
     /// Applies filter kernel to a 2D-table
@@ -68,7 +67,16 @@ module ImageTransformationTests =
     let flatArray2D array2D =
         [| for x in 0 .. (Array2D.length1 array2D) - 1 do
                for y in 0 .. (Array2D.length2 array2D) - 1 do
+
                    yield array2D[x, y] |]
+
+    let getImage width height =
+        let data, w, h = initDataFromWH width height
+        Image(data, w, h, "")
+
+module CPUTests =
+
+    open TestHelperFunctions
 
     [<Tests>]
     let tests =
@@ -76,16 +84,14 @@ module ImageTransformationTests =
             "samples"
             [ testProperty "Rotating clockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
                   let rotatedImg =
                       originalImg
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -94,16 +100,14 @@ module ImageTransformationTests =
 
               testProperty "Rotating counterclockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
                   let rotatedImg =
                       originalImg
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
+                      |> rotateCPU Counterclockwise
+                      |> rotateCPU Counterclockwise
+                      |> rotateCPU Counterclockwise
+                      |> rotateCPU Counterclockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -112,11 +116,9 @@ module ImageTransformationTests =
 
               testProperty "Rotating clockwise then counterclockwise outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
-                  let rotatedImg = originalImg |> rotate90Clockwise |> rotate90Counterclockwise
+                  let rotatedImg = originalImg |> rotateCPU Clockwise |> rotateCPU Counterclockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -139,11 +141,9 @@ module ImageTransformationTests =
 
               testProperty "Consecutively reflecting horizontally two times outputs the original pixel data"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
-                  let reflectedImage = originalImg |> horizontalReflect |> horizontalReflect
+                  let reflectedImage = originalImg |> reflectCPU Horizontal |> reflectCPU Horizontal
 
                   Expect.equal
                       reflectedImage.Data
@@ -152,11 +152,9 @@ module ImageTransformationTests =
 
               testProperty "Consecutively reflecting vertically two times outputs the original pixel data"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
-                  let reflectedImage = originalImg |> verticalReflect |> verticalReflect
+                  let reflectedImage = originalImg |> reflectCPU Vertical |> reflectCPU Vertical
 
                   Expect.equal
                       reflectedImage.Data
@@ -165,14 +163,12 @@ module ImageTransformationTests =
 
               testProperty "Horizontal reflection is the same as vertical reflection followed by two rotations"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
-                  let actualResult = originalImg |> horizontalReflect
+                  let actualResult = originalImg |> reflectCPU Horizontal
 
                   let expectedResult =
-                      originalImg |> verticalReflect |> rotate90Clockwise |> rotate90Clockwise
+                      originalImg |> reflectCPU Vertical |> rotateCPU Clockwise |> rotateCPU Clockwise
 
                   Expect.equal
                       actualResult.Data
@@ -181,57 +177,20 @@ module ImageTransformationTests =
 
               testProperty "Vertical reflection is the same as horizontal reflection followed by two rotations"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
-                  let actualResult = originalImg |> verticalReflect
+                  let actualResult = originalImg |> reflectCPU Vertical
 
                   let expectedResult =
-                      originalImg |> horizontalReflect |> rotate90Clockwise |> rotate90Clockwise
+                      originalImg
+                      |> reflectCPU Horizontal
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
 
                   Expect.equal
                       actualResult.Data
                       expectedResult.Data
-                      "Vertical reflection failed to match horizontal reflection followed by two rotations"
-
-              testProperty
-                  "Applying all available transformations on GPU should produce the same pixel matrix as applying them on CPU"
-              <| fun (width: uint) (height: uint) ->
-                  // Initialize pixel data
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
-                  let originalDataArray = Array.create Transformation.all.Length originalImg
-
-                  // Initialize parameters for GPU
-                  let device = ClDevice.GetFirstAppropriateDevice()
-                  let context = ClContext(device)
-
-                  // These are partially applied functions that require transformation and Image to produce the result
-                  let gpuApplicator = applyFilterGPU context 64 |> getTsf
-                  let cpuApplicator = applyFilter |> getTsf
-
-                  // Create two arrays which elements are these partially applied functions
-                  let GPUTransformationArray = Array.create Transformation.all.Length gpuApplicator
-                  let CPUTransformationArray = Array.create Transformation.all.Length cpuApplicator
-
-                  // map3 partially applied functions to array of all transformations and to array of original pixel data to produce results
-                  let arrayOfActualResults =
-                      Array.map3 id GPUTransformationArray Transformation.all originalDataArray
-
-                  let arrayOfExpectedResults =
-                      Array.map3 id CPUTransformationArray Transformation.all originalDataArray
-
-                  // The comparison of results should fold to true.
-                  let actualResult =
-                      Array.fold2
-                          (fun _ (data1: Image) (data2: Image) -> data1.Data = data2.Data)
-                          false
-                          arrayOfActualResults
-                          arrayOfExpectedResults
-
-                  Expect.equal actualResult true "Results on CPU and GPU differ" ]
+                      "Vertical reflection failed to match horizontal reflection followed by two rotations" ]
 
 module GeneralTests =
 
@@ -296,3 +255,99 @@ module GeneralTests =
 
                   // Results should be the same
                   Expect.equal actualResult[head..] expectedResult[head..] "" ]
+
+module GPUTests =
+
+    open TestHelperFunctions
+
+    // Initialize parameters for GPU
+    let device = ClDevice.GetFirstAppropriateDevice()
+    let context = ClContext(device)
+
+    [<Tests>]
+    let tests =
+        testList
+            "samples"
+            [ testProperty
+                  "Applying clockwise rotation on CPU and applying rotation on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.Rotate
+
+                  let cpuApplicator = getTsfCPU Transformation.Rotate
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal actualResult.Data expectedResult.Data "Clockwise rotations on GPU and CPU don't match"
+
+              testProperty
+                  "Applying counterclockwise rotation on CPU and applying rotation on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.RotateCCW
+
+                  let cpuApplicator = getTsfCPU Transformation.RotateCCW
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal
+                      actualResult.Data
+                      expectedResult.Data
+                      "Counterclockwise rotations on GPU and CPU don't match"
+
+              testProperty "Applying available filters on CPU and on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let filters =
+                      [ Transformation.Blur
+                        Transformation.Edges
+                        Transformation.HighPass
+                        Transformation.Laplacian
+                        Transformation.SobelV ]
+
+                  let gpuApplicators = List.map (getTsfGPU context 64) filters
+
+                  let cpuApplicators = List.map getTsfCPU filters
+
+                  let actualResult =
+                      List.fold (fun img transformation -> transformation img) originalImg gpuApplicators
+
+                  let expectedResult =
+                      List.fold (fun img transformation -> transformation img) originalImg cpuApplicators
+
+                  Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
+
+              testProperty "Applying horizontal reflection on CPU and on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.ReflectH
+
+                  let cpuApplicator = getTsfCPU Transformation.ReflectH
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal actualResult.Data expectedResult.Data "Horizontal reflection on GPU and CPU don't match"
+
+              testProperty "Applying vertical reflection on CPU and on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.ReflectV
+
+                  let cpuApplicator = getTsfCPU Transformation.ReflectV
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal actualResult.Data expectedResult.Data "Vertical reflection on GPU and CPU don't match" ]
