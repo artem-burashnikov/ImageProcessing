@@ -40,34 +40,17 @@ let getTsfCPU transformation =
 
 let getTsfGPU (clContext: ClContext) localWorkSize transformation : (Image -> Image) =
 
-    let filterKernel = Kernel<_>.makeFilterKernel clContext localWorkSize
+    let filterKernel = lazy Kernel<_>.makeFilterKernel clContext localWorkSize
+    let rotationKernel = lazy Kernel<_>.makeRotationKernel clContext localWorkSize
+    let reflectionKernel = lazy Kernel<_>.makeReflectionKernel clContext localWorkSize
 
     match transformation with
-    | Transformation.Blur -> applyFilterGPU filterKernel clContext gaussianBlurKernel
-    | Transformation.Edges -> applyFilterGPU filterKernel clContext edgesKernel
-    | Transformation.HighPass -> applyFilterGPU filterKernel clContext highPassKernel
-    | Transformation.Laplacian -> applyFilterGPU filterKernel clContext laplacianKernel
-    | Transformation.SobelV -> applyFilterGPU filterKernel clContext sobelVerticalKernel
-
-    | Transformation.Rotate ->
-        let rotationKernel = Kernel<_>.makeRotationKernel clContext localWorkSize Clockwise
-
-        rawProcessGPU rotationKernel clContext
-
-    | Transformation.RotateCCW ->
-        let rotationKernel =
-            Kernel<_>.makeRotationKernel clContext localWorkSize Counterclockwise
-
-        rawProcessGPU rotationKernel clContext
-
-    | Transformation.ReflectH ->
-        let reflectionKernel =
-            Kernel<_>.makeReflectionKernel clContext localWorkSize Horizontal
-
-        rawProcessGPU reflectionKernel clContext
-
-    | Transformation.ReflectV ->
-        let reflectionKernel =
-            Kernel<_>.makeReflectionKernel clContext localWorkSize Vertical
-
-        rawProcessGPU reflectionKernel clContext
+    | Transformation.Blur -> applyFilterGPU (filterKernel.Force()) clContext gaussianBlurKernel
+    | Transformation.Edges -> applyFilterGPU (filterKernel.Force()) clContext edgesKernel
+    | Transformation.HighPass -> applyFilterGPU (filterKernel.Force()) clContext highPassKernel
+    | Transformation.Laplacian -> applyFilterGPU (filterKernel.Force()) clContext laplacianKernel
+    | Transformation.SobelV -> applyFilterGPU (filterKernel.Force()) clContext sobelVerticalKernel
+    | Transformation.Rotate -> rawProcessGPU (rotationKernel.Force () Clockwise) clContext
+    | Transformation.RotateCCW -> rawProcessGPU (rotationKernel.Force () Counterclockwise) clContext
+    | Transformation.ReflectH -> rawProcessGPU (reflectionKernel.Force () Horizontal) clContext
+    | Transformation.ReflectV -> rawProcessGPU (reflectionKernel.Force () Vertical) clContext
