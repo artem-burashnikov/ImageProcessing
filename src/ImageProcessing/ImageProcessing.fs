@@ -5,6 +5,148 @@ open Brahma.FSharp
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
 
+type RotationDirection =
+    | Clockwise
+    | Counterclockwise
+
+type ReflectionDirection =
+    | Horizontal
+    | Vertical
+
+[<RequireQualifiedAccess>]
+type Kernel<'KernelFunction> =
+    | Rotation of 'KernelFunction
+    | Reflection of 'KernelFunction
+
+    /// Returns kernel function wrapped in DU case
+    static member makeRotationKernel (clContext: ClContext) localWorkSize direction =
+        let kernel =
+            match direction with
+            | Clockwise ->
+                <@
+                    fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+                        let p = r.GlobalID0
+
+                        if p < height * width then
+                            let pi = p / width
+                            let pj = p % width
+                            result[pj * height + height - pi - 1] <- img[pi * width + pj]
+                @>
+            | Counterclockwise ->
+                <@
+                    fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+                        let p = r.GlobalID0
+
+                        if p < height * width then
+                            let pi = p / width
+                            let pj = p % width
+                            result[(width - pj - 1) * height + pi] <- img[pi * width + pj]
+                @>
+
+        let kernel = clContext.Compile kernel
+
+        Rotation
+        <| fun (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+
+            let ndRange = Range1D.CreateValid(height * width, localWorkSize)
+
+            let kernel = kernel.GetKernel()
+            commandQueue.Post(Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img height width result))
+            commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
+            result
+
+
+    /// Returns kernel function wrapped in DU case
+    static member makeReflectionKernel (clContext: ClContext) localWorkSize direction =
+        let kernel =
+            match direction with
+            | Horizontal ->
+                <@
+                    fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+                        let p = r.GlobalID0
+
+                        if p <= height * width / 2 then
+                            let pi = p / width
+                            let pj = p % width
+                            result[pi * width + pj] <- img[(height - 1) * width - (pi * width) + pj]
+                            result[(height - 1) * width - (pi * width) + pj] <- img[pi * width + pj]
+
+                            result[pi * width + width - 1 - pj] <-
+                                img[(height - 1) * width - (pi * width) + width - 1 - pj]
+
+                            result[(height - 1) * width - (pi * width) + width - 1 - pj] <-
+                                img[pi * width + width - 1 - pj]
+                @>
+            | Vertical ->
+                <@
+                    fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+                        let p = r.GlobalID0
+
+                        if p <= height * width / 2 then
+                            let pi = p / width
+                            let pj = p % width
+                            result[pi * width + pj] <- img[pi * width + width - 1 - pj]
+                            result[pi * width + width - 1 - pj] <- img[pi * width + pj]
+
+                            result[(height - 1) * width - (pi * width) + pj] <-
+                                img[(height - 1) * width - (pi * width) + width - 1 - pj]
+
+                            result[(height - 1) * width - (pi * width) + width - 1 - pj] <-
+                                img[(height - 1) * width - (pi * width) + pj]
+                @>
+
+        let kernel = clContext.Compile kernel
+
+        Reflection
+        <| (fun (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+
+            let ndRange = Range1D.CreateValid(height * width, localWorkSize)
+
+            let kernel = kernel.GetKernel()
+            commandQueue.Post(Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img height width result))
+            commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
+            result)
+
+    static member makeFilterKernel (clContext: ClContext) localWorkSize =
+
+        let kernel =
+            <@
+                fun (r: Range1D) (img: ClArray<byte>) width height (filter: ClArray<float32>) filterD (result: ClArray<byte>) ->
+                    let p = r.GlobalID0
+                    let ph = p / width
+                    let pw = p % width
+                    let mutable res = 0.0f
+
+                    for i in ph - filterD .. ph + filterD do
+                        for j in pw - filterD .. pw + filterD do
+                            let mutable d = 0uy
+
+                            if i < 0 || i >= height || j < 0 || j >= width then
+                                d <- img[p]
+                            else
+                                d <- img[i * width + j]
+
+                            let f = filter[(i - ph + filterD) * (2 * filterD + 1) + (j - pw + filterD)]
+                            res <- res + (float32 d) * f
+
+                    result[p] <- byte (int res)
+            @>
+
+        let kernel = clContext.Compile kernel
+
+        fun (commandQueue: MailboxProcessor<_>) (filter: ClArray<float32>) filterD (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+
+            let ndRange = Range1D.CreateValid(height * width, localWorkSize)
+
+            let kernel = kernel.GetKernel()
+
+            commandQueue.Post(
+                Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img width height filter filterD result)
+            )
+
+            commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
+            result
+
 type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
     // When an instance is created, check that it is within the specified memory limits
     do
@@ -73,7 +215,6 @@ type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
 
         vArray
 
-
 [<Struct>]
 type Image =
     val Data: array<byte>
@@ -108,64 +249,88 @@ let saveImage (image: Image) file =
     let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
     img.Save file
 
-let rotate90Clockwise (img: Image) =
+let rotateCPU direction (img: Image) =
     let width = img.Width
     let height = img.Height
     let res = Array.zeroCreate (width * height)
 
-    for i in 0 .. height - 1 do
-        for j in 0 .. width - 1 do
-            res[j * height + height - i - 1] <- img.Data[i * width + j]
+    match direction with
+    | Clockwise ->
+        for i in 0 .. height - 1 do
+            for j in 0 .. width - 1 do
+                res[j * height + height - i - 1] <- img.Data[i * width + j]
+    | Counterclockwise ->
+        for i in 0 .. height - 1 do
+            for j in 0 .. width - 1 do
+                res[(width - j - 1) * height + i] <- img.Data[i * width + j]
 
     Image(res, height, width, img.Name)
 
-let rotate90Counterclockwise (img: Image) =
+let rawProcessGPU rawKernel (clContext: ClContext) =
+
+    let kernel =
+        match rawKernel with
+        | Kernel.Rotation rotFn -> rotFn
+        | Kernel.Reflection refFn -> refFn
+
+    let queue = clContext.QueueProvider.CreateQueue()
+
+    fun (img: Image) ->
+
+        let input = clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
+
+        let output =
+            clContext.CreateClArray(
+                img.Data.Length,
+                HostAccessMode.NotAccessible,
+                allocationMode = AllocationMode.Default
+            )
+
+        let (output: ClArray<byte>) = kernel queue input img.Height img.Width output
+
+        let result = Array.zeroCreate (img.Height * img.Width)
+
+        let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(output, result, ch))
+        queue.Post(Msg.CreateFreeMsg input)
+        queue.Post(Msg.CreateFreeMsg output)
+
+        match rawKernel with
+        | Kernel.Rotation _ -> Image(result, img.Height, img.Width, img.Name)
+        | Kernel.Reflection _ -> Image(result, img.Width, img.Height, img.Name)
+
+let reflectCPU direction (img: Image) =
     let width = img.Width
     let height = img.Height
     let res = Array.zeroCreate (width * height)
 
-    for i in 0 .. height - 1 do
-        for j in 0 .. width - 1 do
-            res[(width - j - 1) * height + i] <- img.Data[i * width + j]
-
-    Image(res, height, width, img.Name)
-
-let verticalReflect (img: Image) =
-    let width = img.Width
-    let height = img.Height
-    let res = Array.zeroCreate (width * height)
-
-    for i in 0 .. (height - 1) / 2 do
-        for j in 0 .. (width - 1) / 2 do
-            (* | NW | NE |
-               |____|____|
-               | SW | SE | *)
-            // nw <- ne
-            res[i * width + j] <- img.Data[i * width + width - 1 - j]
-            // ne <- nw
-            res[i * width + width - 1 - j] <- img.Data[i * width + j]
-            // sw <- se
-            res[(height - 1) * width - (i * width) + j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-            // se <- sw
-            res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + j]
-
-    Image(res, width, height, img.Name)
-
-let horizontalReflect (img: Image) =
-    let width = img.Width
-    let height = img.Height
-    let res = Array.zeroCreate (width * height)
-
-    for i in 0 .. (height - 1) / 2 do
-        for j in 0 .. (width - 1) / 2 do
-            // nw <- sw
-            res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
-            // sw <- nw
-            res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
-            // ne <- se
-            res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-            // se <- ne
-            res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
+    match direction with
+    | Vertical ->
+        for i in 0 .. (height - 1) / 2 do
+            for j in 0 .. (width - 1) / 2 do
+                (* | NW | NE |
+                   |____|____|
+                   | SW | SE | *)
+                // nw <- ne
+                res[i * width + j] <- img.Data[i * width + width - 1 - j]
+                // ne <- nw
+                res[i * width + width - 1 - j] <- img.Data[i * width + j]
+                // sw <- se
+                res[(height - 1) * width - (i * width) + j] <-
+                    img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                // se <- sw
+                res[(height - 1) * width - (i * width) + width - 1 - j] <-
+                    img.Data[(height - 1) * width - (i * width) + j]
+    | Horizontal ->
+        for i in 0 .. (height - 1) / 2 do
+            for j in 0 .. (width - 1) / 2 do
+                // nw <- sw
+                res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
+                // sw <- nw
+                res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
+                // ne <- se
+                res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                // se <- ne
+                res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
 
     Image(res, width, height, img.Name)
 
@@ -209,7 +374,7 @@ let sobelVerticalKernel =
        [| -1; -4; -6; -4; -1 |] |]
     |> Array.map (Array.map float32)
 
-let applyFilter (filter: float32[][]) (img: Image) =
+let applyFilterCPU (filter: float32[][]) (img: Image) =
     let height = img.Height
     let width = img.Width
 
@@ -235,24 +400,25 @@ let applyFilter (filter: float32[][]) (img: Image) =
     Image(data, width, height, img.Name)
 
 
+(*
 let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
 
     let kernel =
         <@
-            fun (r: Range1D) (img: ClArray<_>) imgW imgH (filter: ClArray<_>) filterD (result: ClArray<_>) ->
+            fun (r: Range1D) (img: ClArray<byte>) width height (filter: ClArray<float32>) filterD (result: ClArray<byte>) ->
                 let p = r.GlobalID0
-                let pw = p % imgW
-                let ph = p / imgW
+                let ph = (p % (height * width)) / width
+                let pw = (p % (height * width)) % width
                 let mutable res = 0.0f
 
                 for i in ph - filterD .. ph + filterD do
                     for j in pw - filterD .. pw + filterD do
                         let mutable d = 0uy
 
-                        if i < 0 || i >= imgH || j < 0 || j >= imgW then
+                        if i < 0 || i >= height || j < 0 || j >= width then
                             d <- img[p]
                         else
-                            d <- img[i * imgW + j]
+                            d <- img[i * width + j]
 
                         let f = filter[(i - ph + filterD) * (2 * filterD + 1) + (j - pw + filterD)]
                         res <- res + (float32 d) * f
@@ -262,17 +428,22 @@ let applyFilterGPUKernel (clContext: ClContext) localWorkSize =
 
     let kernel = clContext.Compile kernel
 
-    fun (commandQueue: MailboxProcessor<_>) (filter: ClArray<float32>) filterD (img: ClArray<byte>) imgH imgW (result: ClArray<_>) ->
+    fun (commandQueue: MailboxProcessor<_>) (filter: ClArray<float32>) filterD (img: ClArray<byte>) height width (result: ClArray<byte>) ->
 
-        let ndRange = Range1D.CreateValid(imgH * imgW, localWorkSize)
+        let ndRange = Range1D.CreateValid(height * width, localWorkSize)
 
         let kernel = kernel.GetKernel()
-        commandQueue.Post(Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img imgW imgH filter filterD result))
+
+        commandQueue.Post(
+            Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img width height filter filterD result)
+        )
+
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
+*)
 
-let applyFilterGPU (clContext: ClContext) localWorkSize =
-    let kernel = applyFilterGPUKernel clContext localWorkSize
+let applyFilterGPU kernel (clContext: ClContext) =
+
     let queue = clContext.QueueProvider.CreateQueue()
 
     fun (filters: float32[][]) (img: Image) ->
