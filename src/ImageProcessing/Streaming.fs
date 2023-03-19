@@ -15,17 +15,15 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
 
-        let logger = Logger.start ()
-
         // Iteratively process all files
         for file in files do
             let img = loadAsImage file
-            Logger.general $"{getTime ()}: Loaded {img.Name} for processing" logger
+            Logger.log $"%s{getTime ()}: %s{img.Name} is loaded  for processing"
+            Logger.log $"%s{getTime ()}: %s{img.Name} is being processed"
             let output = transformations img
-            Logger.general $"{getTime ()}: {img.Name} was processed" logger
-            Logger.general $"{getTime ()}: {img.Name} is being saved" logger
+            Logger.log $"%s{getTime ()}: %s{img.Name} is being saved"
             saveImage output (outFile outDir img.Name)
-            Logger.general $"{getTime ()}: {img.Name} has been saved" logger
+            Logger.log $"%s{(getTime ())} : %s{img.Name} has been saved successfully"
 
         // ... stop time it
         stopwatch.Stop()
