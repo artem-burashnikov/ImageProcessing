@@ -11,6 +11,7 @@ let listAllFiles dir = System.IO.Directory.GetFiles dir
 
 let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
+    /// Edit all image files one after another on the main thread.
     let naive (files: string seq) outDir transformations =
         // Start time it ...
         let stopwatch = System.Diagnostics.Stopwatch.StartNew()
@@ -19,8 +20,10 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         for file in files do
             let img = loadAsImage file
             Logger.log $"%s{getTime ()}: %s{img.Name} is loaded  for processing"
+
             Logger.log $"%s{getTime ()}: %s{img.Name} is being processed"
             let output = transformations img
+
             Logger.log $"%s{getTime ()}: %s{img.Name} is being saved"
             saveImage output (outFile outDir img.Name)
             Logger.log $"%s{(getTime ())} : %s{img.Name} has been saved successfully"
@@ -29,6 +32,8 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         stopwatch.Stop()
         printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
 
+    /// Edit image files utilizing agents pipeline.
+    /// Processing and saving is divided between different agents.
     let async1 (files: string seq) outDir transformations =
         // Start agents for processing and saving images
         let imgSaver = ImageAgent.startSaver 1 outDir
@@ -47,6 +52,8 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         stopwatch.Stop()
         printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
 
+    /// Edit images files dividing them between agents.
+    /// Each agent processes and saves image by itself.
     let async2 (files: string seq) outDir transformations =
         // Get optimal parameters for parallel computations
         let numCores = System.Environment.ProcessorCount
@@ -65,7 +72,7 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         let agents =
             Array.init numAgents (fun id -> ImageAgent.startProcessorAndSaver (id + 1) transformations outDir)
 
-        // Queue jobs in parallel
+        // Queue jobs
         Seq.iteri (fun i -> Array.iter agents[i].Post) splitWork
 
         // Start time it ...
@@ -78,6 +85,7 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         stopwatch.Stop()
         printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
 
+    // Check that GPU is present on the system. If not, then force CPU run.
     let noGPU = Seq.isEmpty (ClDevice.GetAvailableDevices())
 
     let ensuredRunStrategy =
@@ -90,46 +98,44 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
         else
             runStrategy
 
+    // Determine how to run
     match ensuredRunStrategy with
     | CPU ->
-        let transformations =
-            transformations |> List.map (getTsf applyFilter) |> List.reduce (>>)
-
+        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
         naive files outDir transformations
+
     | Async1CPU ->
-        let transformations =
-            transformations |> List.map (getTsf applyFilter) |> List.reduce (>>)
-
+        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
         async1 files outDir transformations
-    | Async2CPU ->
-        let transformations =
-            transformations |> List.map (getTsf applyFilter) |> List.reduce (>>)
 
+    | Async2CPU ->
+        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
         async2 files outDir transformations
+
     | GPU ->
+        // At this point it has to be ensured that GPU is present on the system.
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
-        let applyTransformations = applyFilterGPU context 64
 
         let transformations =
-            transformations |> List.map (getTsf applyTransformations) |> List.reduce (>>)
+            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
 
         naive files outDir transformations
+
     | Async1GPU ->
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
-        let applyTransformations = applyFilterGPU context 64
 
         let transformations =
-            transformations |> List.map (getTsf applyTransformations) |> List.reduce (>>)
+            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
 
         async1 files outDir transformations
+
     | Async2GPU ->
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
-        let applyTransformations = applyFilterGPU context 64
 
         let transformations =
-            transformations |> List.map (getTsf applyTransformations) |> List.reduce (>>)
+            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
 
         async2 files outDir transformations
