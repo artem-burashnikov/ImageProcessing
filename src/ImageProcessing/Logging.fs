@@ -1,31 +1,31 @@
 module ImageProcessing.Logging
 
+let getTime () =
+    let now = System.DateTime.Now
+    sprintf $"%02d{now.Hour}:%02d{now.Minute}:%02d{now.Second}:%03d{now.Millisecond}"
+
+type LogControl =
+    | Message of string
+    | Stop
+
 type Logger() =
 
-    static let logger =
-        MailboxProcessor<string>.Start
-            (fun inbox ->
-                let rec loop () =
-                    async {
-                        let! msg = inbox.Receive()
-                        printfn $"{msg}"
-                        return! loop ()
-                    }
+    let agent (inbox: MailboxProcessor<LogControl>) =
+        let rec loop () =
+            async {
+                let! msg = inbox.Receive()
 
-                loop ())
+                match msg with
+                | Message msg ->
+                    printfn $"{msg}"
+                    return! loop ()
+                | Stop -> () // stop by not calling a loop
+            }
 
-    static member start() = logger
+        loop ()
 
-    static member currentWork time imgName agentName work agentId (logger: MailboxProcessor<_>) =
-        let logMessage =
-            $"{time} : %s{imgName} is being %s{work} by %s{agentName}#%d{agentId}"
+    let logger = new MailboxProcessor<LogControl>(agent)
 
-        logger.Post(logMessage)
-
-    static member saveStatus time imgName (logger: MailboxProcessor<_>) =
-        let logMessage = $"{time} : %s{imgName} has been saved"
-        logger.Post(logMessage)
-
-    static member finishStatus time agentName agentId status (logger: MailboxProcessor<_>) =
-        let logMessage = $"{time} : %s{agentName}#%d{agentId} is %s{status}"
-        logger.Post(logMessage)
+    member _.Start() = logger.Start()
+    member _.Stop() = logger.Post(Stop)
+    member _.Log msg = logger.Post(Message msg)
