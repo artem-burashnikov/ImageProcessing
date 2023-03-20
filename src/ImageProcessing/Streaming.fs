@@ -1,6 +1,7 @@
 module ImageProcessing.Streaming
 
 open System.Diagnostics
+open Brahma.FSharp
 open ImageProcessing.Agent
 open ImageProcessing.ImageProcessing
 open ImageProcessing.Transformation
@@ -111,8 +112,22 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
         // Stop the logger
         logger.Stop()
 
+
+    // Check that GPU is present on the system. If not, then force CPU run.
+    let noGPU = Seq.isEmpty (ClDevice.GetAvailableDevices())
+
+    let ensuredRunStrategy =
+        if noGPU then
+            match runStrategy with
+            | GPU -> CPU
+            | Async1GPU -> Async1CPU
+            | Async2GPU -> Async2CPU
+            | _ -> failwith "We only force CPU runs if no GPU is present on a device"
+        else
+            runStrategy
+
     // Determine how to run
-    match runStrategy with
+    match ensuredRunStrategy with
     | CPU ->
         let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
         naive files outDir transformations
@@ -125,6 +140,30 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
         let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
         async2 files outDir transformations
 
-    | GPU
-    | Async1GPU
-    | Async2GPU -> ()
+    | GPU ->
+        // At this point it has to be ensured that GPU is present on the system.
+        let device = ClDevice.GetFirstAppropriateDevice()
+        let context = ClContext(device)
+
+        let transformations =
+            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
+
+        naive files outDir transformations
+
+    | Async1GPU ->
+        let device = ClDevice.GetFirstAppropriateDevice()
+        let context = ClContext(device)
+
+        let transformations =
+            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
+
+        async1 files outDir transformations
+
+    | Async2GPU ->
+        let device = ClDevice.GetFirstAppropriateDevice()
+        let context = ClContext(device)
+
+        let transformations =
+            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
+
+        async2 files outDir transformations
