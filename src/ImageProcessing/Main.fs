@@ -6,9 +6,18 @@ open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 
 module Main =
-    type Arguments =
+    type ThreadsArg =
+        | [<EqualsAssignment>] Count of int
+
+        interface IArgParserTemplate with
+            member s.Usage =
+                match s with
+                | Count _ -> "Specify a positive integer: number of threads to utilize"
+
+    and Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
-        | [<Mandatory>] Strategy of RunStrategy * Threads: int
+        | [<Mandatory>] Strategy of RunStrategy
+        | Threads of ParseResults<ThreadsArg>
         | [<Mandatory; CustomCommandLine("-i")>] Input of string
         | [<Mandatory; CustomCommandLine("-o")>] Output of string
 
@@ -17,6 +26,7 @@ module Main =
                 match s with
                 | Transformations _ -> "Provide transformations to be applied."
                 | Strategy _ -> "Specify the run strategy to use"
+                | Threads _ -> "Optionally provide a number of threads to use for certain run strategies"
                 | Input _ -> "Input path: specify a path to an image file or to a folder containing images"
                 | Output _ -> "Output path: give a path to a folder"
 
@@ -132,11 +142,14 @@ module Main =
 
         let transformations = results.GetResult(Transformations)
 
-        let strategy, threads = results.GetResult(Strategy)
+        let strategy = results.GetResult(Strategy)
 
         let threads =
-            match threads with
-            | x when x <= 0 -> 1
-            | _ -> threads
+            let maybeThreads = results.TryGetResult(Threads)
+
+            match maybeThreads with
+            | Some args -> args.GetResult(ThreadsArg.Count)
+            | None -> 1
+
 
         runEditImage inputPath outputPath transformations strategy threads |> exit
