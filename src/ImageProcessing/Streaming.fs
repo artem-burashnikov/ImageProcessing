@@ -1,89 +1,130 @@
 module ImageProcessing.Streaming
 
+open System.Diagnostics
 open ImageProcessing.Agent
 open ImageProcessing.ImageProcessing
 open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
+open ImageProcessing.Logging
 
 let listAllFiles dir = System.IO.Directory.GetFiles dir
 
-/// Make a composition of a single transformation out of a list of transformations
-let composeFinalCPUTsf transformations =
-    transformations |> List.map getCPUTsf |> List.reduce (>>)
-
 let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transformations =
 
-    match runStrategy with
-    | CPU ->
-        // Make a single composition out of every transformation
-        let transform = composeFinalCPUTsf transformations
+    // Start a new instance of logger
+    let logger = Logger()
+    logger.Start()
 
+    /// Edit all image files one after another on the main thread.
+    let naive (files: string seq) outDir transformations =
         // Start time it ...
-        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        let stopwatch = Stopwatch.StartNew()
 
         // Iteratively process all files
         for file in files do
             let img = loadAsImage file
-            let output = transform img
+            logger.Log $"%s{getTime ()}: %s{img.Name} is loaded  for processing"
+
+            logger.Log $"%s{getTime ()}: %s{img.Name} is being processed"
+            let output = transformations img
+
+            logger.Log $"%s{getTime ()}: %s{img.Name} is being saved"
             saveImage output (outFile outDir img.Name)
+            logger.Log $"%s{(getTime ())} : %s{img.Name} has been saved successfully"
 
         // ... stop time it
         stopwatch.Stop()
-        printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
+        // Log the elapsed time
+        logger.Log $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
+        // Stop the logger
+        logger.Stop()
 
-    | Async1CPU ->
-        // Make a single composition out of every transformation
-        let transform = composeFinalCPUTsf transformations
-
+    /// Edit image files utilizing agents pipeline.
+    /// Processing and saving is divided between different agents.
+    let async1 (files: string seq) outDir transformations =
         // Start agents for processing and saving images
-        let imgSaver = ImageAgent.startSaver 1 outDir
-        let agent = ImageAgent.startProcessor 1 transform imgSaver
+        let imgSaver = Saver(1, outDir, logger)
+        imgSaver.Start()
+        let imgProcessor = Processor(1, transformations, imgSaver, logger)
+        imgProcessor.Start()
 
         // Start time it ...
-        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        let stopwatch = Stopwatch.StartNew()
 
         // Process all files using previously started agents
-        Seq.iter (fun file -> Img(loadAsImage file) |> agent.Post) files
+        Seq.iter
+            (fun file ->
+                let img = loadAsImage file
+                logger.Log $"%s{getTime ()}: %s{img.Name} is loaded  for processing"
+                imgProcessor.Process img)
+            files
 
-        // Terminate agent after processing
-        agent.PostAndReply(EOS)
+        // Stop precessing agent. That will automatically stop saving agent.
+        imgProcessor.Stop()
 
         // ... end time it
         stopwatch.Stop()
-        printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
+        // Log the elapsed time
+        logger.Log $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
+        // Stop the logger
+        logger.Stop()
 
-    | Async2CPU ->
-        // Make a single composition out of every transformation
-        let transform = composeFinalCPUTsf transformations
-
+    /// Edit images files dividing them between agents.
+    /// Each agent processes and saves image by itself.
+    let async2 (files: string seq) outDir transformations =
         // Get optimal parameters for parallel computations
         let numCores = System.Environment.ProcessorCount
         let numFiles = Seq.length files
         let numAgents = min numCores numFiles
 
         let splitWork =
-            // For each file ...
+            // Load files
             files
-            // ... load it as an Image and pack it as a Message
-            |> Seq.map (fun file -> loadAsImage file |> Img)
-            // Then split all elements into optimal number of arrays
+            |> Seq.map (fun file ->
+                let img = loadAsImage file
+                logger.Log $"%s{getTime ()}: %s{img.Name} is loaded  for processing"
+                img)
+            // Then split all loaded files into optimal number of arrays
             |> Seq.splitInto numAgents
 
-        // Start agents
+        // Initialize agents
         let agents =
-            Array.init numAgents (fun id -> ImageAgent.startProcessorAndSaver (id + 1) transform outDir)
+            Array.init numAgents (fun id -> ProcessorAndSaver(id + 1, transformations, outDir, logger))
 
-        // Queue jobs in parallel
-        Seq.iteri (fun i -> Array.iter agents[i].Post) splitWork
+        // Start agents and give them jobs
+        Seq.iteri
+            (fun i ->
+                agents[ i ].Start()
+                Array.iter agents[i].ProcessAndSave)
+            splitWork
 
         // Start time it ...
-        let stopwatch = System.Diagnostics.Stopwatch.StartNew()
+        let stopwatch = Stopwatch.StartNew()
 
         // Terminate agents
-        Seq.iter (fun (agent: MailboxProcessor<_>) -> agent.PostAndReply EOS) agents
+        Seq.iter (fun (agent: ProcessorAndSaver) -> agent.Stop()) agents
 
         // ... end time it
         stopwatch.Stop()
-        printfn $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
+        // Log the elapsed time
+        logger.Log $"Total elapsed time: %02.0f{stopwatch.Elapsed.TotalMilliseconds} ms"
+        // Stop the logger
+        logger.Stop()
 
-    | _ -> failwith $"{runStrategy} is not is not yet implemented"
+    // Determine how to run
+    match runStrategy with
+    | CPU ->
+        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
+        naive files outDir transformations
+
+    | Async1CPU ->
+        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
+        async1 files outDir transformations
+
+    | Async2CPU ->
+        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
+        async2 files outDir transformations
+
+    | GPU
+    | Async1GPU
+    | Async2GPU -> ()
