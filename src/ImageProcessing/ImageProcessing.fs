@@ -5,6 +5,14 @@ open Brahma.FSharp
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
 
+type RotationDirection =
+    | Clockwise
+    | Counterclockwise
+
+type ReflectionDirection =
+    | Horizontal
+    | Vertical
+
 type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
     // When an instance is created, check that it is within the specified memory limits
     do
@@ -108,27 +116,60 @@ let saveImage (image: Image) file =
     let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
     img.Save file
 
-let rotate90Clockwise (img: Image) =
+let rotateCPU direction (img: Image) =
     let width = img.Width
     let height = img.Height
     let res = Array.zeroCreate (width * height)
 
-    for i in 0 .. height - 1 do
-        for j in 0 .. width - 1 do
-            res[j * height + height - i - 1] <- img.Data[i * width + j]
+    match direction with
+    | Clockwise ->
+        for i in 0 .. height - 1 do
+            for j in 0 .. width - 1 do
+                res[j * height + height - i - 1] <- img.Data[i * width + j]
+
+    | Counterclockwise ->
+        for i in 0 .. height - 1 do
+            for j in 0 .. width - 1 do
+                res[(width - j - 1) * height + i] <- img.Data[i * width + j]
 
     Image(res, height, width, img.Name)
 
-let rotate90Counterclockwise (img: Image) =
+let reflectCPU direction (img: Image) =
     let width = img.Width
     let height = img.Height
     let res = Array.zeroCreate (width * height)
 
-    for i in 0 .. height - 1 do
-        for j in 0 .. width - 1 do
-            res[(width - j - 1) * height + i] <- img.Data[i * width + j]
+    match direction with
+    | Vertical ->
+        for i in 0 .. (height - 1) / 2 do
+            for j in 0 .. (width - 1) / 2 do
+                (* | NW | NE |
+                   |____|____|
+                   | SW | SE | *)
+                // nw <- ne
+                res[i * width + j] <- img.Data[i * width + width - 1 - j]
+                // ne <- nw
+                res[i * width + width - 1 - j] <- img.Data[i * width + j]
+                // sw <- se
+                res[(height - 1) * width - (i * width) + j] <-
+                    img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                // se <- sw
+                res[(height - 1) * width - (i * width) + width - 1 - j] <-
+                    img.Data[(height - 1) * width - (i * width) + j]
 
-    Image(res, height, width, img.Name)
+    | Horizontal ->
+        for i in 0 .. (height - 1) / 2 do
+            for j in 0 .. (width - 1) / 2 do
+                // nw <- sw
+                res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
+                // sw <- nw
+                res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
+                // ne <- se
+                res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                // se <- ne
+                res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
+
+    Image(res, width, height, img.Name)
 
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
@@ -170,7 +211,7 @@ let sobelVerticalKernel =
        [| -1; -4; -6; -4; -1 |] |]
     |> Array.map (Array.map float32)
 
-let applyFilter (filter: float32[][]) (img: Image) =
+let applyFilterCPU (filter: float32[][]) (img: Image) =
     let height = img.Height
     let width = img.Width
 

@@ -11,13 +11,28 @@ type Transformation =
     | SobelV
     | Rotate
     | RotateCCW
+    | ReflectH
+    | ReflectV
 
-let getCPUTsf (transformation: Transformation) =
+    static member all =
+        [| Blur
+           Edges
+           HighPass
+           Laplacian
+           SobelV
+           Rotate
+           RotateCCW
+           ReflectH
+           ReflectV |]
+
+let getTsfCPU transformation =
     match transformation with
-    | Transformation.Blur -> applyFilter gaussianBlurKernel
-    | Transformation.Edges -> applyFilter edgesKernel
-    | Transformation.HighPass -> applyFilter highPassKernel
-    | Transformation.Laplacian -> applyFilter laplacianKernel
-    | Transformation.SobelV -> applyFilter sobelVerticalKernel
-    | Transformation.Rotate -> rotate90Clockwise
-    | Transformation.RotateCCW -> rotate90Counterclockwise
+    | Transformation.Blur -> applyFilterCPU gaussianBlurKernel
+    | Transformation.Edges -> applyFilterCPU edgesKernel
+    | Transformation.HighPass -> applyFilterCPU highPassKernel
+    | Transformation.Laplacian -> applyFilterCPU laplacianKernel
+    | Transformation.SobelV -> applyFilterCPU sobelVerticalKernel
+    | Transformation.Rotate -> rotateCPU Clockwise
+    | Transformation.RotateCCW -> rotateCPU Counterclockwise
+    | Transformation.ReflectH -> reflectCPU Horizontal
+    | Transformation.ReflectV -> reflectCPU Vertical
