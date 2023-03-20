@@ -38,7 +38,7 @@ let getTsfCPU transformation =
     | Transformation.ReflectH -> reflectCPU Horizontal
     | Transformation.ReflectV -> reflectCPU Vertical
 
-let getTsfGPU (clContext: ClContext) localWorkSize transformation : (Image -> Image) =
+let getTsfGPU (clContext: ClContext) localWorkSize transformation =
 
     let filterKernel = lazy Kernel<_>.makeFilterKernel clContext localWorkSize
     let rotationKernel = lazy Kernel<_>.makeRotationKernel clContext localWorkSize
