@@ -4,8 +4,7 @@ open System
 open Expecto
 open ImageProcessing.ImageProcessing
 
-module ImageTransformationTests =
-
+module TestHelperFunctions =
     let r = Random()
 
     /// Applies filter kernel to a 2D-table
@@ -66,7 +65,16 @@ module ImageTransformationTests =
     let flatArray2D array2D =
         [| for x in 0 .. (Array2D.length1 array2D) - 1 do
                for y in 0 .. (Array2D.length2 array2D) - 1 do
+
                    yield array2D[x, y] |]
+
+    let getImage width height =
+        let data, w, h = initDataFromWH width height
+        Image(data, w, h, "")
+
+module CPUTests =
+
+    open TestHelperFunctions
 
     [<Tests>]
     let tests =
@@ -74,16 +82,14 @@ module ImageTransformationTests =
             "samples"
             [ testProperty "Rotating clockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
                   let rotatedImg =
                       originalImg
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
-                      |> rotate90Clockwise
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -92,16 +98,14 @@ module ImageTransformationTests =
 
               testProperty "Rotating counterclockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
                   let rotatedImg =
                       originalImg
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
-                      |> rotate90Counterclockwise
+                      |> rotateCPU Counterclockwise
+                      |> rotateCPU Counterclockwise
+                      |> rotateCPU Counterclockwise
+                      |> rotateCPU Counterclockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -110,11 +114,9 @@ module ImageTransformationTests =
 
               testProperty "Rotating clockwise then counterclockwise outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  // "+2" because minimum testing for 2x2 tables
-                  let data, w, h = initDataFromWH width height
-                  let originalImg = Image(data, w, h, "")
+                  let originalImg = getImage width height
 
-                  let rotatedImg = originalImg |> rotate90Clockwise |> rotate90Counterclockwise
+                  let rotatedImg = originalImg |> rotateCPU Clockwise |> rotateCPU Counterclockwise
 
                   Expect.equal
                       rotatedImg.Data
@@ -133,7 +135,60 @@ module ImageTransformationTests =
 
                   let expectedResult = applyFilter2DArray edgesKernel data2D |> flatArray2D
 
-                  Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}" ]
+                  Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}"
+
+              testProperty "Consecutively reflecting horizontally two times outputs the original pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let reflectedImage = originalImg |> reflectCPU Horizontal |> reflectCPU Horizontal
+
+                  Expect.equal
+                      reflectedImage.Data
+                      originalImg.Data
+                      "Reflecting horizontally two times failed to match the original"
+
+              testProperty "Consecutively reflecting vertically two times outputs the original pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let reflectedImage = originalImg |> reflectCPU Vertical |> reflectCPU Vertical
+
+                  Expect.equal
+                      reflectedImage.Data
+                      originalImg.Data
+                      "Reflecting vertically two times failed to match the original"
+
+              testProperty "Horizontal reflection is the same as vertical reflection followed by two rotations"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let actualResult = originalImg |> reflectCPU Horizontal
+
+                  let expectedResult =
+                      originalImg |> reflectCPU Vertical |> rotateCPU Clockwise |> rotateCPU Clockwise
+
+                  Expect.equal
+                      actualResult.Data
+                      expectedResult.Data
+                      "Horizontal reflection failed to match vertical reflection followed by two rotations"
+
+              testProperty "Vertical reflection is the same as horizontal reflection followed by two rotations"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let actualResult = originalImg |> reflectCPU Vertical
+
+                  let expectedResult =
+                      originalImg
+                      |> reflectCPU Horizontal
+                      |> rotateCPU Clockwise
+                      |> rotateCPU Clockwise
+
+                  Expect.equal
+                      actualResult.Data
+                      expectedResult.Data
+                      "Vertical reflection failed to match horizontal reflection followed by two rotations" ]
 
 module GeneralTests =
 
