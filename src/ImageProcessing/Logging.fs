@@ -4,18 +4,28 @@ let getTime () =
     let now = System.DateTime.Now
     sprintf $"%02d{now.Hour}:%02d{now.Minute}:%02d{now.Second}:%03d{now.Millisecond}"
 
+type LogControl =
+    | Message of string
+    | Stop
+
 type Logger() =
 
-    static let logger =
-        MailboxProcessor<string>.Start
-            (fun inbox ->
-                let rec loop () =
-                    async {
-                        let! msg = inbox.Receive()
-                        printfn $"{msg}"
-                        return! loop ()
-                    }
+    let agent (inbox: MailboxProcessor<LogControl>) =
+        let rec loop () =
+            async {
+                let! msg = inbox.Receive()
 
-                loop ())
+                match msg with
+                | Message msg ->
+                    printfn $"{msg}"
+                    return! loop ()
+                | Stop -> () // stop by not calling a loop
+            }
 
-    static member log msg = logger.Post(msg)
+        loop ()
+
+    let logger = new MailboxProcessor<LogControl>(agent)
+
+    member _.Start() = logger.Start()
+    member _.Stop() = logger.Post(Stop)
+    member _.Log msg = logger.Post(Message msg)
