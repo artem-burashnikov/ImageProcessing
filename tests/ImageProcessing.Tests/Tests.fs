@@ -3,6 +3,8 @@ namespace ImageProcessing.Tests
 open System
 open Expecto
 open ImageProcessing.ImageProcessing
+open Brahma.FSharp
+open ImageProcessing.Transformation
 
 module TestHelperFunctions =
     let r = Random()
@@ -253,3 +255,99 @@ module GeneralTests =
 
                   // Results should be the same
                   Expect.equal actualResult[head..] expectedResult[head..] "" ]
+
+module GPUTests =
+
+    open TestHelperFunctions
+
+    // Initialize parameters for GPU
+    let device = ClDevice.GetFirstAppropriateDevice()
+    let context = ClContext(device)
+
+    [<Tests>]
+    let tests =
+        testList
+            "samples"
+            [ testProperty
+                  "Applying clockwise rotation on CPU and applying rotation on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.Rotate
+
+                  let cpuApplicator = getTsfCPU Transformation.Rotate
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal actualResult.Data expectedResult.Data "Clockwise rotations on GPU and CPU don't match"
+
+              testProperty
+                  "Applying counterclockwise rotation on CPU and applying rotation on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.RotateCCW
+
+                  let cpuApplicator = getTsfCPU Transformation.RotateCCW
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal
+                      actualResult.Data
+                      expectedResult.Data
+                      "Counterclockwise rotations on GPU and CPU don't match"
+
+              testProperty "Applying available filters on CPU and on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let filters =
+                      [ Transformation.Blur
+                        Transformation.Edges
+                        Transformation.HighPass
+                        Transformation.Laplacian
+                        Transformation.SobelV ]
+
+                  let gpuApplicators = List.map (getTsfGPU context 64) filters
+
+                  let cpuApplicators = List.map getTsfCPU filters
+
+                  let actualResult =
+                      List.fold (fun img transformation -> transformation img) originalImg gpuApplicators
+
+                  let expectedResult =
+                      List.fold (fun img transformation -> transformation img) originalImg cpuApplicators
+
+                  Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
+
+              testProperty "Applying horizontal reflection on CPU and on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.ReflectH
+
+                  let cpuApplicator = getTsfCPU Transformation.ReflectH
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal actualResult.Data expectedResult.Data "Horizontal reflection on GPU and CPU don't match"
+
+              testProperty "Applying vertical reflection on CPU and on GPU has to yield the same pixel data"
+              <| fun (width: uint) (height: uint) ->
+                  let originalImg = getImage width height
+
+                  let gpuApplicator = getTsfGPU context 64 Transformation.ReflectV
+
+                  let cpuApplicator = getTsfCPU Transformation.ReflectV
+
+                  let actualResult = originalImg |> gpuApplicator
+
+                  let expectedResult = originalImg |> cpuApplicator
+
+                  Expect.equal actualResult.Data expectedResult.Data "Vertical reflection on GPU and CPU don't match" ]
