@@ -8,7 +8,7 @@ open ImageProcessing.RunStrategy
 module Main =
     type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
-        | [<Mandatory>] Strategy of RunStrategy * numberOfThreads: int
+        | [<Mandatory>] Strategy of RunStrategy * Threads: int
         | [<Mandatory; CustomCommandLine("-i")>] Input of string
         | [<Mandatory; CustomCommandLine("-o")>] Output of string
 
@@ -133,5 +133,10 @@ module Main =
         let transformations = results.GetResult(Transformations)
 
         let strategy, threads = results.GetResult(Strategy)
+
+        let threads =
+            match threads with
+            | x when x <= 0 -> 1
+            | _ -> threads
 
         runEditImage inputPath outputPath transformations strategy threads |> exit
