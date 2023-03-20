@@ -6,12 +6,11 @@ open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 
 module Main =
-
     type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
-        | [<Mandatory>] Strategy of RunStrategy
-        | [<Mandatory; AltCommandLine("-i")>] Input of string
-        | [<Mandatory; AltCommandLine("-o")>] Output of string
+        | [<Mandatory>] Strategy of RunStrategy * numberOfThreads: int
+        | [<Mandatory; CustomCommandLine("-i")>] Input of string
+        | [<Mandatory; CustomCommandLine("-o")>] Output of string
 
         interface IArgParserTemplate with
             member s.Usage =
@@ -57,6 +56,7 @@ module Main =
         (outputPath: OutputPath)
         (transformations: Transformation list)
         (strategy: RunStrategy)
+        (threads: int)
         =
 
         match inputPath, outputPath with
@@ -78,7 +78,7 @@ module Main =
         | InputPath.File sIn, OutputPath.Folder sOut ->
             if isImg sIn then
                 let imgFiles = [ sIn ]
-                Streaming.processAllFiles strategy imgFiles sOut transformations
+                Streaming.processAllFiles strategy threads imgFiles sOut transformations
                 0
             else
                 eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
@@ -90,7 +90,7 @@ module Main =
                 eprintf "No image files found in the specified folder."
                 1
             else
-                Streaming.processAllFiles strategy imgFiles sOut transformations
+                Streaming.processAllFiles strategy threads imgFiles sOut transformations
                 0
 
     [<EntryPoint>]
@@ -132,6 +132,6 @@ module Main =
 
         let transformations = results.GetResult(Transformations)
 
-        let strategy = results.GetResult(Strategy)
+        let strategy, threads = results.GetResult(Strategy)
 
-        runEditImage inputPath outputPath transformations strategy |> exit
+        runEditImage inputPath outputPath transformations strategy threads |> exit

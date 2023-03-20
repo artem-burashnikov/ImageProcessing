@@ -9,7 +9,7 @@ open ImageProcessing.Logging
 
 let listAllFiles dir = System.IO.Directory.GetFiles dir
 
-let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transformations =
+let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq) outDir transformations =
 
     // Start a new instance of logger
     let logger = Logger()
@@ -73,7 +73,7 @@ let processAllFiles (runStrategy: RunStrategy) (files: string seq) outDir transf
     /// Each agent processes and saves image by itself.
     let async2 (files: string seq) outDir transformations =
         // Get optimal parameters for parallel computations
-        let numCores = System.Environment.ProcessorCount
+        let numCores = min threads System.Environment.ProcessorCount
         let numFiles = Seq.length files
         let numAgents = min numCores numFiles
 
