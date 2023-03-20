@@ -148,7 +148,7 @@ module Main =
             let maybeThreads = results.TryGetResult(Threads)
 
             match maybeThreads with
-            | Some args -> args.GetResult(ThreadsArg.Count)
+            | Some args -> args.GetResult(ThreadsArg.Count) |> abs // ensure positive
             | None -> 1
 
 
