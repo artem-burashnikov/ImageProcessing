@@ -24,10 +24,5 @@ jobs:
   test:
     runs-on: [self-hosted]
     steps:
-      - uses: actions/checkout@v3
-      - name: Use .NET Core global.json
-        uses: actions/setup-dotnet@v3
-      - name: Restore dependencies
-        run: dotnet restore
       - name: Test
         run: dotnet test --verbosity normal
