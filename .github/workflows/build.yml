@@ -20,9 +20,31 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-        
+  
+  formatter:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Formatting
+        if: runner.os != 'Windows'
+        run: |
+         chmod +x ./build.sh
+         ./build.sh checkFormatCode
+        env:
+         CI: true
+      - name: Formatting
+        if: runner.os == 'Windows'
+        run: ./build.cmd checkFormatCode
+        env:
+         CI: true
+         
   test:
-    runs-on: [self-hosted]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Test
         run: dotnet test --verbosity normal
