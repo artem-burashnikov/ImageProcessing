@@ -14,12 +14,18 @@ jobs:
               uses: actions/setup-dotnet@v3
               with:
                   dotnet-version: 7.0.x
-            - name: Restore tools
-              run: dotnet tool restore
-            - name: Restore dependencies
-              run: dotnet restore
-            - name: Build
-              run: dotnet build --no-restore
+            -   name: Build
+                if: runner.os != 'Windows'
+                run: |
+                    chmod +x ./buildLocal.sh
+                    ./buildLocal.sh
+                env:
+                    CI: true
+            -   name: Build
+                if: runner.os == 'Windows'
+                run: ./buildLocal.cmd
+                env:
+                    CI: true
             - name: Formatting
               if: runner.os != 'Windows'
               run: |
@@ -39,5 +45,15 @@ jobs:
                 os: [self-hosted]
         runs-on: ${{ matrix.os }}
         steps:
-            - name: Test
-              run: dotnet test --verbosity normal
+            -   name: Test
+                if: runner.os != 'Windows'
+                run: |
+                    chmod +x ./test.sh
+                    ./test.sh
+                env:
+                    CI: true
+            -   name: Test
+                if: runner.os == 'Windows'
+                run: ./test.cmd
+                env:
+                    CI: true
