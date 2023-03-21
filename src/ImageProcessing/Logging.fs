@@ -9,20 +9,17 @@ type LogControl =
     | Stop
 
 type Logger() =
+    let mutable agentIsRunning = true
 
     let agent (inbox: MailboxProcessor<LogControl>) =
-        let rec loop () =
-            async {
+        async {
+            while agentIsRunning do
                 let! msg = inbox.Receive()
 
                 match msg with
-                | Message msg ->
-                    printfn $"{msg}"
-                    return! loop ()
-                | Stop -> () // stop by not calling a loop
-            }
-
-        loop ()
+                | Message msg -> printfn $"{msg}"
+                | Stop -> agentIsRunning <- false
+        }
 
     let logger = new MailboxProcessor<LogControl>(agent)
 
