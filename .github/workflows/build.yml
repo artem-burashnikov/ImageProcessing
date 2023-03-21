@@ -45,6 +45,7 @@ jobs:
                 os: [self-hosted]
         runs-on: ${{ matrix.os }}
         steps:
+            - uses: actions/checkout@v3
             -   name: Test
                 if: runner.os != 'Windows'
                 run: |
