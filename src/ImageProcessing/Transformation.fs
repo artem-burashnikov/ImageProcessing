@@ -39,24 +39,13 @@ let getTsfCPU transformation =
     | Transformation.ReflectV -> reflectCPU Vertical
 
 let getTsfGPU (clContext: ClContext) localWorkSize transformation =
-
-    let filterKernel = lazy Kernel<_>.makeFilterKernel clContext localWorkSize
-    let rotationKernel = lazy Kernel<_>.makeRotationKernel clContext localWorkSize
-    let reflectionKernel = lazy Kernel<_>.makeReflectionKernel clContext localWorkSize
-
-    let clockwise = 1
-    let counterclockwise = 0
-
-    let horizontal = 1
-    let vertical = 0
-
     match transformation with
-    | Transformation.Blur -> applyFilterGPU (filterKernel.Force()) clContext gaussianBlurKernel
-    | Transformation.Edges -> applyFilterGPU (filterKernel.Force()) clContext edgesKernel
-    | Transformation.HighPass -> applyFilterGPU (filterKernel.Force()) clContext highPassKernel
-    | Transformation.Laplacian -> applyFilterGPU (filterKernel.Force()) clContext laplacianKernel
-    | Transformation.SobelV -> applyFilterGPU (filterKernel.Force()) clContext sobelVerticalKernel
-    | Transformation.Rotate -> rawProcessGPU (rotationKernel.Force()) clContext clockwise
-    | Transformation.RotateCCW -> rawProcessGPU (rotationKernel.Force()) clContext counterclockwise
-    | Transformation.ReflectH -> rawProcessGPU (reflectionKernel.Force()) clContext horizontal
-    | Transformation.ReflectV -> rawProcessGPU (reflectionKernel.Force()) clContext vertical
+    | Transformation.Blur -> applyTransformGPU clContext localWorkSize (EditType.Transformation gaussianBlurKernel)
+    | Transformation.Edges -> applyTransformGPU clContext localWorkSize (EditType.Transformation edgesKernel)
+    | Transformation.HighPass -> applyTransformGPU clContext localWorkSize (EditType.Transformation highPassKernel)
+    | Transformation.Laplacian -> applyTransformGPU clContext localWorkSize (EditType.Transformation laplacianKernel)
+    | Transformation.SobelV -> applyTransformGPU clContext localWorkSize (EditType.Transformation sobelVerticalKernel)
+    | Transformation.Rotate -> applyTransformGPU clContext localWorkSize (EditType.Rotation Clockwise)
+    | Transformation.RotateCCW -> applyTransformGPU clContext localWorkSize (EditType.Rotation Counterclockwise)
+    | Transformation.ReflectH -> applyTransformGPU clContext localWorkSize (EditType.Reflection Horizontal)
+    | Transformation.ReflectV -> applyTransformGPU clContext localWorkSize (EditType.Reflection Vertical)

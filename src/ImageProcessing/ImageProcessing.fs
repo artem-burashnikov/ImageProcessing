@@ -24,10 +24,14 @@ type ReflectionDirection =
         | Horizontal -> "Horizontal"
         | Vertical -> "Vertical"
 
+type EditType =
+    | Transformation of float32[][]
+    | Rotation of RotationDirection
+    | Reflection of ReflectionDirection
+
+
 [<RequireQualifiedAccess>]
-type Kernel<'KernelFunction> =
-    | Rotation of 'KernelFunction
-    | Reflection of 'KernelFunction
+type Kernel =
 
     /// Returns kernel function wrapped in DU case
     static member makeRotationKernel (clContext: ClContext) localWorkSize =
@@ -49,8 +53,8 @@ type Kernel<'KernelFunction> =
 
         let kernel = clContext.Compile kernel
 
-        Rotation
-        <| fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+
+        fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
 
             let ndRange = Range1D.CreateValid(height * width, localWorkSize)
 
@@ -97,8 +101,8 @@ type Kernel<'KernelFunction> =
 
         let kernel = clContext.Compile kernel
 
-        Reflection
-        <| (fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
+
+        fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
 
             let ndRange = Range1D.CreateValid(height * width, localWorkSize)
 
@@ -109,7 +113,7 @@ type Kernel<'KernelFunction> =
             )
 
             commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
-            result)
+            result
 
     static member makeFilterKernel (clContext: ClContext) localWorkSize =
 
@@ -272,16 +276,14 @@ let rotateCPU direction (img: Image) =
 
     Image(res, height, width, img.Name)
 
-let rawProcessGPU rawKernel (clContext: ClContext) =
-
-    let kernel =
-        match rawKernel with
-        | Kernel.Rotation rotFn -> rotFn
-        | Kernel.Reflection refFn -> refFn
+let applyTransformGPU (clContext: ClContext) localWorkSize =
 
     let queue = clContext.QueueProvider.CreateQueue()
 
-    fun direction (img: Image) ->
+    fun (parameter: EditType) (img: Image) ->
+
+        let mutable width = img.Width
+        let mutable height = img.Height
 
         let input = clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
 
@@ -293,7 +295,40 @@ let rawProcessGPU rawKernel (clContext: ClContext) =
             )
 
         let (output: ClArray<byte>) =
-            kernel direction queue input img.Height img.Width output
+            match parameter with
+            | EditType.Rotation rotationDirection ->
+                let kernel =
+                    if rotationDirection = Clockwise then
+                        Kernel.makeRotationKernel clContext localWorkSize 1
+                    else
+                        Kernel.makeRotationKernel clContext localWorkSize 0
+
+                // Out of scope assignment for correct image dimensions when saving rotated images
+                height <- img.Width
+                width <- img.Height
+
+                kernel queue input img.Height img.Width output
+
+            | EditType.Reflection reflectionDirection ->
+                let kernel =
+                    if reflectionDirection = Horizontal then
+                        Kernel.makeReflectionKernel clContext localWorkSize 1
+                    else
+                        Kernel.makeReflectionKernel clContext localWorkSize 0
+
+                kernel queue input img.Height img.Width output
+
+            | EditType.Transformation table ->
+                let filterD = (Array.length table) / 2
+                let filter = Array.concat table
+
+                let clFilter =
+                    clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
+
+                let kernel = Kernel.makeFilterKernel clContext localWorkSize
+                let res = kernel queue clFilter filterD input img.Height img.Width output
+                queue.Post(Msg.CreateFreeMsg clFilter)
+                res
 
         let result = Array.zeroCreate (img.Height * img.Width)
 
@@ -301,9 +336,7 @@ let rawProcessGPU rawKernel (clContext: ClContext) =
         queue.Post(Msg.CreateFreeMsg input)
         queue.Post(Msg.CreateFreeMsg output)
 
-        match rawKernel with
-        | Kernel.Rotation _ -> Image(result, img.Height, img.Width, img.Name)
-        | Kernel.Reflection _ -> Image(result, img.Width, img.Height, img.Name)
+        Image(result, width, height, img.Name)
 
 let reflectCPU direction (img: Image) =
     let width = img.Width
@@ -406,37 +439,3 @@ let applyFilterCPU (filter: float32[][]) (img: Image) =
 
     let data = Array.mapi (fun i _ -> byte (processPixel i)) img.Data
     Image(data, width, height, img.Name)
-
-let applyFilterGPU kernel (clContext: ClContext) =
-
-    let queue = clContext.QueueProvider.CreateQueue()
-
-    fun (filter: float32[][]) (img: Image) ->
-
-        let input = clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
-
-        let output =
-            clContext.CreateClArray(
-                img.Data.Length,
-                HostAccessMode.NotAccessible,
-                allocationMode = AllocationMode.Default
-            )
-
-        let filterD = (Array.length filter) / 2
-
-        let filter = Array.concat filter
-
-        let clFilter =
-            clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
-
-        let (output: ClArray<byte>) =
-            kernel queue clFilter filterD input img.Height img.Width output
-
-        queue.Post(Msg.CreateFreeMsg clFilter)
-
-        let result = Array.zeroCreate (img.Height * img.Width)
-
-        let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(output, result, ch))
-        queue.Post(Msg.CreateFreeMsg input)
-        queue.Post(Msg.CreateFreeMsg output)
-        Image(result, img.Width, img.Height, img.Name)
