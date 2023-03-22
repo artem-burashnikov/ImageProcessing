@@ -258,23 +258,94 @@ let saveImage (image: Image) file =
     let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
     img.Save file
 
-let rotateCPU direction (img: Image) =
-    let width = img.Width
-    let height = img.Height
-    let res = Array.zeroCreate (width * height)
+let applyTransformCPU parameter (img: Image) =
 
-    match direction with
-    | Clockwise ->
-        for i in 0 .. height - 1 do
-            for j in 0 .. width - 1 do
-                res[j * height + height - i - 1] <- img.Data[i * width + j]
+    let mutable width = img.Width
+    let mutable height = img.Height
 
-    | Counterclockwise ->
-        for i in 0 .. height - 1 do
-            for j in 0 .. width - 1 do
-                res[(width - j - 1) * height + i] <- img.Data[i * width + j]
+    let res =
+        match parameter with
+        | EditType.Rotation direction ->
 
-    Image(res, height, width, img.Name)
+            // Resulting buffer
+            let res = Array.zeroCreate (width * height)
+
+            // Swap dimensions
+            width <- height
+            height <- img.Width
+
+            // Pixel remapping logic
+            if direction = Clockwise then
+                for i in 0 .. height - 1 do
+                    for j in 0 .. width - 1 do
+                        res[j * height + height - i - 1] <- img.Data[i * width + j]
+            else
+                // Counterclockwise
+                for i in 0 .. height - 1 do
+                    for j in 0 .. width - 1 do
+                        res[(width - j - 1) * height + i] <- img.Data[i * width + j]
+
+            res
+
+        | EditType.Reflection reflectionDirection ->
+
+            // Resulting buffer
+            let res = Array.zeroCreate (width * height)
+
+            // Pixel remapping logic
+            if reflectionDirection = Horizontal then
+                for i in 0 .. (height - 1) / 2 do
+                    for j in 0 .. (width - 1) / 2 do
+                        // nw <- sw
+                        res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
+                        // sw <- nw
+                        res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
+                        // ne <- se
+                        res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                        // se <- ne
+                        res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
+            else
+                // Vertical
+                for i in 0 .. (height - 1) / 2 do
+                    for j in 0 .. (width - 1) / 2 do
+                        (* | NW | NE |
+                           |____|____|
+                           | SW | SE | *)
+                        // nw <- ne
+                        res[i * width + j] <- img.Data[i * width + width - 1 - j]
+                        // ne <- nw
+                        res[i * width + width - 1 - j] <- img.Data[i * width + j]
+                        // sw <- se
+                        res[(height - 1) * width - (i * width) + j] <-
+                            img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                        // se <- sw
+                        res[(height - 1) * width - (i * width) + width - 1 - j] <-
+                            img.Data[(height - 1) * width - (i * width) + j]
+
+            res
+
+        | EditType.Transformation filter ->
+            let filterD = (Array.length filter) / 2
+
+            let filter = Array.concat filter
+
+            let processPixel p =
+                let pi = p / width
+                let pj = p % width
+
+                let dataToHandle =
+                    [| for i in pi - filterD .. pi + filterD do
+                           for j in pj - filterD .. pj + filterD do
+                               if i < 0 || i >= height || j < 0 || j >= width then
+                                   float32 img.Data[p]
+                               else
+                                   float32 img.Data[i * width + j] |]
+
+                Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
+
+            Array.mapi (fun i _ -> byte (processPixel i)) img.Data
+
+    Image(res, width, height, img.Name)
 
 let applyTransformGPU (clContext: ClContext) localWorkSize =
 
@@ -338,43 +409,6 @@ let applyTransformGPU (clContext: ClContext) localWorkSize =
 
         Image(result, width, height, img.Name)
 
-let reflectCPU direction (img: Image) =
-    let width = img.Width
-    let height = img.Height
-    let res = Array.zeroCreate (width * height)
-
-    match direction with
-    | Vertical ->
-        for i in 0 .. (height - 1) / 2 do
-            for j in 0 .. (width - 1) / 2 do
-                (* | NW | NE |
-                   |____|____|
-                   | SW | SE | *)
-                // nw <- ne
-                res[i * width + j] <- img.Data[i * width + width - 1 - j]
-                // ne <- nw
-                res[i * width + width - 1 - j] <- img.Data[i * width + j]
-                // sw <- se
-                res[(height - 1) * width - (i * width) + j] <-
-                    img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-                // se <- sw
-                res[(height - 1) * width - (i * width) + width - 1 - j] <-
-                    img.Data[(height - 1) * width - (i * width) + j]
-
-    | Horizontal ->
-        for i in 0 .. (height - 1) / 2 do
-            for j in 0 .. (width - 1) / 2 do
-                // nw <- sw
-                res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
-                // sw <- nw
-                res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
-                // ne <- se
-                res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-                // se <- ne
-                res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
-
-    Image(res, width, height, img.Name)
-
 let gaussianBlurKernel =
     [| [| 1; 4; 6; 4; 1 |]
        [| 4; 16; 24; 16; 4 |]
@@ -414,28 +448,3 @@ let sobelVerticalKernel =
        [| -2; -8; -12; -8; -2 |]
        [| -1; -4; -6; -4; -1 |] |]
     |> Array.map (Array.map float32)
-
-let applyFilterCPU (filter: float32[][]) (img: Image) =
-    let height = img.Height
-    let width = img.Width
-
-    let filterD = (Array.length filter) / 2
-
-    let filter = Array.concat filter
-
-    let processPixel p =
-        let pi = p / width
-        let pj = p % width
-
-        let dataToHandle =
-            [| for i in pi - filterD .. pi + filterD do
-                   for j in pj - filterD .. pj + filterD do
-                       if i < 0 || i >= height || j < 0 || j >= width then
-                           float32 img.Data[p]
-                       else
-                           float32 img.Data[i * width + j] |]
-
-        Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
-
-    let data = Array.mapi (fun i _ -> byte (processPixel i)) img.Data
-    Image(data, width, height, img.Name)
