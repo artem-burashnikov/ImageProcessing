@@ -270,10 +270,6 @@ let applyTransformCPU parameter (img: Image) =
             // Resulting buffer
             let res = Array.zeroCreate (width * height)
 
-            // Swap dimensions
-            width <- height
-            height <- img.Width
-
             // Pixel remapping logic
             if direction = Clockwise then
                 for i in 0 .. height - 1 do
@@ -285,6 +281,11 @@ let applyTransformCPU parameter (img: Image) =
                     for j in 0 .. width - 1 do
                         res[(width - j - 1) * height + i] <- img.Data[i * width + j]
 
+            // Swap dimensions
+            width <- height
+            height <- img.Width
+
+            // Return the result
             res
 
         | EditType.Reflection reflectionDirection ->
