@@ -31,7 +31,7 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
 
             logger.Log $"%s{getTime ()}: %s{img.Name} is being saved"
             saveImage output (outFile outDir img.Name)
-            logger.Log $"%s{(getTime ())} : %s{img.Name} has been saved successfully"
+            logger.Log $"%s{(getTime ())}: %s{img.Name} has been saved successfully"
 
         // ... stop time it
         stopwatch.Stop()
