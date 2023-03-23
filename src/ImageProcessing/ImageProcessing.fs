@@ -24,6 +24,7 @@ type ReflectionDirection =
         | Horizontal -> "Horizontal"
         | Vertical -> "Vertical"
 
+[<RequireQualifiedAccess>]
 type EditType =
     | Transformation of float32[][]
     | Rotation of RotationDirection
