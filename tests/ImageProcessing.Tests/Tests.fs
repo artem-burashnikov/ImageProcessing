@@ -251,27 +251,7 @@ module GeneralTests =
                   let expectedResult = Array.splitInto count memory[head..]
 
                   // Results should match
-                  Expect.equal actualResult expectedResult ""
-
-              testProperty "VirtualArray.mapi equals Array.mapi"
-              <| fun (memory: array<byte>) ->
-                  // Make a copy of original data so changes differ.
-                  let actualResult = Array.copy memory
-
-                  // Virtually split the copy in two parts ...
-                  let head = r.Next(0, memory.Length)
-                  let part1 = VirtualArray(actualResult, 0, head)
-                  let part2 = VirtualArray(actualResult, head, actualResult.Length - head)
-
-                  // ... and apply mapi on virtual parts separately.
-                  VirtualArray.mapi (fun i value -> byte i + value) part1 |> ignore
-                  VirtualArray.mapi (fun i value -> byte i + value) part2 |> ignore
-
-                  // Apply mapi on original data
-                  let expectedResult = Array.mapi (fun i value -> byte i + value) memory
-
-                  // Results should be the same
-                  Expect.equal actualResult[head..] expectedResult[head..] "" ]
+                  Expect.equal actualResult expectedResult "" ]
 
 module GPUTests =
 

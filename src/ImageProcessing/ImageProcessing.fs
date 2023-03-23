@@ -215,12 +215,10 @@ type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
 
         state
 
-    /// Mapi from a virtual memory to a general memory of itself
-    static member mapi mapping (vArray: VirtualArray<'A>) =
+    /// Writes the result of an appliend function to the output
+    static member iteri2 action (vArray: VirtualArray<'A>) (output: array<'A>) =
         for i in 0 .. vArray.Length - 1 do
-            vArray.Memory[ vArray.Head + i ] <- mapping (vArray.Head + i) vArray.Memory[vArray.Head + i]
-
-        vArray
+            output[vArray.Head + i] <- action (vArray.Head + i) vArray.Memory[vArray.Head + i]
 
 
 [<Struct>]
@@ -248,7 +246,7 @@ type Image =
 type ApplyTransform(?parallelLEvel) =
 
     // Get optimal parameters for parallel computations
-    let parallelLEvel = min (Environment.ProcessorCount) (defaultArg parallelLEvel 1)
+    let parallelLEvel = defaultArg parallelLEvel 1
 
     /// Apply a given transformation using CPU resources
     member _.OnCPU parameter (img: Image) =
@@ -352,10 +350,14 @@ type ApplyTransform(?parallelLEvel) =
                 output
 
             | EditType.Transformation filter ->
+
+                // Filter parameters
                 let filterD = (Array.length filter) / 2
 
+                // Flatten 2dArray of pixels
                 let filter = Array.concat filter
 
+                // Pixel processing logic
                 let processPixel p =
                     let pi = p / width
                     let pj = p % width
@@ -367,12 +369,28 @@ type ApplyTransform(?parallelLEvel) =
                                        float32 img.Data[p]
                                    else
                                        float32 img.Data[i * width + j] |]
-                    // Weighted sum of pixels
+
+                    // Returns weighted sum of pixels
                     Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
 
-                // Bind output to the result
-                Array.mapi (fun i _ -> byte (processPixel i)) img.Data
+                // Create a Virtual array and an output buffer out of a given image's data
+                let input = VirtualArray(img.Data, 0, img.Height * img.Width)
+                let output = Array.zeroCreate (width * height)
 
+                if parallelLEvel = 1 then
+                    // For non-async computations on the main thread we just pass the whole VirtualArray
+                    VirtualArray.iteri2 (fun i _ -> byte (processPixel i)) input output
+                    output
+
+                else
+                    // For async computations we split a given data between processors.
+                    // Each performs its own pixel remapping logic.
+                    let input = VirtualArray.splitInto parallelLEvel input
+                    let action = VirtualArray.iteri2 (fun i _ -> byte (processPixel i))
+                    Array.Parallel.iter (fun (vArray: VirtualArray<byte>) -> action vArray output) input
+                    output
+
+        // Return the final result
         Image(result, width, height, img.Name)
 
     /// Apply a given transformation using GPU resources
