@@ -129,19 +129,22 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
     // Determine how to run
     match ensuredRunStrategy with
     | CPU ->
-        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
+        let transformations =
+            transformations |> List.map (getTsfCPU threads) |> List.reduce (>>)
+
         naive files outDir transformations
 
+    // 1 is being passed as a parameter to getTsfCPU's threadsCount since we already perform async computaions using agents
     | Async1CPU ->
-        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
+        let transformations = transformations |> List.map (getTsfCPU 1) |> List.reduce (>>)
         async1 files outDir transformations
 
     | Async2CPU ->
-        let transformations = transformations |> List.map getTsfCPU |> List.reduce (>>)
+        let transformations = transformations |> List.map (getTsfCPU 1) |> List.reduce (>>)
         async2 files outDir transformations
 
+    // At this point it has to be ensured that GPU is present on the system.
     | GPU ->
-        // At this point it has to be ensured that GPU is present on the system.
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
 

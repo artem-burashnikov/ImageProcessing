@@ -245,79 +245,111 @@ type Image =
           Height = height
           Name = name }
 
-type ApplyTransform =
+type ApplyTransform(?parallelLEvel) =
 
-    static member onCPU parameter (img: Image) =
+    // Get optimal parameters for parallel computations
+    let parallelLEvel = min (Environment.ProcessorCount) (defaultArg parallelLEvel 1)
+
+    /// Apply a given transformation using CPU resources
+    member _.OnCPU parameter (img: Image) =
 
         // Store image dimensions, because we might need to swap them later if Rotation is performed
         let mutable width = img.Width
         let mutable height = img.Height
 
-        // The resulting pixel data depends on matching case of transformation parameter
-        let res =
+        // The resulting pixel data depends on the matching case of the transformation parameter
+        let result =
             match parameter with
-            | EditType.Rotation direction ->
+            | EditType.Rotation rotationDirection ->
+                /// Function performs a pixel remapping logic to rotate an image
+                let remapPixels (input: VirtualArray<byte>) (output: array<byte>) =
+                    // Going throug each of VirtualArray's indices...
+                    for i in input.Head .. input.Head + input.Length - 1 do
 
-                // Resulting buffer
-                let res = Array.zeroCreate (width * height)
+                        // ... compute their global memory indices...
+                        let pi = i / img.Width
+                        let pj = i % img.Width
 
-                // Pixel remapping logic
-                if direction = Clockwise then
-                    for i in 0 .. height - 1 do
-                        for j in 0 .. width - 1 do
-                            res[j * height + height - i - 1] <- img.Data[i * width + j]
+                        // ... and perform remapping on global memory
+                        match rotationDirection with
+                        | Clockwise ->
+                            output[pj * img.Height + img.Height - pi - 1] <- input.Memory[pi * img.Width + pj]
+                        | Counterclockwise ->
+                            output[(img.Width - pj - 1) * img.Height + pi] <- input.Memory[pi * img.Width + pj]
+
+                // We create a Virtual and an output buffer array out of a given image's data
+                let input = VirtualArray(img.Data, 0, img.Height * img.Width)
+                let output = Array.zeroCreate (width * height)
+
+                if parallelLEvel = 1 then
+                    // For non-async computations on the main thread we just pass the whole VirtualArray
+                    remapPixels input output
                 else
-                    // Counterclockwise
-                    for i in 0 .. height - 1 do
-                        for j in 0 .. width - 1 do
-                            res[(width - j - 1) * height + i] <- img.Data[i * width + j]
+                    // For async computations we split a given data between processors.
+                    // Each performs its own pixel remapping logic.
+                    let input = VirtualArray.splitInto parallelLEvel input
+                    Array.Parallel.iter (fun vArray -> remapPixels vArray output) input
 
                 // Swap dimensions
                 width <- height
                 height <- img.Width
 
-                // Return the result
-                res
+                // Bind output to the result
+                output
 
             | EditType.Reflection reflectionDirection ->
+                /// Function performs a pixel remapping logic to reflect an image
+                let remapPixels (input: VirtualArray<byte>) (output: array<byte>) =
+                    // Going throug each of VirtualArray's indices...
+                    for i in input.Head .. input.Head + input.Length - 1 do
 
-                // Resulting buffer
-                let res = Array.zeroCreate (width * height)
+                        // ... compute their global memory indices...
+                        let pi = i / img.Width
+                        let pj = i % img.Width
 
-                // Pixel remapping logic
-                if reflectionDirection = Horizontal then
-                    for i in 0 .. (height - 1) / 2 do
-                        for j in 0 .. (width - 1) / 2 do
+                        // ... and perform remapping on global memory
+                        match reflectionDirection with
+                        | Horizontal ->
                             // nw <- sw
-                            res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
-                            // sw <- nw
-                            res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
+                            output[pi * img.Width + pj] <-
+                                input.Memory[(img.Height - 1) * img.Width - (pi * img.Width) + pj]
+                            // nw -> sw
+                            output[(img.Height - 1) * img.Width - (pi * img.Width) + pj] <-
+                                input.Memory[pi * img.Width + pj]
                             // ne <- se
-                            res[i * width + width - 1 - j] <-
-                                img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-                            // se <- ne
-                            res[(height - 1) * width - (i * width) + width - 1 - j] <-
-                                img.Data[i * width + width - 1 - j]
-                else
-                    // Vertical
-                    for i in 0 .. (height - 1) / 2 do
-                        for j in 0 .. (width - 1) / 2 do
-                            (* | NW | NE |
-                            |____|____|
-                            | SW | SE | *)
-                            // nw <- ne
-                            res[i * width + j] <- img.Data[i * width + width - 1 - j]
-                            // ne <- nw
-                            res[i * width + width - 1 - j] <- img.Data[i * width + j]
-                            // sw <- se
-                            res[(height - 1) * width - (i * width) + j] <-
-                                img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-                            // se <- sw
-                            res[(height - 1) * width - (i * width) + width - 1 - j] <-
-                                img.Data[(height - 1) * width - (i * width) + j]
+                            output[pi * img.Width + img.Width - 1 - pj] <-
+                                input.Memory[(img.Height - 1) * img.Width - (pi * img.Width) + img.Width - 1 - pj]
+                            // ne -> se
+                            output[(img.Height - 1) * img.Width - (pi * img.Width) + img.Width - 1 - pj] <-
+                                input.Memory[pi * img.Width + img.Width - 1 - pj]
 
-                // Return the result
-                res
+                        | Vertical ->
+                            // nw <- ne
+                            output[pi * img.Width + pj] <- input.Memory[pi * img.Width + img.Width - 1 - pj]
+                            // nw -> ne
+                            output[pi * img.Width + img.Width - 1 - pj] <- input.Memory[pi * img.Width + pj]
+                            // sw <- se
+                            output[(img.Height - 1) * img.Width - (pi * img.Width) + pj] <-
+                                input.Memory[(img.Height - 1) * img.Width - (pi * img.Width) + img.Width - 1 - pj]
+                            // sw -> se
+                            output[(img.Height - 1) * img.Width - (pi * img.Width) + img.Width - 1 - pj] <-
+                                input.Memory[(img.Height - 1) * img.Width - (pi * img.Width) + pj]
+
+                // We create a Virtual array and an output buffer out of a given image's data
+                let input = VirtualArray(img.Data, 0, img.Height * img.Width)
+                let output = Array.zeroCreate (img.Height * img.Width)
+
+                if parallelLEvel = 1 then
+                    // For non-async computations on the main thread we just pass the whole VirtualArray
+                    remapPixels input output
+                else
+                    // For async computations we split a given data between processors.
+                    // Each performs its own pixel remapping logic.
+                    let input = VirtualArray.splitInto parallelLEvel input
+                    Array.Parallel.iter (fun vArray -> remapPixels vArray output) input
+
+                // Bind output to the result
+                output
 
             | EditType.Transformation filter ->
                 let filterD = (Array.length filter) / 2
@@ -338,12 +370,13 @@ type ApplyTransform =
                     // Weighted sum of pixels
                     Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
 
-                // Array.mapi builds a new array, so we don't need to return anything explicitly here
+                // Bind output to the result
                 Array.mapi (fun i _ -> byte (processPixel i)) img.Data
 
-        Image(res, width, height, img.Name)
+        Image(result, width, height, img.Name)
 
-    static member onGPU (clContext: ClContext) localWorkSize =
+    /// Apply a given transformation using GPU resources
+    member _.OnGPU (clContext: ClContext) localWorkSize =
 
         let queue = clContext.QueueProvider.CreateQueue()
 
