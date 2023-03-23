@@ -89,10 +89,10 @@ module CPUTests =
 
                   let rotatedImg =
                       originalImg
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
 
                   Expect.equal
                       rotatedImg.Data
@@ -105,10 +105,10 @@ module CPUTests =
 
                   let rotatedImg =
                       originalImg
-                      |> applyTransformCPU (EditType.Rotation Counterclockwise)
-                      |> applyTransformCPU (EditType.Rotation Counterclockwise)
-                      |> applyTransformCPU (EditType.Rotation Counterclockwise)
-                      |> applyTransformCPU (EditType.Rotation Counterclockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Counterclockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Counterclockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Counterclockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Counterclockwise)
 
                   Expect.equal
                       rotatedImg.Data
@@ -121,8 +121,8 @@ module CPUTests =
 
                   let rotatedImg =
                       originalImg
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
-                      |> applyTransformCPU (EditType.Rotation Counterclockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Counterclockwise)
 
                   Expect.equal
                       rotatedImg.Data
@@ -151,8 +151,8 @@ module CPUTests =
 
                   let reflectedImage =
                       originalImg
-                      |> applyTransformCPU (EditType.Reflection Horizontal)
-                      |> applyTransformCPU (EditType.Reflection Horizontal)
+                      |> ApplyTransform.onCPU (EditType.Reflection Horizontal)
+                      |> ApplyTransform.onCPU (EditType.Reflection Horizontal)
 
                   Expect.equal
                       reflectedImage.Data
@@ -165,8 +165,8 @@ module CPUTests =
 
                   let reflectedImage =
                       originalImg
-                      |> applyTransformCPU (EditType.Reflection Vertical)
-                      |> applyTransformCPU (EditType.Reflection Vertical)
+                      |> ApplyTransform.onCPU (EditType.Reflection Vertical)
+                      |> ApplyTransform.onCPU (EditType.Reflection Vertical)
 
                   Expect.equal
                       reflectedImage.Data
@@ -177,13 +177,14 @@ module CPUTests =
               <| fun (width: uint) (height: uint) ->
                   let originalImg = getImage width height
 
-                  let actualResult = originalImg |> applyTransformCPU (EditType.Reflection Horizontal)
+                  let actualResult =
+                      originalImg |> ApplyTransform.onCPU (EditType.Reflection Horizontal)
 
                   let expectedResult =
                       originalImg
-                      |> applyTransformCPU (EditType.Reflection Vertical)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Reflection Vertical)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
 
                   Expect.equal
                       actualResult.Data
@@ -194,13 +195,14 @@ module CPUTests =
               <| fun (width: uint) (height: uint) ->
                   let originalImg = getImage width height
 
-                  let actualResult = originalImg |> applyTransformCPU (EditType.Reflection Vertical)
+                  let actualResult =
+                      originalImg |> ApplyTransform.onCPU (EditType.Reflection Vertical)
 
                   let expectedResult =
                       originalImg
-                      |> applyTransformCPU (EditType.Reflection Horizontal)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
-                      |> applyTransformCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Reflection Horizontal)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
+                      |> ApplyTransform.onCPU (EditType.Rotation Clockwise)
 
                   Expect.equal
                       actualResult.Data

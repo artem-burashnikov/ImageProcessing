@@ -245,6 +245,171 @@ type Image =
           Height = height
           Name = name }
 
+type ApplyTransform =
+
+    static member onCPU parameter (img: Image) =
+
+        // Store image dimensions, because we might need to swap them later if Rotation is performed
+        let mutable width = img.Width
+        let mutable height = img.Height
+
+        // The resulting pixel data depends on matching case of transformation parameter
+        let res =
+            match parameter with
+            | EditType.Rotation direction ->
+
+                // Resulting buffer
+                let res = Array.zeroCreate (width * height)
+
+                // Pixel remapping logic
+                if direction = Clockwise then
+                    for i in 0 .. height - 1 do
+                        for j in 0 .. width - 1 do
+                            res[j * height + height - i - 1] <- img.Data[i * width + j]
+                else
+                    // Counterclockwise
+                    for i in 0 .. height - 1 do
+                        for j in 0 .. width - 1 do
+                            res[(width - j - 1) * height + i] <- img.Data[i * width + j]
+
+                // Swap dimensions
+                width <- height
+                height <- img.Width
+
+                // Return the result
+                res
+
+            | EditType.Reflection reflectionDirection ->
+
+                // Resulting buffer
+                let res = Array.zeroCreate (width * height)
+
+                // Pixel remapping logic
+                if reflectionDirection = Horizontal then
+                    for i in 0 .. (height - 1) / 2 do
+                        for j in 0 .. (width - 1) / 2 do
+                            // nw <- sw
+                            res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
+                            // sw <- nw
+                            res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
+                            // ne <- se
+                            res[i * width + width - 1 - j] <-
+                                img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                            // se <- ne
+                            res[(height - 1) * width - (i * width) + width - 1 - j] <-
+                                img.Data[i * width + width - 1 - j]
+                else
+                    // Vertical
+                    for i in 0 .. (height - 1) / 2 do
+                        for j in 0 .. (width - 1) / 2 do
+                            (* | NW | NE |
+                            |____|____|
+                            | SW | SE | *)
+                            // nw <- ne
+                            res[i * width + j] <- img.Data[i * width + width - 1 - j]
+                            // ne <- nw
+                            res[i * width + width - 1 - j] <- img.Data[i * width + j]
+                            // sw <- se
+                            res[(height - 1) * width - (i * width) + j] <-
+                                img.Data[(height - 1) * width - (i * width) + width - 1 - j]
+                            // se <- sw
+                            res[(height - 1) * width - (i * width) + width - 1 - j] <-
+                                img.Data[(height - 1) * width - (i * width) + j]
+
+                // Return the result
+                res
+
+            | EditType.Transformation filter ->
+                let filterD = (Array.length filter) / 2
+
+                let filter = Array.concat filter
+
+                let processPixel p =
+                    let pi = p / width
+                    let pj = p % width
+
+                    let dataToHandle =
+                        [| for i in pi - filterD .. pi + filterD do
+                               for j in pj - filterD .. pj + filterD do
+                                   if i < 0 || i >= height || j < 0 || j >= width then
+                                       float32 img.Data[p]
+                                   else
+                                       float32 img.Data[i * width + j] |]
+                    // Weighted sum of pixels
+                    Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
+
+                // Array.mapi builds a new array, so we don't need to return anything explicitly here
+                Array.mapi (fun i _ -> byte (processPixel i)) img.Data
+
+        Image(res, width, height, img.Name)
+
+    static member onGPU (clContext: ClContext) localWorkSize =
+
+        let queue = clContext.QueueProvider.CreateQueue()
+
+        // The lambda-function will be returned
+        fun (parameter: EditType) (img: Image) ->
+
+            // Store image dimensions, because we might need to swap them later if Rotation is performed
+            let mutable width = img.Width
+            let mutable height = img.Height
+
+            let input = clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
+
+            let output =
+                clContext.CreateClArray(
+                    img.Data.Length,
+                    HostAccessMode.NotAccessible,
+                    allocationMode = AllocationMode.Default
+                )
+
+            let (output: ClArray<byte>) =
+                match parameter with
+                | EditType.Rotation rotationDirection ->
+                    let kernel =
+                        if rotationDirection = Clockwise then
+                            Kernel.makeRotationKernel clContext localWorkSize 1
+                        else
+                            Kernel.makeRotationKernel clContext localWorkSize 0
+
+                    // Out of scope assignment for correct image dimensions when saving rotated images
+                    height <- img.Width
+                    width <- img.Height
+
+                    kernel queue input img.Height img.Width output
+
+                | EditType.Reflection reflectionDirection ->
+                    let kernel =
+                        if reflectionDirection = Horizontal then
+                            Kernel.makeReflectionKernel clContext localWorkSize 1
+                        else
+                            Kernel.makeReflectionKernel clContext localWorkSize 0
+
+                    kernel queue input img.Height img.Width output
+
+                | EditType.Transformation table ->
+                    let filterD = (Array.length table) / 2
+                    let filter = Array.concat table
+
+                    let clFilter =
+                        clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
+
+                    let kernel = Kernel.makeFilterKernel clContext localWorkSize
+                    let res = kernel queue clFilter filterD input img.Height img.Width output
+                    // Memory clean-up on GPU
+                    queue.Post(Msg.CreateFreeMsg clFilter)
+                    res
+
+            let result = Array.zeroCreate (img.Height * img.Width)
+
+            let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(output, result, ch))
+
+            // Memory clean-up on GPU
+            queue.Post(Msg.CreateFreeMsg input)
+            queue.Post(Msg.CreateFreeMsg output)
+
+            Image(result, width, height, img.Name)
+
 let loadAsImage (file: string) =
     let img = Image.Load<L8> file
 
@@ -256,164 +421,3 @@ let loadAsImage (file: string) =
 let saveImage (image: Image) file =
     let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
     img.Save file
-
-let applyTransformCPU parameter (img: Image) =
-
-    // Store image dimensions, because we might need to swap them later if Rotation is performed
-    let mutable width = img.Width
-    let mutable height = img.Height
-
-    // The resulting pixel data depends on matching case of transformation parameter
-    let res =
-        match parameter with
-        | EditType.Rotation direction ->
-
-            // Resulting buffer
-            let res = Array.zeroCreate (width * height)
-
-            // Pixel remapping logic
-            if direction = Clockwise then
-                for i in 0 .. height - 1 do
-                    for j in 0 .. width - 1 do
-                        res[j * height + height - i - 1] <- img.Data[i * width + j]
-            else
-                // Counterclockwise
-                for i in 0 .. height - 1 do
-                    for j in 0 .. width - 1 do
-                        res[(width - j - 1) * height + i] <- img.Data[i * width + j]
-
-            // Swap dimensions
-            width <- height
-            height <- img.Width
-
-            // Return the result
-            res
-
-        | EditType.Reflection reflectionDirection ->
-
-            // Resulting buffer
-            let res = Array.zeroCreate (width * height)
-
-            // Pixel remapping logic
-            if reflectionDirection = Horizontal then
-                for i in 0 .. (height - 1) / 2 do
-                    for j in 0 .. (width - 1) / 2 do
-                        // nw <- sw
-                        res[i * width + j] <- img.Data[(height - 1) * width - (i * width) + j]
-                        // sw <- nw
-                        res[(height - 1) * width - (i * width) + j] <- img.Data[i * width + j]
-                        // ne <- se
-                        res[i * width + width - 1 - j] <- img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-                        // se <- ne
-                        res[(height - 1) * width - (i * width) + width - 1 - j] <- img.Data[i * width + width - 1 - j]
-            else
-                // Vertical
-                for i in 0 .. (height - 1) / 2 do
-                    for j in 0 .. (width - 1) / 2 do
-                        (* | NW | NE |
-                           |____|____|
-                           | SW | SE | *)
-                        // nw <- ne
-                        res[i * width + j] <- img.Data[i * width + width - 1 - j]
-                        // ne <- nw
-                        res[i * width + width - 1 - j] <- img.Data[i * width + j]
-                        // sw <- se
-                        res[(height - 1) * width - (i * width) + j] <-
-                            img.Data[(height - 1) * width - (i * width) + width - 1 - j]
-                        // se <- sw
-                        res[(height - 1) * width - (i * width) + width - 1 - j] <-
-                            img.Data[(height - 1) * width - (i * width) + j]
-
-            // Return the result
-            res
-
-        | EditType.Transformation filter ->
-            let filterD = (Array.length filter) / 2
-
-            let filter = Array.concat filter
-
-            let processPixel p =
-                let pi = p / width
-                let pj = p % width
-
-                let dataToHandle =
-                    [| for i in pi - filterD .. pi + filterD do
-                           for j in pj - filterD .. pj + filterD do
-                               if i < 0 || i >= height || j < 0 || j >= width then
-                                   float32 img.Data[p]
-                               else
-                                   float32 img.Data[i * width + j] |]
-                // Weighted sum of pixels
-                Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
-
-            // Array.mapi builds a new array, so we don't need to return anything explicitly here
-            Array.mapi (fun i _ -> byte (processPixel i)) img.Data
-
-    Image(res, width, height, img.Name)
-
-let applyTransformGPU (clContext: ClContext) localWorkSize =
-
-    let queue = clContext.QueueProvider.CreateQueue()
-
-    // The lambda-function will be returned
-    fun (parameter: EditType) (img: Image) ->
-
-        // Store image dimensions, because we might need to swap them later if Rotation is performed
-        let mutable width = img.Width
-        let mutable height = img.Height
-
-        let input = clContext.CreateClArray<_>(img.Data, HostAccessMode.NotAccessible)
-
-        let output =
-            clContext.CreateClArray(
-                img.Data.Length,
-                HostAccessMode.NotAccessible,
-                allocationMode = AllocationMode.Default
-            )
-
-        let (output: ClArray<byte>) =
-            match parameter with
-            | EditType.Rotation rotationDirection ->
-                let kernel =
-                    if rotationDirection = Clockwise then
-                        Kernel.makeRotationKernel clContext localWorkSize 1
-                    else
-                        Kernel.makeRotationKernel clContext localWorkSize 0
-
-                // Out of scope assignment for correct image dimensions when saving rotated images
-                height <- img.Width
-                width <- img.Height
-
-                kernel queue input img.Height img.Width output
-
-            | EditType.Reflection reflectionDirection ->
-                let kernel =
-                    if reflectionDirection = Horizontal then
-                        Kernel.makeReflectionKernel clContext localWorkSize 1
-                    else
-                        Kernel.makeReflectionKernel clContext localWorkSize 0
-
-                kernel queue input img.Height img.Width output
-
-            | EditType.Transformation table ->
-                let filterD = (Array.length table) / 2
-                let filter = Array.concat table
-
-                let clFilter =
-                    clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
-
-                let kernel = Kernel.makeFilterKernel clContext localWorkSize
-                let res = kernel queue clFilter filterD input img.Height img.Width output
-                // Memory clean-up on GPU
-                queue.Post(Msg.CreateFreeMsg clFilter)
-                res
-
-        let result = Array.zeroCreate (img.Height * img.Width)
-
-        let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(output, result, ch))
-
-        // Memory clean-up on GPU
-        queue.Post(Msg.CreateFreeMsg input)
-        queue.Post(Msg.CreateFreeMsg output)
-
-        Image(result, width, height, img.Name)
