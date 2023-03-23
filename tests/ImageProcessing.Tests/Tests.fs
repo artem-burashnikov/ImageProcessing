@@ -3,8 +3,9 @@ namespace ImageProcessing.Tests
 open System
 open Expecto
 open ImageProcessing.ImageProcessing
-open Brahma.FSharp
 open ImageProcessing.Transformation
+open ImageProcessing.FilterKernel
+open Brahma.FSharp
 
 module TestHelperFunctions =
     let r = Random()
@@ -136,9 +137,11 @@ module CPUTests =
 
                   let data1D = flatArray2D data2D
 
-                  let actualResult = applyFilterNaive edgesKernel (Image(data1D, w, h, ""))
+                  let actualResult =
+                      applyFilterNaive FilterKernel.EdgesKernel (Image(data1D, w, h, ""))
 
-                  let expectedResult = applyFilter2DArray edgesKernel data2D |> flatArray2D
+                  let expectedResult =
+                      applyFilter2DArray FilterKernel.EdgesKernel data2D |> flatArray2D
 
                   Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}"
 
