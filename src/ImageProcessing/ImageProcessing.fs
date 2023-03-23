@@ -39,7 +39,6 @@ type EditType =
 type Kernel =
 
     static member makeRotationKernel (clContext: ClContext) localWorkSize =
-
         let kernel =
             <@
                 fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) direction ->
@@ -57,7 +56,6 @@ type Kernel =
 
         let kernel = clContext.Compile kernel
 
-
         fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
 
             let ndRange = Range1D.CreateValid(height * width, localWorkSize)
@@ -73,7 +71,6 @@ type Kernel =
 
     static member makeReflectionKernel (clContext: ClContext) localWorkSize =
         let kernel =
-
             <@
                 fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) direction ->
                     let p = r.GlobalID0
@@ -104,7 +101,6 @@ type Kernel =
 
         let kernel = clContext.Compile kernel
 
-
         fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
 
             let ndRange = Range1D.CreateValid(height * width, localWorkSize)
@@ -119,7 +115,6 @@ type Kernel =
             result
 
     static member makeFilterKernel (clContext: ClContext) localWorkSize =
-
         let kernel =
             <@
                 fun (r: Range1D) (img: ClArray<byte>) width height (filter: ClArray<float32>) filterD (result: ClArray<byte>) ->
