@@ -29,11 +29,15 @@ type EditType =
     | Rotation of RotationDirection
     | Reflection of ReflectionDirection
 
+    override this.ToString() =
+        match this with
+        | Transformation _ -> "Transformation"
+        | Rotation direction -> $"%s{direction.ToString()} Rotation"
+        | Reflection direction -> $"%s{direction.ToString()} Reflection"
 
 [<RequireQualifiedAccess>]
 type Kernel =
 
-    /// Returns kernel function wrapped in DU case
     static member makeRotationKernel (clContext: ClContext) localWorkSize =
 
         let kernel =
@@ -67,7 +71,6 @@ type Kernel =
             commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
             result
 
-    /// Returns kernel function wrapped in DU case
     static member makeReflectionKernel (clContext: ClContext) localWorkSize =
         let kernel =
 
