@@ -259,9 +259,11 @@ let saveImage (image: Image) file =
 
 let applyTransformCPU parameter (img: Image) =
 
+    // Store image dimensions, because we might need to swap them later if Rotation is performed
     let mutable width = img.Width
     let mutable height = img.Height
 
+    // The resulting pixel data depends on matching case of transformation parameter
     let res =
         match parameter with
         | EditType.Rotation direction ->
@@ -322,6 +324,7 @@ let applyTransformCPU parameter (img: Image) =
                         res[(height - 1) * width - (i * width) + width - 1 - j] <-
                             img.Data[(height - 1) * width - (i * width) + j]
 
+            // Return the result
             res
 
         | EditType.Transformation filter ->
@@ -340,9 +343,10 @@ let applyTransformCPU parameter (img: Image) =
                                    float32 img.Data[p]
                                else
                                    float32 img.Data[i * width + j] |]
-
+                // Weighted sum of pixels
                 Array.fold2 (fun s x y -> s + x * y) 0.0f filter dataToHandle
 
+            // Array.mapi builds a new array, so we don't need to return anything explicitly here
             Array.mapi (fun i _ -> byte (processPixel i)) img.Data
 
     Image(res, width, height, img.Name)
@@ -351,8 +355,10 @@ let applyTransformGPU (clContext: ClContext) localWorkSize =
 
     let queue = clContext.QueueProvider.CreateQueue()
 
+    // The lambda-function will be returned
     fun (parameter: EditType) (img: Image) ->
 
+        // Store image dimensions, because we might need to swap them later if Rotation is performed
         let mutable width = img.Width
         let mutable height = img.Height
 
@@ -398,12 +404,15 @@ let applyTransformGPU (clContext: ClContext) localWorkSize =
 
                 let kernel = Kernel.makeFilterKernel clContext localWorkSize
                 let res = kernel queue clFilter filterD input img.Height img.Width output
+                // Memory clean-up on GPU
                 queue.Post(Msg.CreateFreeMsg clFilter)
                 res
 
         let result = Array.zeroCreate (img.Height * img.Width)
 
         let result = queue.PostAndReply(fun ch -> Msg.CreateToHostMsg(output, result, ch))
+
+        // Memory clean-up on GPU
         queue.Post(Msg.CreateFreeMsg input)
         queue.Post(Msg.CreateFreeMsg output)
 
