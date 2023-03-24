@@ -348,3 +348,34 @@ module GPUTests =
                   let expectedResult = originalImg |> cpuApplicator
 
                   Expect.equal actualResult.Data expectedResult.Data "Vertical reflection on GPU and CPU don't match" ]
+
+module PixelMatrixProcessingTests =
+
+    open TestHelperFunctions
+
+    // Initialize parameters for GPU
+    let device = ClDevice.GetFirstAppropriateDevice()
+    let context = ClContext(device)
+
+    [<Tests>]
+    let tests =
+        testList
+            "samples"
+            [ testProperty
+                  "Transformation application: Utilizng virtual split to process an image data should match the process without virtual split"
+              <| fun (width: uint) (height: uint) ->
+                  let transformations = EditType.all
+                  let img = getImage width height
+
+                  let numCores =
+                      min (Environment.ProcessorCount) (System.Convert.ToInt32(width * height + 1u))
+
+                  for edit in transformations do
+                      let actualResultCPU = ApplyTransform(numCores).OnCPU edit img
+                      let expectedResultCPU = ApplyTransform().OnCPU edit img
+                      let expectedResultGPU = ApplyTransform().OnGPU context 64 edit img
+
+                      Expect.allEqual
+                          [ actualResultCPU.Data; expectedResultCPU.Data ]
+                          expectedResultGPU.Data
+                          "Transformation utilizing virtual split produced an error" ]
