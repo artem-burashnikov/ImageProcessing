@@ -10,22 +10,26 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
+
             - name: Setup .NET
               uses: actions/setup-dotnet@v3
               with:
                   dotnet-version: 7.0.x
-            -   name: Build
-                if: runner.os != 'Windows'
-                run: |
-                    chmod +x ./buildLocal.sh
-                    ./buildLocal.sh
-                env:
-                    CI: true
-            -   name: Build
-                if: runner.os == 'Windows'
-                run: ./buildLocal.cmd
-                env:
-                    CI: true
+
+            - name: Build
+              if: runner.os != 'Windows'
+              run: |
+                  chmod +x ./buildLocal.sh
+                  ./buildLocal.sh
+              env:
+                  CI: true
+
+            - name: Build
+              if: runner.os == 'Windows'
+              run: ./buildLocal.cmd
+              env:
+                  CI: true
+
             - name: Formatting
               if: runner.os != 'Windows'
               run: |
@@ -33,12 +37,13 @@ jobs:
                   ./build.sh checkFormatCode
               env:
                   CI: true
+
             - name: Formatting
               if: runner.os == 'Windows'
               run: ./build.cmd checkFormatCode
               env:
                   CI: true
-    
+
     test:
         strategy:
             matrix:
@@ -46,15 +51,17 @@ jobs:
         runs-on: ${{ matrix.os }}
         steps:
             - uses: actions/checkout@v3
-            -   name: Test
-                if: runner.os != 'Windows'
-                run: |
-                    chmod +x ./test.sh
-                    ./test.sh
-                env:
-                    CI: true
-            -   name: Test
-                if: runner.os == 'Windows'
-                run: ./test.cmd
-                env:
-                    CI: true
+
+            - name: Test
+              if: runner.os != 'Windows'
+              run: |
+                  chmod +x ./test.sh
+                  ./test.sh
+              env:
+                  CI: true
+
+            - name: Test
+              if: runner.os == 'Windows'
+              run: ./test.cmd
+              env:
+                  CI: true
