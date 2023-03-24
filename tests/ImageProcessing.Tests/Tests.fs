@@ -59,7 +59,7 @@ module TestHelperFunctions =
         Image(data, width, height, img.Name)
 
     // Initialize 1D-array from given width and height
-    let initDataFromWH (width: uint) (height: uint) =
+    let private initDataFromWH (width: uint) (height: uint) =
         let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
         let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
         data, w, h
@@ -85,48 +85,48 @@ module CPUTests =
             "samples"
             [ testProperty "Rotating clockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+                  let expectedResult = getImage width height
 
-                  let rotatedImg =
-                      originalImg
+                  let actualResult =
+                      expectedResult
                       |> ApplyTransform().OnCPU(EditType.Rotation Clockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Clockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Clockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Clockwise)
 
                   Expect.equal
-                      rotatedImg.Data
-                      originalImg.Data
+                      actualResult.Data
+                      expectedResult.Data
                       "Clockwise rotated 4 times failed to match the original image"
 
               testProperty "Rotating counterclockwise 4 times outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+                  let expectedResult = getImage width height
 
-                  let rotatedImg =
-                      originalImg
+                  let actualResult =
+                      expectedResult
                       |> ApplyTransform().OnCPU(EditType.Rotation Counterclockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Counterclockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Counterclockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Counterclockwise)
 
                   Expect.equal
-                      rotatedImg.Data
-                      originalImg.Data
+                      actualResult.Data
+                      expectedResult.Data
                       "Counterclockwise rotated 4 times failed to match the original image"
 
               testProperty "Rotating clockwise then counterclockwise outputs the original image"
               <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+                  let expectedResult = getImage width height
 
-                  let rotatedImg =
-                      originalImg
+                  let actualResult =
+                      expectedResult
                       |> ApplyTransform().OnCPU(EditType.Rotation Clockwise)
                       |> ApplyTransform().OnCPU(EditType.Rotation Counterclockwise)
 
                   Expect.equal
-                      rotatedImg.Data
-                      originalImg.Data
+                      actualResult.Data
+                      expectedResult.Data
                       "Clockwise and then counterclockwise failed to match the original image"
 
               testProperty "Applying filter to a 2DArray and a 1DArray should produce the same output"
@@ -147,30 +147,30 @@ module CPUTests =
 
               testProperty "Consecutively reflecting horizontally two times outputs the original pixel data"
               <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+                  let expectedResult = getImage width height
 
-                  let reflectedImage =
-                      originalImg
+                  let actualResult =
+                      expectedResult
                       |> ApplyTransform().OnCPU(EditType.Reflection Horizontal)
                       |> ApplyTransform().OnCPU(EditType.Reflection Horizontal)
 
                   Expect.equal
-                      reflectedImage.Data
-                      originalImg.Data
+                      actualResult.Data
+                      expectedResult.Data
                       "Reflecting horizontally two times failed to match the original"
 
               testProperty "Consecutively reflecting vertically two times outputs the original pixel data"
               <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+                  let expectedResult = getImage width height
 
-                  let reflectedImage =
-                      originalImg
+                  let actualResult =
+                      expectedResult
                       |> ApplyTransform().OnCPU(EditType.Reflection Vertical)
                       |> ApplyTransform().OnCPU(EditType.Reflection Vertical)
 
                   Expect.equal
-                      reflectedImage.Data
-                      originalImg.Data
+                      actualResult.Data
+                      expectedResult.Data
                       "Reflecting vertically two times failed to match the original"
 
               testProperty "Horizontal reflection is the same as vertical reflection followed by two rotations"
@@ -270,13 +270,11 @@ module GPUTests =
               <| fun (width: uint) (height: uint) ->
                   let originalImg = getImage width height
 
-                  let gpuApplicator = getTsfGPU context 64 Transformation.Rotate
+                  let actualResult =
+                      ApplyTransform().OnGPU context 64 (EditType.Rotation Clockwise) originalImg
 
-                  let cpuApplicator = getTsfCPU 1 Transformation.Rotate
-
-                  let actualResult = originalImg |> gpuApplicator
-
-                  let expectedResult = originalImg |> cpuApplicator
+                  let expectedResult =
+                      ApplyTransform().OnCPU (EditType.Rotation Clockwise) originalImg
 
                   Expect.equal actualResult.Data expectedResult.Data "Clockwise rotations on GPU and CPU don't match"
 
@@ -285,13 +283,11 @@ module GPUTests =
               <| fun (width: uint) (height: uint) ->
                   let originalImg = getImage width height
 
-                  let gpuApplicator = getTsfGPU context 64 Transformation.RotateCCW
+                  let actualResult =
+                      ApplyTransform().OnGPU context 64 (EditType.Rotation Counterclockwise) originalImg
 
-                  let cpuApplicator = getTsfCPU 1 Transformation.RotateCCW
-
-                  let actualResult = originalImg |> gpuApplicator
-
-                  let expectedResult = originalImg |> cpuApplicator
+                  let expectedResult =
+                      ApplyTransform().OnCPU (EditType.Rotation Counterclockwise) originalImg
 
                   Expect.equal
                       actualResult.Data
@@ -300,24 +296,18 @@ module GPUTests =
 
               testProperty "Applying available filters on CPU and on GPU has to yield the same pixel data"
               <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+                  let transformations = EditType.all
+                  let img = getImage width height
 
-                  let filters =
-                      [ Transformation.Blur
-                        Transformation.Edges
-                        Transformation.HighPass
-                        Transformation.Laplacian
-                        Transformation.SobelV ]
+                  let applyTransformOnGPU =
+                      (fun image (state: EditType) -> ApplyTransform().OnGPU context 64 state image)
 
-                  let gpuApplicators = List.map (getTsfGPU context 64) filters
+                  let applyTransformOnCPU =
+                      (fun image (state: EditType) -> ApplyTransform().OnCPU state image)
 
-                  let cpuApplicators = List.map (getTsfCPU 1) filters
+                  let actualResult = Array.fold applyTransformOnGPU img transformations
 
-                  let actualResult =
-                      List.fold (fun img transformation -> transformation img) originalImg gpuApplicators
-
-                  let expectedResult =
-                      List.fold (fun img transformation -> transformation img) originalImg cpuApplicators
+                  let expectedResult = Array.fold applyTransformOnCPU img transformations
 
                   Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
 
@@ -325,13 +315,11 @@ module GPUTests =
               <| fun (width: uint) (height: uint) ->
                   let originalImg = getImage width height
 
-                  let gpuApplicator = getTsfGPU context 64 Transformation.ReflectH
+                  let actualResult =
+                      ApplyTransform().OnGPU context 64 (EditType.Reflection Horizontal) originalImg
 
-                  let cpuApplicator = getTsfCPU 1 Transformation.ReflectH
-
-                  let actualResult = originalImg |> gpuApplicator
-
-                  let expectedResult = originalImg |> cpuApplicator
+                  let expectedResult =
+                      ApplyTransform().OnCPU (EditType.Reflection Horizontal) originalImg
 
                   Expect.equal actualResult.Data expectedResult.Data "Horizontal reflection on GPU and CPU don't match"
 
@@ -339,13 +327,11 @@ module GPUTests =
               <| fun (width: uint) (height: uint) ->
                   let originalImg = getImage width height
 
-                  let gpuApplicator = getTsfGPU context 64 Transformation.ReflectV
+                  let actualResult =
+                      ApplyTransform().OnGPU context 64 (EditType.Reflection Vertical) originalImg
 
-                  let cpuApplicator = getTsfCPU 1 Transformation.ReflectV
-
-                  let actualResult = originalImg |> gpuApplicator
-
-                  let expectedResult = originalImg |> cpuApplicator
+                  let expectedResult =
+                      ApplyTransform().OnCPU (EditType.Reflection Vertical) originalImg
 
                   Expect.equal actualResult.Data expectedResult.Data "Vertical reflection on GPU and CPU don't match" ]
 
@@ -371,11 +357,10 @@ module PixelMatrixProcessingTests =
                       min (Environment.ProcessorCount) (System.Convert.ToInt32(width * height + 1u))
 
                   for edit in transformations do
-                      let actualResultCPU = ApplyTransform(numCores).OnCPU edit img
-                      let expectedResultCPU = ApplyTransform().OnCPU edit img
-                      let expectedResultGPU = ApplyTransform().OnGPU context 64 edit img
+                      let actualResult = ApplyTransform(numCores).OnCPU edit img
+                      let expectedResult = ApplyTransform().OnCPU edit img
 
-                      Expect.allEqual
-                          [ actualResultCPU.Data; expectedResultCPU.Data ]
-                          expectedResultGPU.Data
+                      Expect.equal
+                          actualResult.Data
+                          expectedResult.Data
                           "Transformation utilizing virtual split produced an error" ]
