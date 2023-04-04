@@ -2,19 +2,20 @@ namespace ImageProcessing.Tests
 
 open System
 open Expecto
+open FsCheck
 open ImageProcessing.ImageProcessing
 
 module TestHelperFunctions =
     let r = Random()
 
     /// Applies filter kernel to a 2D-table
-    let applyFilter2DArray (filter: float32[][]) (img: byte[,]) =
+    let applyFilter2DArray (filter: float32[,]) (img: byte[,]) =
         let height = Array2D.length1 img
         let width = Array2D.length2 img
 
-        let filterD = (Array.length filter) / 2
+        let filterD = (Array2D.length1 filter) / 2
 
-        let filter = Array.concat filter
+        let filter = flattenArray2D filter
 
         let processPixel px py =
             let dataToHandle =
@@ -30,13 +31,13 @@ module TestHelperFunctions =
         Array2D.mapi (fun x y _ -> byte (processPixel x y)) img
 
     // Applies filter kernel to a 1D-array
-    let applyFilterNaive (filter: float32[][]) (img: Image) =
+    let applyFilterNaive (filter: float32[,]) (img: Image) =
         let height = img.Height
         let width = img.Width
 
-        let filterD = (Array.length filter) / 2
+        let filterD = (Array2D.length1 filter) / 2
 
-        let filter = Array.concat filter
+        let filter = flattenArray2D filter
 
         let processPixel p =
             let pi = p / width
@@ -55,22 +56,31 @@ module TestHelperFunctions =
         let data = Array.mapi (fun i _ -> byte (processPixel i)) img.Data
         Image(data, width, height, img.Name)
 
-    // Initialize 1D-array from given width and height
-    let initDataFromWH (width: uint) (height: uint) =
-        let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
-        let data = Array.init (w * h) (fun _ -> byte (r.Next(0, 256)))
-        data, w, h
+    let getImage arr2d =
+        Image(flattenArray2D arr2d, Array2D.length2 arr2d, Array2D.length1 arr2d, "sample.jpg")
 
-    // 2D-table to 1D-array
-    let flatArray2D array2D =
-        [| for x in 0 .. (Array2D.length1 array2D) - 1 do
-               for y in 0 .. (Array2D.length2 array2D) - 1 do
+module Generators =
 
-                   yield array2D[x, y] |]
+    open TestHelperFunctions
 
-    let getImage width height =
-        let data, w, h = initDataFromWH width height
-        Image(data, w, h, "")
+    type ImageData = ImageData of byte[,]
+
+    let ImageArb () =
+
+        let rows = r.Next(2, 1000)
+        let columns = r.Next(2, 1000)
+
+        Gen.array2DOfDim (rows, columns) Arb.generate
+        |> Arb.fromGen
+        |> Arb.convert ImageData (fun (ImageData l) -> l)
+
+    let addToConfig config =
+        { config with arbitrary = typeof<ImageData>.DeclaringType :: config.arbitrary }
+
+[<AutoOpen>]
+module Auto =
+    let private config = Generators.addToConfig FsCheckConfig.defaultConfig
+    let testCustomProp name = testPropertyWithConfig config name
 
 module CPUTests =
 
@@ -80,9 +90,10 @@ module CPUTests =
     let tests =
         testList
             "samples"
-            [ testProperty "Rotating clockwise 4 times outputs the original image"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+            [ testCustomProp "Rotating clockwise 4 times outputs the original image"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let rotatedImg =
                       originalImg
@@ -96,9 +107,10 @@ module CPUTests =
                       originalImg.Data
                       "Clockwise rotated 4 times failed to match the original image"
 
-              testProperty "Rotating counterclockwise 4 times outputs the original image"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+              testCustomProp "Rotating counterclockwise 4 times outputs the original image"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let rotatedImg =
                       originalImg
@@ -112,9 +124,10 @@ module CPUTests =
                       originalImg.Data
                       "Counterclockwise rotated 4 times failed to match the original image"
 
-              testProperty "Rotating clockwise then counterclockwise outputs the original image"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+              testCustomProp "Rotating clockwise then counterclockwise outputs the original image"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let rotatedImg = originalImg |> rotateCPU Clockwise |> rotateCPU Counterclockwise
 
@@ -123,23 +136,24 @@ module CPUTests =
                       originalImg.Data
                       "Clockwise and then counterclockwise failed to match the original image"
 
-              testProperty "Applying filter to a 2DArray and a 1DArray should produce the same output"
-              <| fun (width: uint) (height: uint) ->
-                  let w, h = Convert.ToInt32 width + 2, Convert.ToInt32 height + 2
+              testCustomProp "Applying filter to a 2DArray and a 1DArray should produce the same output"
+              <| fun (Generators.ImageData arr2d) ->
 
-                  let data2D = Array2D.init h w (fun _ _ -> byte (r.Next(0, 256)))
+                  let height = Array2D.length1 arr2d
+                  let width = Array2D.length2 arr2d
 
-                  let data1D = flatArray2D data2D
+                  let data1D = flattenArray2D arr2d
 
-                  let actualResult = applyFilterNaive edgesKernel (Image(data1D, w, h, ""))
+                  let actualResult = applyFilterNaive edgesKernel (Image(data1D, width, height, ""))
 
-                  let expectedResult = applyFilter2DArray edgesKernel data2D |> flatArray2D
+                  let expectedResult = applyFilter2DArray edgesKernel arr2d |> flattenArray2D
 
-                  Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{data2D}"
+                  Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{arr2d}"
 
-              testProperty "Consecutively reflecting horizontally two times outputs the original pixel data"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+              testCustomProp "Consecutively reflecting horizontally two times outputs the original pixel data"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let reflectedImage = originalImg |> reflectCPU Horizontal |> reflectCPU Horizontal
 
@@ -148,9 +162,10 @@ module CPUTests =
                       originalImg.Data
                       "Reflecting horizontally two times failed to match the original"
 
-              testProperty "Consecutively reflecting vertically two times outputs the original pixel data"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+              testCustomProp "Consecutively reflecting vertically two times outputs the original pixel data"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let reflectedImage = originalImg |> reflectCPU Vertical |> reflectCPU Vertical
 
@@ -159,9 +174,10 @@ module CPUTests =
                       originalImg.Data
                       "Reflecting vertically two times failed to match the original"
 
-              testProperty "Horizontal reflection is the same as vertical reflection followed by two rotations"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+              testCustomProp "Horizontal reflection is the same as vertical reflection followed by two rotations"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let actualResult = originalImg |> reflectCPU Horizontal
 
@@ -173,9 +189,10 @@ module CPUTests =
                       expectedResult.Data
                       "Horizontal reflection failed to match vertical reflection followed by two rotations"
 
-              testProperty "Vertical reflection is the same as horizontal reflection followed by two rotations"
-              <| fun (width: uint) (height: uint) ->
-                  let originalImg = getImage width height
+              testCustomProp "Vertical reflection is the same as horizontal reflection followed by two rotations"
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let originalImg = getImage arr2d
 
                   let actualResult = originalImg |> reflectCPU Vertical
 

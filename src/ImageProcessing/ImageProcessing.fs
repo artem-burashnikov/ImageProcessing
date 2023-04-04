@@ -104,6 +104,13 @@ type Image =
           Height = height
           Name = name }
 
+// Convert 2D-array to 1D-array
+let flattenArray2D array2D =
+    [| for x in 0 .. (Array2D.length1 array2D) - 1 do
+           for y in 0 .. (Array2D.length2 array2D) - 1 do
+
+               yield array2D[x, y] |]
+
 let loadAsImage (file: string) =
     let img = Image.Load<L8> file
 
@@ -173,6 +180,7 @@ let gaussianBlurKernel =
        [| 4; 16; 24; 16; 4 |]
        [| 1; 4; 6; 4; 1 |] |]
     |> Array.map (Array.map (fun x -> (float32 x) / 256.0f))
+    |> array2D
 
 let edgesKernel =
     [| [| 0; 0; -1; 0; 0 |]
@@ -181,6 +189,7 @@ let edgesKernel =
        [| 0; 0; 0; 0; 0 |]
        [| 0; 0; 0; 0; 0 |] |]
     |> Array.map (Array.map float32)
+    |> array2D
 
 let laplacianKernel =
     [| [| -1; -3; -4; -3; -1 |]
@@ -189,6 +198,7 @@ let laplacianKernel =
        [| -3; 0; 6; 0; -3 |]
        [| -1; -3; -4; -3; -1 |] |]
     |> Array.map (Array.map float32)
+    |> array2D
 
 let highPassKernel =
     [| [| -1; -1; -1; -1; -1 |]
@@ -197,6 +207,7 @@ let highPassKernel =
        [| -1; -1; -1; -1; -1 |]
        [| -1; -1; -1; -1; -1 |] |]
     |> Array.map (Array.map float32)
+    |> array2D
 
 let sobelVerticalKernel =
     [| [| 1; 4; 6; 4; 1 |]
@@ -205,14 +216,15 @@ let sobelVerticalKernel =
        [| -2; -8; -12; -8; -2 |]
        [| -1; -4; -6; -4; -1 |] |]
     |> Array.map (Array.map float32)
+    |> array2D
 
-let applyFilterCPU (filter: float32[][]) (img: Image) =
+let applyFilterCPU (filter: float32[,]) (img: Image) =
     let height = img.Height
     let width = img.Width
 
-    let filterD = (Array.length filter) / 2
+    let filterD = (Array2D.length1 filter) / 2
 
-    let filter = Array.concat filter
+    let filter = flattenArray2D filter
 
     let processPixel p =
         let pi = p / width
