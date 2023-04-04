@@ -6,18 +6,11 @@ open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 
 module Main =
-    type ThreadsArg =
-        | [<EqualsAssignment>] Count of int
 
-        interface IArgParserTemplate with
-            member s.Usage =
-                match s with
-                | Count _ -> "Specify a positive integer: number of threads to utilize"
-
-    and Arguments =
+    type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
         | [<Mandatory>] Strategy of RunStrategy
-        | Threads of ParseResults<ThreadsArg>
+        | Threads of int
         | [<Mandatory; CustomCommandLine("-i")>] Input of string
         | [<Mandatory; CustomCommandLine("-o")>] Output of string
 
@@ -26,7 +19,8 @@ module Main =
                 match s with
                 | Transformations _ -> "Provide transformations to be applied."
                 | Strategy _ -> "Specify the run strategy to use"
-                | Threads _ -> "Optionally provide a number of threads to use for certain run strategies"
+                | Threads _ ->
+                    "Optionally provide a number of threads (a positive integer) to use for certain run strategies"
                 | Input _ -> "Input path: specify a path to an image file or to a folder containing images"
                 | Output _ -> "Output path: give a path to a folder"
 
@@ -91,13 +85,13 @@ module Main =
                 Streaming.processAllFiles strategy threads imgFiles sOut transformations
                 0
             else
-                eprintf $"Provided file {Path.GetFileName sIn} is not an image file."
+                eprintfn $"Provided file {Path.GetFileName sIn} is not an image file."
                 1
         | InputPath.Folder sIn, OutputPath.Folder sOut ->
             let imgFiles = Streaming.listAllFiles sIn |> Seq.filter isImg
 
             if Seq.isEmpty imgFiles then
-                eprintf "No image files found in the specified folder."
+                eprintfn "No image files found in the specified folder."
                 1
             else
                 Streaming.processAllFiles strategy threads imgFiles sOut transformations
@@ -148,8 +142,11 @@ module Main =
             let maybeThreads = results.TryGetResult(Threads)
 
             match maybeThreads with
-            | Some args -> args.GetResult(ThreadsArg.Count) |> abs // ensure positive
+            | Some count -> count
             | None -> 1
 
-
-        runEditImage inputPath outputPath transformations strategy threads |> exit
+        if threads <= 0 then
+            eprintfn $"Number of threads has to be a positive integer. Received: %d{threads}"
+            1
+        else
+            runEditImage inputPath outputPath transformations strategy threads |> exit
