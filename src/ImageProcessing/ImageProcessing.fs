@@ -227,7 +227,7 @@ type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
 
         state
 
-    /// Writes the result of an appliend function to the output
+    /// Writes the result of an applied function to the output
     static member iteri2 action (vArray: VirtualArray<'A>) (output: array<'A>) =
         for i in 0 .. vArray.Length - 1 do
             output[vArray.Head + i] <- action (vArray.Head + i) vArray.Memory[vArray.Head + i]
@@ -255,10 +255,10 @@ type Image =
           Height = height
           Name = name }
 
-type ApplyTransform(?parallelLEvel) =
+type ApplyTransform(?parallelLevel) =
 
     // Get optimal parameters for parallel computations
-    let parallelLEvel = defaultArg parallelLEvel 1
+    let parallelLevel = defaultArg parallelLevel 1
 
     /// Apply a given transformation using CPU resources
     member _.OnCPU parameter (img: Image) =
@@ -273,7 +273,7 @@ type ApplyTransform(?parallelLEvel) =
             | EditType.Rotation rotationDirection ->
                 /// Function performs a pixel remapping logic to rotate an image
                 let remapPixels (input: VirtualArray<byte>) (output: array<byte>) =
-                    // Going throug each of VirtualArray's indices...
+                    // Going through each of VirtualArray's indices...
                     for i in input.Head .. input.Head + input.Length - 1 do
 
                         // ... compute their global memory indices...
@@ -291,13 +291,13 @@ type ApplyTransform(?parallelLEvel) =
                 let input = VirtualArray(img.Data, 0, img.Height * img.Width)
                 let output = Array.zeroCreate (width * height)
 
-                if parallelLEvel = 1 then
+                if parallelLevel = 1 then
                     // For non-async computations on the main thread we just pass the whole VirtualArray
                     remapPixels input output
                 else
                     // For async computations we split a given data between processors.
                     // Each performs its own pixel remapping logic.
-                    let input = VirtualArray.splitInto parallelLEvel input
+                    let input = VirtualArray.splitInto parallelLevel input
                     Array.Parallel.iter (fun vArray -> remapPixels vArray output) input
 
                 // Swap dimensions
@@ -310,7 +310,7 @@ type ApplyTransform(?parallelLEvel) =
             | EditType.Reflection reflectionDirection ->
                 /// Function performs a pixel remapping logic to reflect an image
                 let remapPixels (input: VirtualArray<byte>) (output: array<byte>) =
-                    // Going throug each of VirtualArray's indices...
+                    // Going through each of VirtualArray's indices...
                     for i in input.Head .. input.Head + input.Length - 1 do
 
                         // ... compute their global memory indices...
@@ -349,13 +349,13 @@ type ApplyTransform(?parallelLEvel) =
                 let input = VirtualArray(img.Data, 0, img.Height * img.Width)
                 let output = Array.zeroCreate (img.Height * img.Width)
 
-                if parallelLEvel = 1 then
+                if parallelLevel = 1 then
                     // For non-async computations on the main thread we just pass the whole VirtualArray
                     remapPixels input output
                 else
                     // For async computations we split a given data between processors.
                     // Each performs its own pixel remapping logic.
-                    let input = VirtualArray.splitInto parallelLEvel input
+                    let input = VirtualArray.splitInto parallelLevel input
                     Array.Parallel.iter (fun vArray -> remapPixels vArray output) input
 
                 // Bind output to the result
@@ -389,7 +389,7 @@ type ApplyTransform(?parallelLEvel) =
                 let input = VirtualArray(img.Data, 0, img.Height * img.Width)
                 let output = Array.zeroCreate (width * height)
 
-                if parallelLEvel = 1 then
+                if parallelLevel = 1 then
                     // For non-async computations on the main thread we just pass the whole VirtualArray
                     VirtualArray.iteri2 (fun i _ -> byte (processPixel i)) input output
                     output
@@ -397,7 +397,7 @@ type ApplyTransform(?parallelLEvel) =
                 else
                     // For async computations we split a given data between processors.
                     // Each performs its own pixel remapping logic.
-                    let input = VirtualArray.splitInto parallelLEvel input
+                    let input = VirtualArray.splitInto parallelLevel input
                     let action = VirtualArray.iteri2 (fun i _ -> byte (processPixel i))
                     Array.Parallel.iter (fun (vArray: VirtualArray<byte>) -> action vArray output) input
                     output

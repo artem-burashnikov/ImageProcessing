@@ -3,7 +3,6 @@ namespace ImageProcessing.Tests
 open System
 open Expecto
 open ImageProcessing.ImageProcessing
-open ImageProcessing.Transformation
 open ImageProcessing.FilterKernel
 open Brahma.FSharp
 
@@ -346,13 +345,12 @@ module PixelMatrixProcessingTests =
         testList
             "samples"
             [ testProperty
-                  "Transformation application: Utilizng virtual split to process an image data should match the process without virtual split"
+                  "Transformation application: Utilizing virtual split to process an image data should match the process without virtual split"
               <| fun (width: uint) (height: uint) ->
                   let transformations = EditType.all
                   let img = getImage width height
 
-                  let numCores =
-                      min (Environment.ProcessorCount) (System.Convert.ToInt32(width * height + 1u))
+                  let numCores = min Environment.ProcessorCount (Convert.ToInt32(width * height + 1u))
 
                   for edit in transformations do
                       let actualResult = ApplyTransform(numCores).OnCPU edit img

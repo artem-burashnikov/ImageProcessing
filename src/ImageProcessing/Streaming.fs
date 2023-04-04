@@ -134,7 +134,7 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
 
         naive files outDir transformations
 
-    // 1 is being passed as a parameter to getTsfCPU's threadsCount since we already perform async computaions using agents
+    // 1 is being passed as a parameter to getTsfCPU's threadsCount since we already perform async computations using agents
     | Async1CPU ->
         let transformations = transformations |> List.map (getTsfCPU 1) |> List.reduce (>>)
         async1 files outDir transformations
