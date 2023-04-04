@@ -350,7 +350,8 @@ module PixelMatrixProcessingTests =
                   let transformations = EditType.all
                   let img = getImage width height
 
-                  let numCores = min Environment.ProcessorCount (Convert.ToInt32(width * height + 1u))
+                  let numCores =
+                      min (Environment.ProcessorCount - 1) (Convert.ToInt32(width * height + 1u))
 
                   for edit in transformations do
                       let actualResult = ApplyTransform(numCores).OnCPU edit img
