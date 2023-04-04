@@ -76,6 +76,17 @@ module TestHelperFunctions =
 
     let transform = ApplyTransform()
 
+    let getRandomFilterKernel (kernelSize: uint) =
+        // Ensure odd value
+        let kernelSize = 2 * (Convert.ToInt32 kernelSize) + 1
+
+        let res =
+            (fun _ -> Array.init kernelSize (fun _ -> r.Next(-100, 101) |> float32))
+            |> Array.init kernelSize
+
+        res
+
+
 module CPUTests =
 
     open TestHelperFunctions
@@ -342,9 +353,11 @@ module PixelMatrixProcessingTests =
         testList
             "samples"
             [ testProperty
-                  "Transformation application: Utilizing virtual split to process an image data should match the process without virtual split"
-              <| fun (width: uint) (height: uint) ->
-                  let transformations = EditType.all
+                  "Filter application: Utilizing virtual split to process an image data should match the process without virtual split"
+              <| fun (width: uint) (height: uint) (kernelSize: uint) ->
+
+
+                  let edit = EditType.Transformation(getRandomFilterKernel kernelSize)
                   let img = getImage width height
 
                   let numCores =
@@ -352,11 +365,10 @@ module PixelMatrixProcessingTests =
 
                   let multiThreadingTransform = ApplyTransform(numCores)
 
-                  for edit in transformations do
-                      let actualResult = multiThreadingTransform.OnCPU edit img
-                      let expectedResult = transform.OnCPU edit img
+                  let actualResult = multiThreadingTransform.OnCPU edit img
+                  let expectedResult = transform.OnCPU edit img
 
-                      Expect.equal
-                          actualResult.Data
-                          expectedResult.Data
-                          "Transformation utilizing virtual split produced an error" ]
+                  Expect.equal
+                      actualResult.Data
+                      expectedResult.Data
+                      "Applying filters utilizing virtual split produced an error" ]
