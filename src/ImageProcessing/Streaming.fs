@@ -122,7 +122,7 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
             | GPU -> CPU
             | Async1GPU -> Async1CPU
             | Async2GPU -> Async2CPU
-            | _ -> failwith "We only force CPU runs if no GPU is present on a device"
+            | _ -> runStrategy
         else
             runStrategy
 
