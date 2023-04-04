@@ -82,11 +82,10 @@ type Kernel =
             <@
                 fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) direction ->
                     let p = r.GlobalID0
+                    let pi = p / width
+                    let pj = p % width
 
-                    if p < height * width then
-                        let pi = p / width
-                        let pj = p % width
-
+                    if pi < height && pj < width then
                         if direction > 0 then
                             result[pj * height + height - pi - 1] <- img[pi * width + pj]
                         else
@@ -113,11 +112,10 @@ type Kernel =
             <@
                 fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) direction ->
                     let p = r.GlobalID0
+                    let pi = p / width
+                    let pj = p % width
 
-                    if p <= height * width / 2 then
-                        let pi = p / width
-                        let pj = p % width
-
+                    if pi <= height / 2 && pj <= width / 2 then
                         if direction > 0 then
                             result[pi * width + pj] <- img[(height - 1) * width - (pi * width) + pj]
                             result[(height - 1) * width - (pi * width) + pj] <- img[pi * width + pj]
