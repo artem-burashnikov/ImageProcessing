@@ -2,7 +2,7 @@ module ImageProcessing.ImageProcessing
 
 open System
 open Brahma.FSharp
-open FilterKernel
+open ImageProcessing.FilterKernel
 open Microsoft.FSharp.Core
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
@@ -38,11 +38,11 @@ type EditType =
         | Reflection direction -> $"%s{direction.ToString()} Reflection"
 
     static member all =
-        [| Transformation FilterKernel.GaussianBlurKernel
-           Transformation FilterKernel.EdgesKernel
-           Transformation FilterKernel.HighPassKernel
-           Transformation FilterKernel.LaplacianKernel
-           Transformation FilterKernel.SobelVerticalKernel
+        [| Transformation gaussianBlurKernel
+           Transformation edgesKernel
+           Transformation highPassKernel
+           Transformation laplacianKernel
+           Transformation sobelVerticalKernel
            Rotation Clockwise
            Rotation Counterclockwise
            Reflection Horizontal
