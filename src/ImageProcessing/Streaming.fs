@@ -158,8 +158,10 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
 
+        let transform = ApplyTransform()
+
         let transformations =
-            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
+            transformations |> List.map (getTsfGPU transform context 64) |> List.reduce (>>)
 
         naive files outDir transformations
 
@@ -167,8 +169,10 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
 
+        let transform = ApplyTransform()
+
         let transformations =
-            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
+            transformations |> List.map (getTsfGPU transform context 64) |> List.reduce (>>)
 
         async1 files outDir transformations
 
@@ -176,7 +180,9 @@ let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq
         let device = ClDevice.GetFirstAppropriateDevice()
         let context = ClContext(device)
 
+        let transform = ApplyTransform()
+
         let transformations =
-            transformations |> List.map (getTsfGPU context 64) |> List.reduce (>>)
+            transformations |> List.map (getTsfGPU transform context 64) |> List.reduce (>>)
 
         async2 files outDir transformations

@@ -39,16 +39,14 @@ let getTsfCPU (transform: ApplyTransform) transformation =
     | Transformation.ReflectH -> transform.OnCPU(EditType.Reflection Horizontal)
     | Transformation.ReflectV -> transform.OnCPU(EditType.Reflection Vertical)
 
-let getTsfGPU (clContext: ClContext) localWorkSize transformation =
+let getTsfGPU (transform: ApplyTransform) (clContext: ClContext) localWorkSize transformation =
     match transformation with
-    | Transformation.Blur -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Transformation gaussianBlurKernel)
-    | Transformation.Edges -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Transformation edgesKernel)
-    | Transformation.HighPass -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Transformation highPassKernel)
-    | Transformation.Laplacian ->
-        ApplyTransform().OnGPU clContext localWorkSize (EditType.Transformation laplacianKernel)
-    | Transformation.SobelV ->
-        ApplyTransform().OnGPU clContext localWorkSize (EditType.Transformation sobelVerticalKernel)
-    | Transformation.Rotate -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Rotation Clockwise)
-    | Transformation.RotateCCW -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Rotation Counterclockwise)
-    | Transformation.ReflectH -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Reflection Horizontal)
-    | Transformation.ReflectV -> ApplyTransform().OnGPU clContext localWorkSize (EditType.Reflection Vertical)
+    | Transformation.Blur -> transform.OnGPU clContext localWorkSize (EditType.Transformation gaussianBlurKernel)
+    | Transformation.Edges -> transform.OnGPU clContext localWorkSize (EditType.Transformation edgesKernel)
+    | Transformation.HighPass -> transform.OnGPU clContext localWorkSize (EditType.Transformation highPassKernel)
+    | Transformation.Laplacian -> transform.OnGPU clContext localWorkSize (EditType.Transformation laplacianKernel)
+    | Transformation.SobelV -> transform.OnGPU clContext localWorkSize (EditType.Transformation sobelVerticalKernel)
+    | Transformation.Rotate -> transform.OnGPU clContext localWorkSize (EditType.Rotation Clockwise)
+    | Transformation.RotateCCW -> transform.OnGPU clContext localWorkSize (EditType.Rotation Counterclockwise)
+    | Transformation.ReflectH -> transform.OnGPU clContext localWorkSize (EditType.Reflection Horizontal)
+    | Transformation.ReflectV -> transform.OnGPU clContext localWorkSize (EditType.Reflection Vertical)
