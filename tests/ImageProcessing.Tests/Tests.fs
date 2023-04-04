@@ -8,7 +8,6 @@ open ImageProcessing.FilterKernel
 open Brahma.FSharp
 
 module TestHelperFunctions =
-    let r = Random()
 
     /// Applies filter kernel to a 2D-table
     let applyFilter2DArray (filter: float32[,]) (img: byte[,]) =
@@ -63,32 +62,38 @@ module TestHelperFunctions =
 
     let transform = ApplyTransform()
 
-    let getRandomFilterKernel (kernelSize: uint) =
-        // Ensure odd value
-        let kernelSize = 2 * (Convert.ToInt32 kernelSize) + 1
-
-        let res =
-            Array2D.init kernelSize kernelSize (fun _ _ -> float32 (r.Next(-100, 101)))
-
-        res
-
 module Generators =
-
-    open TestHelperFunctions
 
     type ImageData = ImageData of byte[,]
 
-    let ImageArb () =
+    let ImageDataArb () =
 
-        let rows = r.Next(2, 100)
-        let columns = r.Next(2, 100)
+        let values = Gen.choose (2, 100) |> Gen.sample 0 2
+
+        let rows = values[0]
+        let columns = values[1]
 
         Gen.array2DOfDim (rows, columns) Arb.generate
         |> Arb.fromGen
         |> Arb.convert ImageData (fun (ImageData l) -> l)
 
+    type FilterKernel = FilterKernel of float32[,]
+
+    let filterKernelArb () =
+
+        let value = Gen.choose (0, 5) |> Gen.sample 0 1 |> List.head
+
+        let size = 2 * value + 1
+
+        Gen.array2DOfDim (size, size) Arb.generate
+        |> Arb.fromGen
+        |> Arb.convert FilterKernel (fun (FilterKernel l) -> l)
+
     let addToConfig config =
-        { config with arbitrary = typeof<ImageData>.DeclaringType :: config.arbitrary }
+        { config with
+            arbitrary =
+                typeof<FilterKernel>.DeclaringType
+                :: (typeof<ImageData>.DeclaringType :: config.arbitrary) }
 
 [<AutoOpen>]
 module Auto =
@@ -234,8 +239,6 @@ module CPUTests =
 
 module GeneralTests =
 
-    let r = Random()
-
     [<Tests>]
     let tests =
         testList
@@ -253,10 +256,11 @@ module GeneralTests =
               <| fun (memory: array<_>) ->
 
                   // Counts <= 0 will throw an exception in custom and built-in methods.
-                  let count = r.Next(1, memory.Length * 2 + 1)
+                  let count = Gen.choose (1, memory.Length * 2 + 1) |> Gen.sample 0 1 |> List.head // r.Next(1, memory.Length * 2 + 1)
 
                   // Get a random starting index from a given memory to initialize a VirtualArray
-                  let head = r.Next(0, memory.Length)
+                  let head = Gen.choose (0, memory.Length - 1) |> Gen.sample 0 1 |> List.head // r.Next(0, memory.Length)
+
                   let vArray = VirtualArray(memory, head, memory.Length - head)
 
                   // Use custom method to split a VirtualArray ...
@@ -364,22 +368,18 @@ module PixelMatrixProcessingTests =
 
     open TestHelperFunctions
 
-    // Initialize parameters for GPU
-    let device = ClDevice.GetFirstAppropriateDevice()
-    let context = ClContext(device)
-
     [<Tests>]
     let tests =
         testList
             "samples"
             [ testCustomProp
                   "Filter application: Utilizing virtual split to process an image data should match the process without virtual split"
-              <| fun (Generators.ImageData arr2d) (kernelSize: uint) ->
+              <| fun (Generators.ImageData arr2d) (Generators.FilterKernel kernel) ->
 
                   let height = Array2D.length1 arr2d
                   let width = Array2D.length2 arr2d
 
-                  let edit = EditType.Transformation(getRandomFilterKernel kernelSize)
+                  let edit = EditType.Transformation kernel
 
                   let img = getImage arr2d
 
