@@ -252,13 +252,13 @@ module GeneralTests =
 
                   actualResult
 
-              testProperty "VirtualArray splitInto should match Array splitInto"
+              testCustomProp "VirtualArray splitInto should match Array splitInto"
               <| fun (Generators.ImageData arr2d) ->
 
                   let memory = flattenArray2D arr2d
 
                   // Counts <= 0 will throw an exception in custom and built-in methods.
-                  let count = Gen.choose (1, memory.Length * 2 + 1) |> Gen.sample 1 1 |> List.head // r.Next(1, memory.Length * 2 + 1)
+                  let count = Gen.choose (1, memory.Length * 2) |> Gen.sample 1 1 |> List.head // r.Next(1, memory.Length * 2 + 1)
 
                   // Get a random starting index from a given memory to initialize a VirtualArray
                   let head = Gen.choose (0, memory.Length - 1) |> Gen.sample 1 1 |> List.head // r.Next(0, memory.Length)
