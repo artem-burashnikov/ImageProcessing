@@ -121,16 +121,11 @@ let rotateCPU direction (img: Image) =
     let height = img.Height
     let res = Array.zeroCreate (width * height)
 
-    match direction with
-    | Clockwise ->
-        for i in 0 .. height - 1 do
-            for j in 0 .. width - 1 do
-                res[j * height + height - i - 1] <- img.Data[i * width + j]
-
-    | Counterclockwise ->
-        for i in 0 .. height - 1 do
-            for j in 0 .. width - 1 do
-                res[(width - j - 1) * height + i] <- img.Data[i * width + j]
+    for i in 0 .. height - 1 do
+        for j in 0 .. width - 1 do
+            match direction with
+            | Clockwise -> res[j * height + height - i - 1] <- img.Data[i * width + j]
+            | Counterclockwise -> res[(width - j - 1) * height + i] <- img.Data[i * width + j]
 
     Image(res, height, width, img.Name)
 
