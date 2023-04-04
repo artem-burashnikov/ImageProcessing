@@ -4,29 +4,6 @@ open ImageProcessing.ImageProcessing
 open ImageProcessing.FilterKernel
 open Brahma.FSharp
 
-[<RequireQualifiedAccess>]
-type Transformation =
-    | Blur
-    | Edges
-    | HighPass
-    | Laplacian
-    | SobelV
-    | Rotate
-    | RotateCCW
-    | ReflectH
-    | ReflectV
-
-    static member all =
-        [| Blur
-           Edges
-           HighPass
-           Laplacian
-           SobelV
-           Rotate
-           RotateCCW
-           ReflectH
-           ReflectV |]
-
 let getTsfCPU (transform: ApplyTransform) transformation =
     match transformation with
     | Transformation.Blur -> transform.OnCPU(EditType.Transformation gaussianBlurKernel)

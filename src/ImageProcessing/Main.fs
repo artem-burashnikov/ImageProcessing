@@ -2,7 +2,7 @@ namespace ImageProcessing
 
 open System.IO
 open Argu
-open ImageProcessing.Transformation
+open ImageProcessing.ImageProcessing
 open ImageProcessing.RunStrategy
 
 module Main =

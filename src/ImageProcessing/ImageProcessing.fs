@@ -3,9 +3,29 @@ module ImageProcessing.ImageProcessing
 open System
 open Brahma.FSharp
 open ImageProcessing.FilterKernel
+open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Core
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
+
+[<RequireQualifiedAccess>]
+type Transformation =
+    | Blur
+    | Edges
+    | HighPass
+    | Laplacian
+    | SobelV
+    | Rotate
+    | RotateCCW
+    | ReflectH
+    | ReflectV
+
+    static member all =
+        let cases = FSharpType.GetUnionCases(typeof<Transformation>)
+
+        [| for case in cases do
+               let transformation = FSharpValue.MakeUnion(case, [||]) :?> Transformation
+               yield transformation |]
 
 type RotationDirection =
     | Clockwise
@@ -38,15 +58,21 @@ type EditType =
         | Reflection direction -> $"%s{direction.ToString()} Reflection"
 
     static member all =
-        [| Transformation gaussianBlurKernel
-           Transformation edgesKernel
-           Transformation highPassKernel
-           Transformation laplacianKernel
-           Transformation sobelVerticalKernel
-           Rotation Clockwise
-           Rotation Counterclockwise
-           Reflection Horizontal
-           Reflection Vertical |]
+
+        let getEditType (transformation: Transformation) =
+            match transformation with
+            | Transformation.Blur -> EditType.Transformation gaussianBlurKernel
+            | Transformation.Edges -> EditType.Transformation edgesKernel
+            | Transformation.HighPass -> EditType.Transformation highPassKernel
+            | Transformation.Laplacian -> EditType.Transformation laplacianKernel
+            | Transformation.SobelV -> EditType.Transformation sobelVerticalKernel
+            | Transformation.Rotate -> EditType.Rotation Clockwise
+            | Transformation.RotateCCW -> EditType.Rotation Counterclockwise
+            | Transformation.ReflectH -> EditType.Reflection Horizontal
+            | Transformation.ReflectV -> EditType.Reflection Vertical
+
+        let editors = Transformation.all
+        editors |> Array.map getEditType
 
 [<RequireQualifiedAccess>]
 type Kernel =
