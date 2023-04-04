@@ -10,7 +10,7 @@ module Main =
     type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
         | [<Mandatory>] Strategy of RunStrategy
-        | Threads of int
+        | Threads of uint
         | [<Mandatory; CustomCommandLine("-i")>] Input of string
         | [<Mandatory; CustomCommandLine("-o")>] Output of string
 
@@ -142,11 +142,7 @@ module Main =
             let maybeThreads = results.TryGetResult(Threads)
 
             match maybeThreads with
-            | Some count -> count
-            | None -> 1
+            | Some count when count <> 0u -> System.Convert.ToInt32 count
+            | _ -> 1
 
-        if threads <= 0 then
-            eprintfn $"Number of threads has to be a positive integer. Received: %d{threads}"
-            1
-        else
-            runEditImage inputPath outputPath transformations strategy threads |> exit
+        runEditImage inputPath outputPath transformations strategy threads |> exit
