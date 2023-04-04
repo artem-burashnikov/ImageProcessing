@@ -27,17 +27,17 @@ type Transformation =
            ReflectH
            ReflectV |]
 
-let getTsfCPU threadsCount transformation =
+let getTsfCPU (transform: ApplyTransform) transformation =
     match transformation with
-    | Transformation.Blur -> ApplyTransform(threadsCount).OnCPU(EditType.Transformation gaussianBlurKernel)
-    | Transformation.Edges -> ApplyTransform(threadsCount).OnCPU(EditType.Transformation edgesKernel)
-    | Transformation.HighPass -> ApplyTransform(threadsCount).OnCPU(EditType.Transformation highPassKernel)
-    | Transformation.Laplacian -> ApplyTransform(threadsCount).OnCPU(EditType.Transformation laplacianKernel)
-    | Transformation.SobelV -> ApplyTransform(threadsCount).OnCPU(EditType.Transformation sobelVerticalKernel)
-    | Transformation.Rotate -> ApplyTransform(threadsCount).OnCPU(EditType.Rotation Clockwise)
-    | Transformation.RotateCCW -> ApplyTransform(threadsCount).OnCPU(EditType.Rotation Counterclockwise)
-    | Transformation.ReflectH -> ApplyTransform(threadsCount).OnCPU(EditType.Reflection Horizontal)
-    | Transformation.ReflectV -> ApplyTransform(threadsCount).OnCPU(EditType.Reflection Vertical)
+    | Transformation.Blur -> transform.OnCPU(EditType.Transformation gaussianBlurKernel)
+    | Transformation.Edges -> transform.OnCPU(EditType.Transformation edgesKernel)
+    | Transformation.HighPass -> transform.OnCPU(EditType.Transformation highPassKernel)
+    | Transformation.Laplacian -> transform.OnCPU(EditType.Transformation laplacianKernel)
+    | Transformation.SobelV -> transform.OnCPU(EditType.Transformation sobelVerticalKernel)
+    | Transformation.Rotate -> transform.OnCPU(EditType.Rotation Clockwise)
+    | Transformation.RotateCCW -> transform.OnCPU(EditType.Rotation Counterclockwise)
+    | Transformation.ReflectH -> transform.OnCPU(EditType.Reflection Horizontal)
+    | Transformation.ReflectV -> transform.OnCPU(EditType.Reflection Vertical)
 
 let getTsfGPU (clContext: ClContext) localWorkSize transformation =
     match transformation with
