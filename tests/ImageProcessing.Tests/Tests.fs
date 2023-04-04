@@ -253,7 +253,9 @@ module GeneralTests =
                   actualResult
 
               testProperty "VirtualArray splitInto should match Array splitInto"
-              <| fun (memory: array<_>) ->
+              <| fun (Generators.ImageData arr2d) ->
+
+                  let memory = flattenArray2D arr2d
 
                   // Counts <= 0 will throw an exception in custom and built-in methods.
                   let count = Gen.choose (1, memory.Length * 2 + 1) |> Gen.sample 0 1 |> List.head // r.Next(1, memory.Length * 2 + 1)
