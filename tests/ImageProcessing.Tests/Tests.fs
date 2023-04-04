@@ -68,7 +68,7 @@ module Generators =
 
     let ImageDataArb () =
 
-        let values = Gen.choose (2, 100) |> Gen.sample 0 2
+        let values = Gen.choose (2, 100) |> Gen.sample 1 2
 
         let rows = values[0]
         let columns = values[1]
@@ -81,7 +81,7 @@ module Generators =
 
     let filterKernelArb () =
 
-        let value = Gen.choose (0, 5) |> Gen.sample 0 1 |> List.head
+        let value = Gen.choose (0, 5) |> Gen.sample 1 1 |> List.head
 
         let size = 2 * value + 1
 
