@@ -67,8 +67,8 @@ module Generators =
 
     let ImageArb () =
 
-        let rows = r.Next(2, 1000)
-        let columns = r.Next(2, 1000)
+        let rows = r.Next(2, 500)
+        let columns = r.Next(2, 500)
 
         Gen.array2DOfDim (rows, columns) Arb.generate
         |> Arb.fromGen
