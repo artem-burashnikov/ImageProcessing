@@ -60,7 +60,7 @@ module Main =
         (outputPath: OutputPath)
         (transformations: Transformation list)
         (strategy: RunStrategy)
-        (threads: int)
+        threads
         =
 
         match inputPath, outputPath with
@@ -142,7 +142,11 @@ module Main =
             let maybeThreads = results.TryGetResult(Threads)
 
             match maybeThreads with
-            | Some count when count <> 0u -> System.Convert.ToInt32 count
-            | _ -> 1
+            | Some count -> System.Convert.ToInt32 count
+            | None -> 1
 
-        runEditImage inputPath outputPath transformations strategy threads |> exit
+        if threads = 0 then
+            eprintfn "Number of threads cannot be 0"
+            1
+        else
+            runEditImage inputPath outputPath transformations strategy threads |> exit
