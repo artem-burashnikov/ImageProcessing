@@ -3,6 +3,7 @@ namespace ImageProcessing.Tests
 open System
 open Expecto
 open FsCheck
+open ImageProcessing
 open ImageProcessing.ImageProcessing
 open ImageProcessing.FilterKernel
 open Brahma.FSharp
@@ -324,21 +325,23 @@ module GPUTests =
                       expectedResult.Data
                       "Counterclockwise rotations on GPU and CPU don't match"
 
-              testCustomProp "Applying available filters on CPU and on GPU has to yield the same pixel data"
+              testCustomProp "Applying available transformations on CPU and on GPU has to yield the same pixel data"
               <| fun (Generators.ImageData arr2d) ->
-                  let transformations = EditType.all
+
+                  let transformationOnGPU =
+                      Transformation.all
+                      |> Array.map (Transformation.getTsfGPU transform context 64)
+                      |> Array.reduce (>>)
+
+                  let transformationOnCPU =
+                      Transformation.all
+                      |> Array.map (Transformation.getTsfCPU transform)
+                      |> Array.reduce (>>)
 
                   let img = getImage arr2d
 
-                  let applyTransformOnGPU =
-                      (fun image (state: EditType) -> transform.OnGPU context 64 state image)
-
-                  let applyTransformOnCPU =
-                      (fun image (state: EditType) -> transform.OnCPU state image)
-
-                  let actualResult = Array.fold applyTransformOnGPU img transformations
-
-                  let expectedResult = Array.fold applyTransformOnCPU img transformations
+                  let actualResult = transformationOnGPU img
+                  let expectedResult = transformationOnCPU img
 
                   Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
 

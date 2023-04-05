@@ -2,7 +2,6 @@ module ImageProcessing.ImageProcessing
 
 open System
 open Brahma.FSharp
-open ImageProcessing.FilterKernel
 open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Core
 open SixLabors.ImageSharp
@@ -56,23 +55,6 @@ type EditType =
         | Transformation _ -> "Transformation"
         | Rotation direction -> $"%s{direction.ToString()} Rotation"
         | Reflection direction -> $"%s{direction.ToString()} Reflection"
-
-    static member all =
-
-        let getEditType (transformation: Transformation) =
-            match transformation with
-            | Transformation.Blur -> EditType.Transformation gaussianBlurKernel
-            | Transformation.Edges -> EditType.Transformation edgesKernel
-            | Transformation.HighPass -> EditType.Transformation highPassKernel
-            | Transformation.Laplacian -> EditType.Transformation laplacianKernel
-            | Transformation.SobelV -> EditType.Transformation sobelVerticalKernel
-            | Transformation.Rotate -> EditType.Rotation Clockwise
-            | Transformation.RotateCCW -> EditType.Rotation Counterclockwise
-            | Transformation.ReflectH -> EditType.Reflection Horizontal
-            | Transformation.ReflectV -> EditType.Reflection Vertical
-
-        let editors = Transformation.all
-        editors |> Array.map getEditType
 
 [<RequireQualifiedAccess>]
 type Kernel =
