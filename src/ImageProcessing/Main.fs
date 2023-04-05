@@ -142,10 +142,10 @@ module Main =
             let maybeThreads = results.TryGetResult(Threads)
 
             match maybeThreads with
-            | Some count -> System.Convert.ToInt32 count
-            | None -> 1
+            | Some count -> count
+            | None -> 1u
 
-        if threads = 0 then
+        if threads = 0u then
             eprintfn "Number of threads cannot be 0"
             1
         else

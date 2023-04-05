@@ -9,7 +9,9 @@ open ImageProcessing.Logging
 
 let listAllFiles dir = System.IO.Directory.GetFiles dir
 
-let processAllFiles (runStrategy: RunStrategy) (threads: int) (files: string seq) outDir transformations =
+let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string seq) outDir transformations =
+
+    let threads = System.Convert.ToInt32 threads
 
     // Start a new instance of logger
     let logger = Logger()
