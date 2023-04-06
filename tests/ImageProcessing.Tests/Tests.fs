@@ -5,7 +5,6 @@ open Expecto
 open FsCheck
 open ImageProcessing
 open ImageProcessing.ImageProcessing
-open ImageProcessing.FilterKernel
 open Brahma.FSharp
 
 module TestHelperFunctions =
@@ -159,16 +158,16 @@ module CPUTests =
                       "Clockwise and then counterclockwise failed to match the original image"
 
               testCustomProp "Applying filter to a 2DArray and a 1DArray should produce the same output"
-              <| fun (Generators.ImageData arr2d) ->
+              <| fun (Generators.ImageData arr2d) (Generators.FilterKernel filter) ->
 
                   let height = Array2D.length1 arr2d
                   let width = Array2D.length2 arr2d
 
                   let data1D = flattenArray2D arr2d
 
-                  let actualResult = applyFilterNaive edgesKernel (Image(data1D, width, height, ""))
+                  let actualResult = applyFilterNaive filter (Image(data1D, width, height, ""))
 
-                  let expectedResult = applyFilter2DArray edgesKernel arr2d |> flattenArray2D
+                  let expectedResult = applyFilter2DArray filter arr2d |> flattenArray2D
 
                   Expect.equal actualResult.Data expectedResult $"data1D: %A{data1D},\ndata2D:%A{arr2d}"
 
@@ -302,7 +301,11 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU context 64 (EditType.Rotation Clockwise) originalImg
+                      transform.OnGPU
+                          GPUDevice.context
+                          GPUDevice.localWorkSize
+                          (EditType.Rotation Clockwise)
+                          originalImg
 
                   let expectedResult = transform.OnCPU (EditType.Rotation Clockwise) originalImg
 
@@ -315,7 +318,11 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU context 64 (EditType.Rotation Counterclockwise) originalImg
+                      transform.OnGPU
+                          GPUDevice.context
+                          GPUDevice.localWorkSize
+                          (EditType.Rotation Counterclockwise)
+                          originalImg
 
                   let expectedResult =
                       transform.OnCPU (EditType.Rotation Counterclockwise) originalImg
@@ -325,23 +332,15 @@ module GPUTests =
                       expectedResult.Data
                       "Counterclockwise rotations on GPU and CPU don't match"
 
-              testCustomProp "Applying available transformations on CPU and on GPU has to yield the same pixel data"
-              <| fun (Generators.ImageData arr2d) ->
-
-                  let transformationOnGPU =
-                      Transformation.all
-                      |> Array.map (Transformation.getTsfGPU transform context 64)
-                      |> Array.reduce (>>)
-
-                  let transformationOnCPU =
-                      Transformation.all
-                      |> Array.map (Transformation.getTsfCPU transform)
-                      |> Array.reduce (>>)
+              testCustomProp "Applying filter kernel on CPU and on GPU has to yield the same pixel data"
+              <| fun (Generators.ImageData arr2d) (Generators.FilterKernel filter) ->
 
                   let img = getImage arr2d
 
-                  let actualResult = transformationOnGPU img
-                  let expectedResult = transformationOnCPU img
+                  let actualResult = transform.OnCPU (EditType.Transformation filter) img
+
+                  let expectedResult =
+                      transform.OnGPU GPUDevice.context GPUDevice.localWorkSize (EditType.Transformation filter) img
 
                   Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
 
@@ -351,7 +350,11 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU context 64 (EditType.Reflection Horizontal) originalImg
+                      transform.OnGPU
+                          GPUDevice.context
+                          GPUDevice.localWorkSize
+                          (EditType.Reflection Horizontal)
+                          originalImg
 
                   let expectedResult = transform.OnCPU (EditType.Reflection Horizontal) originalImg
 
@@ -363,7 +366,11 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU context 64 (EditType.Reflection Vertical) originalImg
+                      transform.OnGPU
+                          GPUDevice.context
+                          GPUDevice.localWorkSize
+                          (EditType.Reflection Vertical)
+                          originalImg
 
                   let expectedResult = transform.OnCPU (EditType.Reflection Vertical) originalImg
 
@@ -388,7 +395,7 @@ module PixelMatrixProcessingTests =
 
                   let img = getImage arr2d
 
-                  let numCores = min (Environment.ProcessorCount - 1) (width * height)
+                  let numCores = min (Environment.ProcessorCount - 2) (width * height)
 
                   let multiThreadingTransform = ApplyTransform(numCores)
 
