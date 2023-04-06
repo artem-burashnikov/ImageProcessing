@@ -2,175 +2,23 @@ module ImageProcessing.ImageProcessing
 
 open System
 open Brahma.FSharp
-open Microsoft.FSharp.Reflection
 open Microsoft.FSharp.Core
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
-
-[<RequireQualifiedAccess>]
-type Transformation =
-    | Blur
-    | Edges
-    | HighPass
-    | Laplacian
-    | SobelV
-    | Rotate
-    | RotateCCW
-    | ReflectH
-    | ReflectV
-
-    static member all =
-        let cases = FSharpType.GetUnionCases(typeof<Transformation>)
-
-        [| for case in cases do
-               let transformation = FSharpValue.MakeUnion(case, [||]) :?> Transformation
-               yield transformation |]
 
 type RotationDirection =
     | Clockwise
     | Counterclockwise
 
-    override this.ToString() =
-        match this with
-        | Clockwise -> "Clockwise"
-        | Counterclockwise -> "Counterclockwise"
-
 type ReflectionDirection =
     | Horizontal
     | Vertical
-
-    override this.ToString() =
-        match this with
-        | Horizontal -> "Horizontal"
-        | Vertical -> "Vertical"
 
 [<RequireQualifiedAccess>]
 type EditType =
     | Transformation of float32[,]
     | Rotation of RotationDirection
     | Reflection of ReflectionDirection
-
-    override this.ToString() =
-        match this with
-        | Transformation _ -> "Transformation"
-        | Rotation direction -> $"%s{direction.ToString()} Rotation"
-        | Reflection direction -> $"%s{direction.ToString()} Reflection"
-
-[<RequireQualifiedAccess>]
-type Kernel =
-
-    static member makeRotationKernel (clContext: ClContext) localWorkSize =
-        let kernel =
-            <@
-                fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) direction ->
-                    let p = r.GlobalID0
-                    let pi = p / width
-                    let pj = p % width
-
-                    if pi < height && pj < width then
-                        if direction > 0 then
-                            result[pj * height + height - pi - 1] <- img[pi * width + pj]
-                        else
-                            result[(width - pj - 1) * height + pi] <- img[pi * width + pj]
-            @>
-
-        let kernel = clContext.Compile kernel
-
-        fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
-
-            let ndRange = Range1D.CreateValid(height * width, localWorkSize)
-
-            let kernel = kernel.GetKernel()
-
-            commandQueue.Post(
-                Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img height width result direction)
-            )
-
-            commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
-            result
-
-    static member makeReflectionKernel (clContext: ClContext) localWorkSize =
-        let kernel =
-            <@
-                fun (r: Range1D) (img: ClArray<byte>) height width (result: ClArray<byte>) direction ->
-                    let p = r.GlobalID0
-                    let pi = p / width
-                    let pj = p % width
-
-                    if pi <= height / 2 && pj <= width / 2 then
-                        if direction > 0 then
-                            result[pi * width + pj] <- img[(height - 1) * width - (pi * width) + pj]
-                            result[(height - 1) * width - (pi * width) + pj] <- img[pi * width + pj]
-
-                            result[pi * width + width - 1 - pj] <-
-                                img[(height - 1) * width - (pi * width) + width - 1 - pj]
-
-                            result[(height - 1) * width - (pi * width) + width - 1 - pj] <-
-                                img[pi * width + width - 1 - pj]
-                        else
-                            result[pi * width + pj] <- img[pi * width + width - 1 - pj]
-                            result[pi * width + width - 1 - pj] <- img[pi * width + pj]
-
-                            result[(height - 1) * width - (pi * width) + pj] <-
-                                img[(height - 1) * width - (pi * width) + width - 1 - pj]
-
-                            result[(height - 1) * width - (pi * width) + width - 1 - pj] <-
-                                img[(height - 1) * width - (pi * width) + pj]
-            @>
-
-        let kernel = clContext.Compile kernel
-
-        fun direction (commandQueue: MailboxProcessor<_>) (img: ClArray<byte>) height width (result: ClArray<byte>) ->
-
-            let ndRange = Range1D.CreateValid(height * width, localWorkSize)
-
-            let kernel = kernel.GetKernel()
-
-            commandQueue.Post(
-                Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img height width result direction)
-            )
-
-            commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
-            result
-
-    static member makeFilterKernel (clContext: ClContext) localWorkSize =
-        let kernel =
-            <@
-                fun (r: Range1D) (img: ClArray<byte>) width height (filter: ClArray<float32>) filterD (result: ClArray<byte>) ->
-                    let p = r.GlobalID0
-                    let ph = p / width
-                    let pw = p % width
-                    let mutable res = 0.0f
-
-                    for i in ph - filterD .. ph + filterD do
-                        for j in pw - filterD .. pw + filterD do
-                            let mutable d = 0uy
-
-                            if i < 0 || i >= height || j < 0 || j >= width then
-                                d <- img[p]
-                            else
-                                d <- img[i * width + j]
-
-                            let f = filter[(i - ph + filterD) * (2 * filterD + 1) + (j - pw + filterD)]
-                            res <- res + (float32 d) * f
-
-                    result[p] <- byte (int res)
-            @>
-
-        let kernel = clContext.Compile kernel
-
-        fun (commandQueue: MailboxProcessor<_>) (filter: ClArray<float32>) filterD (img: ClArray<byte>) height width (result: ClArray<byte>) ->
-
-            let ndRange = Range1D.CreateValid(height * width, localWorkSize)
-
-            let kernel = kernel.GetKernel()
-
-            commandQueue.Post(
-                Msg.MsgSetArguments(fun () -> kernel.KernelFunc ndRange img width height filter filterD result)
-            )
-
-            commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
-            result
 
 type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
     // When an instance is created, check that it is within the specified memory limits
@@ -261,7 +109,7 @@ type Image =
           Height = height
           Name = name }
 
-// Convert 2D-array to 1D-array
+/// Convert 2D-array to 1D-array
 let flattenArray2D array2D =
     [| for x in 0 .. (Array2D.length1 array2D) - 1 do
            for y in 0 .. (Array2D.length2 array2D) - 1 do
@@ -270,8 +118,11 @@ let flattenArray2D array2D =
 
 type ApplyTransform(?parallelLevel) =
 
-    // Get optimal parameters for parallel computations
     let parallelLevel = defaultArg parallelLevel 1
+
+    do
+        if parallelLevel <= 0 then
+            failwith "Number of threads cannot be less than 1"
 
     /// Apply a given transformation using CPU resources
     member _.OnCPU parameter (img: Image) =
@@ -443,10 +294,9 @@ type ApplyTransform(?parallelLevel) =
                 match parameter with
                 | EditType.Rotation rotationDirection ->
                     let kernel =
-                        if rotationDirection = Clockwise then
-                            Kernel.makeRotationKernel clContext localWorkSize 1
-                        else
-                            Kernel.makeRotationKernel clContext localWorkSize 0
+                        match rotationDirection with
+                        | Clockwise -> GPUKernel.rotation clContext localWorkSize 1
+                        | Counterclockwise -> GPUKernel.rotation clContext localWorkSize 0
 
                     // Out of scope assignment for correct image dimensions when saving rotated images
                     height <- img.Width
@@ -456,21 +306,20 @@ type ApplyTransform(?parallelLevel) =
 
                 | EditType.Reflection reflectionDirection ->
                     let kernel =
-                        if reflectionDirection = Horizontal then
-                            Kernel.makeReflectionKernel clContext localWorkSize 1
-                        else
-                            Kernel.makeReflectionKernel clContext localWorkSize 0
+                        match reflectionDirection with
+                        | Horizontal -> GPUKernel.reflection clContext localWorkSize 1
+                        | Vertical -> GPUKernel.reflection clContext localWorkSize 0
 
                     kernel queue input img.Height img.Width output
 
-                | EditType.Transformation table ->
-                    let filterD = (Array2D.length1 table) / 2
-                    let filter = flattenArray2D table
+                | EditType.Transformation filter ->
+                    let filterD = (Array2D.length1 filter) / 2
+                    let filter = flattenArray2D filter
 
                     let clFilter =
                         clContext.CreateClArray<_>(filter, HostAccessMode.NotAccessible, DeviceAccessMode.ReadOnly)
 
-                    let kernel = Kernel.makeFilterKernel clContext localWorkSize
+                    let kernel = GPUKernel.filter clContext localWorkSize
                     let res = kernel queue clFilter filterD input img.Height img.Width output
                     // Memory clean-up on GPU
                     queue.Post(Msg.CreateFreeMsg clFilter)
