@@ -19,10 +19,12 @@
     <None Include="App.config" />
     <Compile Include="Logging.fs" />
     <Compile Include="FilterKernel.fs" />
-    <Compile Include="RunStrategy.fs" />
+    <Compile Include="GPUKernel.fs" />
+    <Compile Include="GPUDevice.fs" />
     <Compile Include="ImageProcessing.fs" />
     <Compile Include="Transformation.fs" />
     <Compile Include="Agent.fs" />
+    <Compile Include="RunStrategy.fs" />
     <Compile Include="Streaming.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
