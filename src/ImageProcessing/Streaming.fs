@@ -1,7 +1,6 @@
 module ImageProcessing.Streaming
 
 open System.Diagnostics
-open Brahma.FSharp
 open ImageProcessing.Agent
 open ImageProcessing.ImageProcessing
 open ImageProcessing.Transformation
@@ -12,11 +11,25 @@ let listAllFiles dir = System.IO.Directory.GetFiles dir
 
 let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string seq) outDir transformations =
 
+    // Fail-safe check
+    if threads = 0u then
+        failwith "Number of threads cannot be 0"
+
+    // Initialize transformation instance
     let threads = System.Convert.ToInt32 threads
+    let transform = ApplyTransform(threads)
 
     // Start a new instance of logger
     let logger = Logger()
     logger.Start()
+
+    // Ensure that the chosen run strategy is available
+    let ensuredRunStrategy =
+        if GPUDevice.noGPU () then
+            logger.Log "GPGPU was not found on the system. Using CPU instead"
+            switchToCPU runStrategy
+        else
+            runStrategy
 
     /// Edit all image files one after another on the main thread.
     let naive (files: string seq) outDir transformations =
@@ -74,7 +87,7 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
 
     /// Edit images files dividing them between agents.
     /// Each agent processes and saves image by itself.
-    let async2 (files: string seq) outDir transformations =
+    let async2 (files: string seq) outDir transformations threads =
         // Get optimal parameters for parallel computations
         let numCores = min threads System.Environment.ProcessorCount
         let numFiles = Seq.length files
@@ -114,77 +127,34 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
         // Stop the logger
         logger.Stop()
 
-
-    // Check that GPU is present on the system. If not, then force CPU run.
-    let noGPU = Seq.isEmpty (ClDevice.GetAvailableDevices())
-
-    let ensuredRunStrategy =
-        if noGPU then
-            match runStrategy with
-            | GPU -> CPU
-            | Async1GPU -> Async1CPU
-            | Async2GPU -> Async2CPU
-            | _ -> runStrategy
-        else
-            runStrategy
-
     // Determine how to run
     match ensuredRunStrategy with
     | CPU ->
-        let transform = ApplyTransform(threads)
-
-        let transformations =
-            transformations |> List.map (getTsfCPU transform) |> List.reduce (>>)
-
+        let transformations = transformationsOnCPU transformations transform
         naive files outDir transformations
 
-    // 1 is being passed as a parameter to getTsfCPU's threadsCount since we already perform async computations using agents
     | Async1CPU ->
-        let transform = ApplyTransform(1)
-
-        let transformations =
-            transformations |> List.map (getTsfCPU transform) |> List.reduce (>>)
-
+        let transformations = transformationsOnCPU transformations transform
         async1 files outDir transformations
 
     | Async2CPU ->
-        let transform = ApplyTransform(1)
+        let transformations = transformationsOnCPU transformations transform
+        async2 files outDir transformations threads
 
-        let transformations =
-            transformations |> List.map (getTsfCPU transform) |> List.reduce (>>)
-
-        async2 files outDir transformations
-
-    // At this point it has to be ensured that GPU is present on the system.
     | GPU ->
-        let device = ClDevice.GetFirstAppropriateDevice()
-        let context = ClContext(device)
-
-        let transform = ApplyTransform()
-
         let transformations =
-            transformations |> List.map (getTsfGPU transform context 64) |> List.reduce (>>)
+            transformationsOnGPU transformations transform GPUDevice.context GPUDevice.localWorkSize
 
         naive files outDir transformations
 
     | Async1GPU ->
-        let device = ClDevice.GetFirstAppropriateDevice()
-        let context = ClContext(device)
-
-        let transform = ApplyTransform()
-
         let transformations =
-            transformations |> List.map (getTsfGPU transform context 64) |> List.reduce (>>)
+            transformationsOnGPU transformations transform GPUDevice.context GPUDevice.localWorkSize
 
         async1 files outDir transformations
 
     | Async2GPU ->
-        let device = ClDevice.GetFirstAppropriateDevice()
-        let context = ClContext(device)
-
-        let transform = ApplyTransform()
-
         let transformations =
-            transformations |> List.map (getTsfGPU transform context 64) |> List.reduce (>>)
+            transformationsOnGPU transformations transform GPUDevice.context GPUDevice.localWorkSize
 
-        async2 files outDir transformations
+        async2 files outDir transformations threads
