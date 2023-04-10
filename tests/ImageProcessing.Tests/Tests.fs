@@ -78,15 +78,17 @@ module Generators =
         |> Arb.fromGen
         |> Arb.convert ImageData (fun (ImageData l) -> l)
 
-    type FilterKernel = FilterKernel of float32[,]
+    type FilterKernel = FilterKernel of int32[,]
 
     let filterKernelArb () =
 
-        let value = Gen.choose (0, 5) |> Gen.sample 1 1 |> List.head
+        let sizeGen = Gen.choose (0, 5) |> Gen.sample 1 1 |> List.head
 
-        let size = 2 * value + 1
+        let size = 2 * sizeGen + 1
 
-        Gen.array2DOfDim (size, size) Arb.generate
+        let valueGen = Gen.choose (-1000, 1000)
+
+        GenExtensions.Array2DOf(valueGen, size, size)
         |> Arb.fromGen
         |> Arb.convert FilterKernel (fun (FilterKernel l) -> l)
 
@@ -163,6 +165,8 @@ module CPUTests =
 
                   let height = Array2D.length1 arr2d
                   let width = Array2D.length2 arr2d
+
+                  let filter = Array2D.map float32 filter
 
                   let data1D = flattenArray2D arr2d
 
@@ -335,10 +339,12 @@ module GPUTests =
 
                   let img = getImage arr2d
 
-                  let actualResult = CPU.applyTransform threads (EditType.Transformation filter) img
+                  let filter = Array2D.map float32 filter
 
                   let expectedResult =
                       GPU.applyTransform context localWorkSize (EditType.Transformation filter) img
+
+                  let actualResult = CPU.applyTransform threads (EditType.Transformation filter) img
 
                   Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
 
@@ -388,14 +394,17 @@ module PixelMatrixProcessingTests =
                   let height = Array2D.length1 arr2d
                   let width = Array2D.length2 arr2d
 
+                  let kernel = Array2D.map float32 kernel
+
                   let edit = EditType.Transformation kernel
 
                   let img = getImage arr2d
 
                   let numCores = min (Environment.ProcessorCount - 2) (width * height)
 
-                  let actualResult = CPU.applyTransform numCores edit img
                   let expectedResult = GPU.applyTransform context localWorkSize edit img
+
+                  let actualResult = CPU.applyTransform numCores edit img
 
                   Expect.equal
                       actualResult.Data
