@@ -5,6 +5,7 @@ open Expecto
 open FsCheck
 open ImageProcessing
 open ImageProcessing.ImageProcessing
+open ImageProcessing.ImageProcessing.HelpProviders
 open Brahma.FSharp
 
 module TestHelperFunctions =
@@ -60,7 +61,7 @@ module TestHelperFunctions =
     let getImage arr2d =
         Image(flattenArray2D arr2d, Array2D.length2 arr2d, Array2D.length1 arr2d, "sample.jpg")
 
-    let transform = ApplyTransform()
+    let threads = 1
 
 module Generators =
 
@@ -115,10 +116,10 @@ module CPUTests =
 
                   let actualResult =
                       expectedResult
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
 
                   Expect.equal
                       actualResult.Data
@@ -132,10 +133,10 @@ module CPUTests =
 
                   let actualResult =
                       expectedResult
-                      |> transform.OnCPU(EditType.Rotation Counterclockwise)
-                      |> transform.OnCPU(EditType.Rotation Counterclockwise)
-                      |> transform.OnCPU(EditType.Rotation Counterclockwise)
-                      |> transform.OnCPU(EditType.Rotation Counterclockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Counterclockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Counterclockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Counterclockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Counterclockwise)
 
                   Expect.equal
                       actualResult.Data
@@ -149,8 +150,8 @@ module CPUTests =
 
                   let actualResult =
                       expectedResult
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
-                      |> transform.OnCPU(EditType.Rotation Counterclockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Counterclockwise)
 
                   Expect.equal
                       actualResult.Data
@@ -178,8 +179,8 @@ module CPUTests =
 
                   let actualResult =
                       expectedResult
-                      |> transform.OnCPU(EditType.Reflection Horizontal)
-                      |> transform.OnCPU(EditType.Reflection Horizontal)
+                      |> CPU.applyTransform threads (EditType.Reflection Horizontal)
+                      |> CPU.applyTransform threads (EditType.Reflection Horizontal)
 
                   Expect.equal
                       actualResult.Data
@@ -193,8 +194,8 @@ module CPUTests =
 
                   let actualResult =
                       expectedResult
-                      |> transform.OnCPU(EditType.Reflection Vertical)
-                      |> transform.OnCPU(EditType.Reflection Vertical)
+                      |> CPU.applyTransform threads (EditType.Reflection Vertical)
+                      |> CPU.applyTransform threads (EditType.Reflection Vertical)
 
                   Expect.equal
                       actualResult.Data
@@ -206,13 +207,14 @@ module CPUTests =
 
                   let originalImg = getImage arr2d
 
-                  let actualResult = originalImg |> transform.OnCPU(EditType.Reflection Horizontal)
+                  let actualResult =
+                      originalImg |> CPU.applyTransform threads (EditType.Reflection Horizontal)
 
                   let expectedResult =
                       originalImg
-                      |> transform.OnCPU(EditType.Reflection Vertical)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Reflection Vertical)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
 
                   Expect.equal
                       actualResult.Data
@@ -224,13 +226,14 @@ module CPUTests =
 
                   let originalImg = getImage arr2d
 
-                  let actualResult = originalImg |> transform.OnCPU(EditType.Reflection Vertical)
+                  let actualResult =
+                      originalImg |> CPU.applyTransform threads (EditType.Reflection Vertical)
 
                   let expectedResult =
                       originalImg
-                      |> transform.OnCPU(EditType.Reflection Horizontal)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
-                      |> transform.OnCPU(EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Reflection Horizontal)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
+                      |> CPU.applyTransform threads (EditType.Rotation Clockwise)
 
                   Expect.equal
                       actualResult.Data
@@ -290,6 +293,8 @@ module GPUTests =
     let device = ClDevice.GetFirstAppropriateDevice()
     let context = ClContext(device)
 
+    let localWorkSize = 64
+
     [<Tests>]
     let tests =
         testList
@@ -301,13 +306,10 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU
-                          GPUDevice.context
-                          GPUDevice.localWorkSize
-                          (EditType.Rotation Clockwise)
-                          originalImg
+                      GPU.applyTransform context localWorkSize (EditType.Rotation Clockwise) originalImg
 
-                  let expectedResult = transform.OnCPU (EditType.Rotation Clockwise) originalImg
+                  let expectedResult =
+                      CPU.applyTransform threads (EditType.Rotation Clockwise) originalImg
 
                   Expect.equal actualResult.Data expectedResult.Data "Clockwise rotations on GPU and CPU don't match"
 
@@ -318,14 +320,10 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU
-                          GPUDevice.context
-                          GPUDevice.localWorkSize
-                          (EditType.Rotation Counterclockwise)
-                          originalImg
+                      GPU.applyTransform context localWorkSize (EditType.Rotation Counterclockwise) originalImg
 
                   let expectedResult =
-                      transform.OnCPU (EditType.Rotation Counterclockwise) originalImg
+                      CPU.applyTransform threads (EditType.Rotation Counterclockwise) originalImg
 
                   Expect.equal
                       actualResult.Data
@@ -337,10 +335,10 @@ module GPUTests =
 
                   let img = getImage arr2d
 
-                  let actualResult = transform.OnCPU (EditType.Transformation filter) img
+                  let actualResult = CPU.applyTransform threads (EditType.Transformation filter) img
 
                   let expectedResult =
-                      transform.OnGPU GPUDevice.context GPUDevice.localWorkSize (EditType.Transformation filter) img
+                      GPU.applyTransform context localWorkSize (EditType.Transformation filter) img
 
                   Expect.equal actualResult.Data expectedResult.Data "Application of filters on GPU and CPU don't match"
 
@@ -350,13 +348,10 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU
-                          GPUDevice.context
-                          GPUDevice.localWorkSize
-                          (EditType.Reflection Horizontal)
-                          originalImg
+                      GPU.applyTransform context localWorkSize (EditType.Reflection Horizontal) originalImg
 
-                  let expectedResult = transform.OnCPU (EditType.Reflection Horizontal) originalImg
+                  let expectedResult =
+                      CPU.applyTransform threads (EditType.Reflection Horizontal) originalImg
 
                   Expect.equal actualResult.Data expectedResult.Data "Horizontal reflection on GPU and CPU don't match"
 
@@ -366,19 +361,21 @@ module GPUTests =
                   let originalImg = getImage arr2d
 
                   let actualResult =
-                      transform.OnGPU
-                          GPUDevice.context
-                          GPUDevice.localWorkSize
-                          (EditType.Reflection Vertical)
-                          originalImg
+                      GPU.applyTransform context localWorkSize (EditType.Reflection Vertical) originalImg
 
-                  let expectedResult = transform.OnCPU (EditType.Reflection Vertical) originalImg
+                  let expectedResult =
+                      CPU.applyTransform threads (EditType.Reflection Vertical) originalImg
 
                   Expect.equal actualResult.Data expectedResult.Data "Vertical reflection on GPU and CPU don't match" ]
 
 module PixelMatrixProcessingTests =
 
     open TestHelperFunctions
+
+    let device = ClDevice.GetFirstAppropriateDevice()
+    let context = ClContext(device)
+
+    let localWorkSize = 64
 
     [<Tests>]
     let tests =
@@ -397,10 +394,8 @@ module PixelMatrixProcessingTests =
 
                   let numCores = min (Environment.ProcessorCount - 2) (width * height)
 
-                  let multiThreadingTransform = ApplyTransform(numCores)
-
-                  let actualResult = multiThreadingTransform.OnCPU edit img
-                  let expectedResult = transform.OnCPU edit img
+                  let actualResult = CPU.applyTransform numCores edit img
+                  let expectedResult = GPU.applyTransform context localWorkSize edit img
 
                   Expect.equal
                       actualResult.Data
