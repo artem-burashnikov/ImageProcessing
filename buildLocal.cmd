@@ -1,6 +1,0 @@
-echo Restoring dotnet tools...
-dotnet tool restore
-echo Restoring project dependencies...
-dotnet restore
-
-dotnet build --no-restore
