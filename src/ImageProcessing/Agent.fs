@@ -1,6 +1,6 @@
 module ImageProcessing.Agent
 
-open ImageProcessing.ImageProcessing
+open ImageProcessing.ImageProcessing.HelpProviders
 open ImageProcessing.Logging
 
 type Message =
