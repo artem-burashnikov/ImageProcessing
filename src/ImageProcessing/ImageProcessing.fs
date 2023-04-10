@@ -6,126 +6,141 @@ open Microsoft.FSharp.Core
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
 
-type RotationDirection =
-    | Clockwise
-    | Counterclockwise
+module HelpProviders =
 
-type ReflectionDirection =
-    | Horizontal
-    | Vertical
+    type RotationDirection =
+        | Clockwise
+        | Counterclockwise
 
-[<RequireQualifiedAccess>]
-type EditType =
-    | Transformation of float32[,]
-    | Rotation of RotationDirection
-    | Reflection of ReflectionDirection
+    type ReflectionDirection =
+        | Horizontal
+        | Vertical
 
-type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
-    // When an instance is created, check that it is within the specified memory limits
-    do
-        if head + length - 1 >= memory.Length then
-            failwith
-                $"Failed to allocate required memory: %A{length} for VirtualArray at the specified starting index: %A{head}"
+    [<RequireQualifiedAccess>]
+    type EditType =
+        | Transformation of float32[,]
+        | Rotation of RotationDirection
+        | Reflection of ReflectionDirection
 
-    member this.Memory = memory
-    member this.Head = head
-    member this.Length = length
-    member this.IsEmpty = length = 0
+    type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
+        // When an instance is created, check that it is within the specified memory limits
+        do
+            if head + length - 1 >= memory.Length then
+                failwith
+                    $"Failed to allocate required memory: %A{length} for VirtualArray at the specified starting index: %A{head}"
 
-    member this.Item
-        with get i =
-            if head + i >= memory.Length then
-                failwith "VirtualArray.get: Index out of bounds of the general memory"
+        member this.Memory = memory
+        member this.Head = head
+        member this.Length = length
+        member this.IsEmpty = length = 0
+
+        member this.Item
+            with get i =
+                if head + i >= memory.Length then
+                    failwith "VirtualArray.get: Index out of bounds of the general memory"
+                else
+                    this.Memory[this.Head + i]
+            and set i value =
+                if head + i >= memory.Length then
+                    failwith "VirtualArray.set: Index out of bounds of the general memory"
+                else
+                    this.Memory[ this.Head + i ] <- value
+
+        static member splitInto count (vArray: VirtualArray<'A>) =
+            if count <= 0 then
+                failwith $"VirtualArray.SplitIntoCount count argument: {count} must be positive"
+
+            let len = vArray.Length
+
+            if len = 0 then
+                [||]
             else
-                this.Memory[this.Head + i]
-        and set i value =
-            if head + i >= memory.Length then
-                failwith "VirtualArray.set: Index out of bounds of the general memory"
-            else
-                this.Memory[ this.Head + i ] <- value
+                let count = min count len
+                let res = Array.zeroCreate count
+                let minChunkSize = len / count
+                let mutable startIndex = vArray.Head
 
-    static member splitInto count (vArray: VirtualArray<'A>) =
-        if count <= 0 then
-            failwith $"VirtualArray.SplitIntoCount count argument: {count} must be positive"
+                for i in 0 .. len % count - 1 do
+                    res[i] <- VirtualArray(vArray.Memory, startIndex, minChunkSize + 1)
+                    startIndex <- startIndex + minChunkSize + 1
 
-        let len = vArray.Length
+                for i in len % count .. count - 1 do
+                    res[i] <- VirtualArray(vArray.Memory, startIndex, minChunkSize)
+                    startIndex <- startIndex + minChunkSize
 
-        if len = 0 then
-            [||]
-        else
-            let count = min count len
-            let res = Array.zeroCreate count
-            let minChunkSize = len / count
-            let mutable startIndex = vArray.Head
+                res
 
-            for i in 0 .. len % count - 1 do
-                res[i] <- VirtualArray(vArray.Memory, startIndex, minChunkSize + 1)
-                startIndex <- startIndex + minChunkSize + 1
+        static member mirror(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
 
-            for i in len % count .. count - 1 do
-                res[i] <- VirtualArray(vArray.Memory, startIndex, minChunkSize)
-                startIndex <- startIndex + minChunkSize
+        static member fold2 folder (state: 'State) (vArray1: VirtualArray<'A>) (vArray2: VirtualArray<'B>) =
+            if vArray1.Length <> vArray2.Length then
+                failwith $"Invalid argument vArray1.Length: %A{vArray1.Length} vArray2.Length: %A{vArray2.Length}"
 
-            res
+            let mutable state = state
 
-    static member mirror(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
+            for i in 0 .. vArray1.Length - 1 do
+                state <- folder state vArray1[i] vArray2[i]
 
-    static member fold2 folder (state: 'State) (vArray1: VirtualArray<'A>) (vArray2: VirtualArray<'B>) =
-        if vArray1.Length <> vArray2.Length then
-            failwith $"Invalid argument vArray1.Length: %A{vArray1.Length} vArray2.Length: %A{vArray2.Length}"
+            state
 
-        let mutable state = state
-
-        for i in 0 .. vArray1.Length - 1 do
-            state <- folder state vArray1[i] vArray2[i]
-
-        state
-
-    /// Writes the result of an applied function to the output
-    static member iteri2 action (vArray: VirtualArray<'A>) (output: array<'A>) =
-        for i in 0 .. vArray.Length - 1 do
-            output[vArray.Head + i] <- action (vArray.Head + i) vArray.Memory[vArray.Head + i]
+        /// Writes the result of an applied function to the output
+        static member iteri2 action (vArray: VirtualArray<'A>) (output: array<'A>) =
+            for i in 0 .. vArray.Length - 1 do
+                output[vArray.Head + i] <- action (vArray.Head + i) vArray.Memory[vArray.Head + i]
 
 
-[<Struct>]
-type Image =
-    val Data: array<byte>
-    val VirtualData: VirtualArray<byte>
-    val Width: int
-    val Height: int
-    val Name: string
+    [<Struct>]
+    type Image =
+        val Data: array<byte>
+        val VirtualData: VirtualArray<byte>
+        val Width: int
+        val Height: int
+        val Name: string
 
-    new(data, virtualData, width, height, name) =
-        { Data = data
-          VirtualData = virtualData
-          Width = width
-          Height = height
-          Name = name }
+        new(data, virtualData, width, height, name) =
+            { Data = data
+              VirtualData = virtualData
+              Width = width
+              Height = height
+              Name = name }
 
-    new(data, width, height, name) =
-        { Data = data
-          VirtualData = VirtualArray.mirror data
-          Width = width
-          Height = height
-          Name = name }
+        new(data, width, height, name) =
+            { Data = data
+              VirtualData = VirtualArray.mirror data
+              Width = width
+              Height = height
+              Name = name }
 
-/// Convert 2D-array to 1D-array
-let flattenArray2D array2D =
-    [| for x in 0 .. (Array2D.length1 array2D) - 1 do
-           for y in 0 .. (Array2D.length2 array2D) - 1 do
+    /// Convert 2D-array to 1D-array
+    let flattenArray2D array2D =
+        [| for x in 0 .. (Array2D.length1 array2D) - 1 do
+               for y in 0 .. (Array2D.length2 array2D) - 1 do
 
-               yield array2D[x, y] |]
+                   yield array2D[x, y] |]
 
-type ApplyTransform(?parallelLevel) =
 
-    let parallelLevel = defaultArg parallelLevel 1
+    let loadAsImage (file: string) =
+        let img = Image.Load<L8> file
+        let buf = Array.zeroCreate<byte> (img.Width * img.Height)
+        img.CopyPixelDataTo(Span<byte> buf)
+        Image(buf, img.Width, img.Height, System.IO.Path.GetFileName file)
 
-    do
-        if parallelLevel <= 0 then
-            failwith "Number of threads cannot be less than 1"
+    let saveImage (image: Image) file =
+        let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
+        img.Save file
+
+
+module CPU =
+
+    open HelpProviders
 
     /// Apply a given transformation using CPU resources
-    member _.OnCPU parameter (img: Image) =
+    let applyTransform (threads: uint) parameter (img: Image) =
+
+        if threads = 0u then
+            failwith "Number of threads cannot be zero"
+
+        let threads = Convert.ToInt32 threads
 
         // Store image dimensions, because we might need to swap them later if Rotation is performed
         let mutable width = img.Width
@@ -155,13 +170,13 @@ type ApplyTransform(?parallelLevel) =
                 let input = VirtualArray(img.Data, 0, img.Height * img.Width)
                 let output = Array.zeroCreate (width * height)
 
-                if parallelLevel = 1 then
+                if threads = 1 then
                     // For non-async computations on the main thread we just pass the whole VirtualArray
                     remapPixels input output
                 else
                     // For async computations we split a given data between processors.
                     // Each performs its own pixel remapping logic.
-                    let input = VirtualArray.splitInto parallelLevel input
+                    let input = VirtualArray.splitInto threads input
                     Array.Parallel.iter (fun vArray -> remapPixels vArray output) input
 
                 // Swap dimensions
@@ -213,13 +228,13 @@ type ApplyTransform(?parallelLevel) =
                 let input = VirtualArray(img.Data, 0, img.Height * img.Width)
                 let output = Array.zeroCreate (img.Height * img.Width)
 
-                if parallelLevel = 1 then
+                if threads = 1 then
                     // For non-async computations on the main thread we just pass the whole VirtualArray
                     remapPixels input output
                 else
                     // For async computations we split a given data between processors.
                     // Each performs its own pixel remapping logic.
-                    let input = VirtualArray.splitInto parallelLevel input
+                    let input = VirtualArray.splitInto threads input
                     Array.Parallel.iter (fun vArray -> remapPixels vArray output) input
 
                 // Bind output to the result
@@ -253,7 +268,7 @@ type ApplyTransform(?parallelLevel) =
                 let input = VirtualArray(img.Data, 0, img.Height * img.Width)
                 let output = Array.zeroCreate (width * height)
 
-                if parallelLevel = 1 then
+                if threads = 1 then
                     // For non-async computations on the main thread we just pass the whole VirtualArray
                     VirtualArray.iteri2 (fun i _ -> byte (processPixel i)) input output
                     output
@@ -261,7 +276,7 @@ type ApplyTransform(?parallelLevel) =
                 else
                     // For async computations we split a given data between processors.
                     // Each performs its own pixel remapping logic.
-                    let input = VirtualArray.splitInto parallelLevel input
+                    let input = VirtualArray.splitInto threads input
                     let action = VirtualArray.iteri2 (fun i _ -> byte (processPixel i))
                     Array.Parallel.iter (fun (vArray: VirtualArray<byte>) -> action vArray output) input
                     output
@@ -269,8 +284,13 @@ type ApplyTransform(?parallelLevel) =
         // Return the final result
         Image(result, width, height, img.Name)
 
+
+module GPU =
+
+    open HelpProviders
+
     /// Apply a given transformation using GPU resources
-    member _.OnGPU (clContext: ClContext) localWorkSize =
+    let applyTransform (clContext: ClContext) localWorkSize =
 
         let queue = clContext.QueueProvider.CreateQueue()
 
@@ -334,15 +354,3 @@ type ApplyTransform(?parallelLevel) =
             queue.Post(Msg.CreateFreeMsg output)
 
             Image(result, width, height, img.Name)
-
-let loadAsImage (file: string) =
-    let img = Image.Load<L8> file
-
-    let buf = Array.zeroCreate<byte> (img.Width * img.Height)
-
-    img.CopyPixelDataTo(Span<byte> buf)
-    Image(buf, img.Width, img.Height, System.IO.Path.GetFileName file)
-
-let saveImage (image: Image) file =
-    let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
-    img.Save file
