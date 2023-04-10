@@ -135,10 +135,10 @@ module CPU =
     open HelpProviders
 
     /// Apply a given transformation using CPU resources
-    let applyTransform (threads: uint) parameter (img: Image) =
+    let applyTransform threads parameter (img: Image) =
 
-        if threads = 0u then
-            failwith "Number of threads cannot be zero"
+        if threads <= 0 then
+            failwith "Number of threads has to be positive"
 
         let threads = Convert.ToInt32 threads
 

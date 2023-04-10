@@ -1,6 +1,7 @@
 module ImageProcessing.Transformation
 
 open ImageProcessing.ImageProcessing
+open ImageProcessing.HelpProviders
 open ImageProcessing.FilterKernel
 open Brahma.FSharp
 open FSharp.Reflection
@@ -23,34 +24,34 @@ type Transformation =
                let transformation = FSharpValue.MakeUnion(case, [||]) :?> Transformation
                yield transformation |]
 
-let getTsfCPU (transform: ApplyTransform) =
+let getTsfCPU threads =
     function
-    | Blur -> transform.OnCPU(EditType.Transformation gaussianBlurKernel)
-    | Edges -> transform.OnCPU(EditType.Transformation edgesKernel)
-    | HighPass -> transform.OnCPU(EditType.Transformation highPassKernel)
-    | Laplacian -> transform.OnCPU(EditType.Transformation laplacianKernel)
-    | SobelV -> transform.OnCPU(EditType.Transformation sobelVerticalKernel)
-    | Rotate -> transform.OnCPU(EditType.Rotation Clockwise)
-    | RotateCCW -> transform.OnCPU(EditType.Rotation Counterclockwise)
-    | ReflectH -> transform.OnCPU(EditType.Reflection Horizontal)
-    | ReflectV -> transform.OnCPU(EditType.Reflection Vertical)
+    | Blur -> CPU.applyTransform threads (EditType.Transformation gaussianBlurKernel)
+    | Edges -> CPU.applyTransform threads (EditType.Transformation edgesKernel)
+    | HighPass -> CPU.applyTransform threads (EditType.Transformation highPassKernel)
+    | Laplacian -> CPU.applyTransform threads (EditType.Transformation laplacianKernel)
+    | SobelV -> CPU.applyTransform threads (EditType.Transformation sobelVerticalKernel)
+    | Rotate -> CPU.applyTransform threads (EditType.Rotation Clockwise)
+    | RotateCCW -> CPU.applyTransform threads (EditType.Rotation Counterclockwise)
+    | ReflectH -> CPU.applyTransform threads (EditType.Reflection Horizontal)
+    | ReflectV -> CPU.applyTransform threads (EditType.Reflection Vertical)
 
-let getTsfGPU (transform: ApplyTransform) (clContext: ClContext) localWorkSize =
+let getTsfGPU (clContext: ClContext) localWorkSize =
     function
-    | Blur -> transform.OnGPU clContext localWorkSize (EditType.Transformation gaussianBlurKernel)
-    | Edges -> transform.OnGPU clContext localWorkSize (EditType.Transformation edgesKernel)
-    | HighPass -> transform.OnGPU clContext localWorkSize (EditType.Transformation highPassKernel)
-    | Laplacian -> transform.OnGPU clContext localWorkSize (EditType.Transformation laplacianKernel)
-    | SobelV -> transform.OnGPU clContext localWorkSize (EditType.Transformation sobelVerticalKernel)
-    | Rotate -> transform.OnGPU clContext localWorkSize (EditType.Rotation Clockwise)
-    | RotateCCW -> transform.OnGPU clContext localWorkSize (EditType.Rotation Counterclockwise)
-    | ReflectH -> transform.OnGPU clContext localWorkSize (EditType.Reflection Horizontal)
-    | ReflectV -> transform.OnGPU clContext localWorkSize (EditType.Reflection Vertical)
+    | Blur -> GPU.applyTransform clContext localWorkSize (EditType.Transformation gaussianBlurKernel)
+    | Edges -> GPU.applyTransform clContext localWorkSize (EditType.Transformation edgesKernel)
+    | HighPass -> GPU.applyTransform clContext localWorkSize (EditType.Transformation highPassKernel)
+    | Laplacian -> GPU.applyTransform clContext localWorkSize (EditType.Transformation laplacianKernel)
+    | SobelV -> GPU.applyTransform clContext localWorkSize (EditType.Transformation sobelVerticalKernel)
+    | Rotate -> GPU.applyTransform clContext localWorkSize (EditType.Rotation Clockwise)
+    | RotateCCW -> GPU.applyTransform clContext localWorkSize (EditType.Rotation Counterclockwise)
+    | ReflectH -> GPU.applyTransform clContext localWorkSize (EditType.Reflection Horizontal)
+    | ReflectV -> GPU.applyTransform clContext localWorkSize (EditType.Reflection Vertical)
 
-let transformationsOnCPU transformationsList transform =
-    transformationsList |> List.map (getTsfCPU transform) |> List.reduce (>>)
+let transformationsOnCPU transformationsList threads =
+    transformationsList |> List.map (getTsfCPU threads) |> List.reduce (>>)
 
-let transformationsOnGPU transformationsList transform context localWorkSize =
+let transformationsOnGPU transformationsList context localWorkSize =
     transformationsList
-    |> List.map (getTsfGPU transform context localWorkSize)
+    |> List.map (getTsfGPU context localWorkSize)
     |> List.reduce (>>)

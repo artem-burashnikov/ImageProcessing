@@ -2,7 +2,7 @@ module ImageProcessing.Streaming
 
 open System.Diagnostics
 open ImageProcessing.Agent
-open ImageProcessing.ImageProcessing
+open ImageProcessing.ImageProcessing.HelpProviders
 open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 open ImageProcessing.Logging
@@ -17,7 +17,6 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
 
     // Initialize transformation instance
     let threads = System.Convert.ToInt32 threads
-    let transform = ApplyTransform(threads)
 
     // Start a new instance of logger
     let logger = Logger()
@@ -130,31 +129,31 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
     // Determine how to run
     match ensuredRunStrategy with
     | CPU ->
-        let transformations = transformationsOnCPU transformations transform
+        let transformations = transformationsOnCPU transformations threads
         naive files outDir transformations
 
     | Async1CPU ->
-        let transformations = transformationsOnCPU transformations transform
+        let transformations = transformationsOnCPU transformations threads
         async1 files outDir transformations
 
     | Async2CPU ->
-        let transformations = transformationsOnCPU transformations transform
+        let transformations = transformationsOnCPU transformations threads
         async2 files outDir transformations threads
 
     | GPU ->
         let transformations =
-            transformationsOnGPU transformations transform GPUDevice.context GPUDevice.localWorkSize
+            transformationsOnGPU transformations GPUDevice.context GPUDevice.localWorkSize
 
         naive files outDir transformations
 
     | Async1GPU ->
         let transformations =
-            transformationsOnGPU transformations transform GPUDevice.context GPUDevice.localWorkSize
+            transformationsOnGPU transformations GPUDevice.context GPUDevice.localWorkSize
 
         async1 files outDir transformations
 
     | Async2GPU ->
         let transformations =
-            transformationsOnGPU transformations transform GPUDevice.context GPUDevice.localWorkSize
+            transformationsOnGPU transformations GPUDevice.context GPUDevice.localWorkSize
 
         async2 files outDir transformations threads
