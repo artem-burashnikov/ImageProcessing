@@ -19,14 +19,14 @@ jobs:
             - name: Build
               if: runner.os != 'Windows'
               run: |
-                  chmod +x ./buildLocal.sh
-                  ./buildLocal.sh
+                  chmod +x ./build.sh
+                  ./build.sh DotnetBuild
               env:
                   CI: true
 
             - name: Build
               if: runner.os == 'Windows'
-              run: ./buildLocal.cmd
+              run: ./build.cmd DotnetBuild
               env:
                   CI: true
 
@@ -46,22 +46,20 @@ jobs:
 
     test:
         strategy:
-            matrix:
-                os: [self-hosted]
-        runs-on: ${{ matrix.os }}
+        runs-on: self-hosted
         steps:
             - uses: actions/checkout@v3
 
             - name: Test
               if: runner.os != 'Windows'
               run: |
-                  chmod +x ./test.sh
-                  ./test.sh
+                  chmod +x ./build.sh
+                  ./build.sh DotnetTest
               env:
                   CI: true
 
             - name: Test
               if: runner.os == 'Windows'
-              run: ./test.cmd
+              run: ./build.cmd DotnetTest
               env:
                   CI: true
