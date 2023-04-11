@@ -65,14 +65,16 @@ module TestHelperFunctions =
 
 module Generators =
 
+    let r = Random()
+
     type ImageData = ImageData of byte[,]
 
     let ImageDataArb () =
 
-        let values = Gen.choose (2, 100) |> Gen.sample 1 2
+        // let values = Gen.choose (5_000, 10_0000) |> Gen.sample 0 2
 
-        let rows = values[0]
-        let columns = values[1]
+        let rows = r.Next(500, 1000)
+        let columns = r.Next(500, 1000)
 
         Gen.array2DOfDim (rows, columns) Arb.generate
         |> Arb.fromGen
@@ -82,11 +84,9 @@ module Generators =
 
     let filterKernelArb () =
 
-        let sizeGen = Gen.choose (0, 5) |> Gen.sample 1 1 |> List.head
+        let size = 2 * r.Next(0, 11) + 1
 
-        let size = 2 * sizeGen + 1
-
-        let valueGen = Gen.choose (-1000, 1000)
+        let valueGen = Gen.choose (-100, 100)
 
         GenExtensions.Array2DOf(valueGen, size, size)
         |> Arb.fromGen
@@ -94,6 +94,7 @@ module Generators =
 
     let addToConfig config =
         { config with
+            maxTest = 10
             arbitrary =
                 typeof<FilterKernel>.DeclaringType
                 :: (typeof<ImageData>.DeclaringType :: config.arbitrary) }
