@@ -96,7 +96,7 @@ module Generators =
 
     let addToConfig config =
         { config with
-            maxTest = 20
+            maxTest = 100
             arbitrary =
                 typeof<FilterKernel>.DeclaringType
                 :: (typeof<ImageData>.DeclaringType :: config.arbitrary) }
