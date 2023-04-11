@@ -169,8 +169,6 @@ module CPUTests =
                   let height = Array2D.length1 arr2d
                   let width = Array2D.length2 arr2d
 
-                  let filter = Array2D.map float32 filter
-
                   let data1D = flattenArray2D arr2d
 
                   let actualResult = applyFilterNaive filter (Image(data1D, width, height, ""))
@@ -342,8 +340,6 @@ module GPUTests =
 
                   let img = getImage arr2d
 
-                  let filter = Array2D.map float32 filter
-
                   let expectedResult =
                       GPU.applyTransform context localWorkSize (EditType.Transformation filter) img
 
@@ -396,8 +392,6 @@ module PixelMatrixProcessingTests =
 
                   let height = Array2D.length1 arr2d
                   let width = Array2D.length2 arr2d
-
-                  let kernel = Array2D.map float32 kernel
 
                   let edit = EditType.Transformation kernel
 
