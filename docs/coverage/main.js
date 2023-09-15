@@ -224,16 +224,16 @@ var assemblies = [
   {
     "name": "ImageProcessing",
     "classes": [
-      { "name": "ImageProcessing.Agent", "rp": "ImageProcessing_Agent.html", "cl": 0, "ucl": 50, "cal": 50, "tl": 86, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 6, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Agent", "rp": "ImageProcessing_Agent.html", "cl": 0, "ucl": 50, "cal": 50, "tl": 172, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 6, "lch": [], "bch": [], "hc": [] },
       { "name": "ImageProcessing.FilterKernel", "rp": "ImageProcessing_FilterKernel.html", "cl": 0, "ucl": 0, "cal": 0, "tl": 0, "ct": "MethodCoverage", "mc": 0, "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.GPUDevice", "rp": "ImageProcessing_GPUDevice.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 11, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.GPUKernel", "rp": "ImageProcessing_GPUKernel.html", "cl": 78, "ucl": 0, "cal": 78, "tl": 108, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.ImageProcessing", "rp": "ImageProcessing_ImageProcessing.html", "cl": 122, "ucl": 32, "cal": 154, "tl": 356, "ct": "LineCoverage", "mc": "-", "cb": 53, "tb": 76, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.Logging", "rp": "ImageProcessing_Logging.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 28, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.Main", "rp": "ImageProcessing_Main.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 152, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 40, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.RunStrategy", "rp": "ImageProcessing_RunStrategy.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 18, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.Streaming", "rp": "ImageProcessing_Streaming.html", "cl": 0, "ucl": 74, "cal": 74, "tl": 159, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
-      { "name": "ImageProcessing.Transformation", "rp": "ImageProcessing_Transformation.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 57, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.GPUDevice", "rp": "ImageProcessing_GPUDevice.html", "cl": 0, "ucl": 1, "cal": 1, "tl": 27, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.GPUKernel", "rp": "ImageProcessing_GPUKernel.html", "cl": 78, "ucl": 0, "cal": 78, "tl": 127, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.ImageProcessing", "rp": "ImageProcessing_ImageProcessing.html", "cl": 122, "ucl": 32, "cal": 154, "tl": 455, "ct": "LineCoverage", "mc": "-", "cb": 57, "tb": 76, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Logging", "rp": "ImageProcessing_Logging.html", "cl": 0, "ucl": 13, "cal": 13, "tl": 59, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Main", "rp": "ImageProcessing_Main.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 206, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 40, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.RunStrategy", "rp": "ImageProcessing_RunStrategy.html", "cl": 0, "ucl": 6, "cal": 6, "tl": 29, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 0, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Streaming", "rp": "ImageProcessing_Streaming.html", "cl": 0, "ucl": 74, "cal": 74, "tl": 190, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 12, "lch": [], "bch": [], "hc": [] },
+      { "name": "ImageProcessing.Transformation", "rp": "ImageProcessing_Transformation.html", "cl": 0, "ucl": 26, "cal": 26, "tl": 92, "ct": "LineCoverage", "mc": "-", "cb": 0, "tb": 2, "lch": [], "bch": [], "hc": [] },
     ]},
 ];
 
@@ -247,63 +247,63 @@ var riskHotspotMetrics = [
 
 var riskHotspots = [
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.Int32 ImageProcessing.Main::main(System.String[])", "methodShortName": "main(...)", "fileIndex": 0, "line": 103,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.Int32 ImageProcessing.Main::main(System.String[])", "methodShortName": "main(...)", "fileIndex": 0, "line": 157,
     "metrics": [
       { "value": 10, "exceeded": false },
       { "value": 512, "exceeded": true },
       { "value": 110, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.Int32 ImageProcessing.Main::runEditImage(ImageProcessing.Main/InputPath,ImageProcessing.Main/OutputPath,Microsoft.FSharp.Collections.FSharpList`1<ImageProcessing.Transformation/Transformation>,ImageProcessing.RunStrategy/RunStrategy,System.UInt32)", "methodShortName": "runEditImage(...)", "fileIndex": 0, "line": 66,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.Int32 ImageProcessing.Main::runEditImage(ImageProcessing.Main/InputPath,ImageProcessing.Main/OutputPath,Microsoft.FSharp.Collections.FSharpList`1<ImageProcessing.Transformation/Transformation>,ImageProcessing.RunStrategy/RunStrategy,System.UInt32)", "methodShortName": "runEditImage(...)", "fileIndex": 0, "line": 116,
     "metrics": [
       { "value": 12, "exceeded": false },
       { "value": 52, "exceeded": false },
       { "value": 156, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Transformation", "reportPath": "ImageProcessing_Transformation.html", "methodName": "Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/HelpProviders/Image,ImageProcessing.ImageProcessing/HelpProviders/Image> ImageProcessing.Transformation::getTsfCPU(System.Int32,ImageProcessing.Transformation/Transformation)", "methodShortName": "getTsfCPU(...)", "fileIndex": 0, "line": 29,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Transformation", "reportPath": "ImageProcessing_Transformation.html", "methodName": "Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/HelpProviders/Image,ImageProcessing.ImageProcessing/HelpProviders/Image> ImageProcessing.Transformation::getTsfCPU(System.Int32,ImageProcessing.Transformation/Transformation)", "methodShortName": "getTsfCPU(...)", "fileIndex": 0, "line": 44,
     "metrics": [
       { "value": 9, "exceeded": false },
       { "value": 0, "exceeded": false },
       { "value": 90, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Transformation", "reportPath": "ImageProcessing_Transformation.html", "methodName": "Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/HelpProviders/Image,ImageProcessing.ImageProcessing/HelpProviders/Image> ImageProcessing.Transformation::getTsfGPU(Brahma.FSharp.ClContext,System.Int32,ImageProcessing.Transformation/Transformation)", "methodShortName": "getTsfGPU(...)", "fileIndex": 0, "line": 41,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Transformation", "reportPath": "ImageProcessing_Transformation.html", "methodName": "Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/HelpProviders/Image,ImageProcessing.ImageProcessing/HelpProviders/Image> ImageProcessing.Transformation::getTsfGPU(Brahma.FSharp.ClContext,System.Int32,ImageProcessing.Transformation/Transformation)", "methodShortName": "getTsfGPU(...)", "fileIndex": 0, "line": 63,
     "metrics": [
       { "value": 9, "exceeded": false },
       { "value": 0, "exceeded": false },
       { "value": 90, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Streaming", "reportPath": "ImageProcessing_Streaming.html", "methodName": "System.Void ImageProcessing.Streaming::processAllFiles(ImageProcessing.RunStrategy/RunStrategy,System.UInt32,System.Collections.Generic.IEnumerable`1<System.String>,System.String,Microsoft.FSharp.Collections.FSharpList`1<ImageProcessing.Transformation/Transformation>)", "methodShortName": "processAllFiles(...)", "fileIndex": 0, "line": 15,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Streaming", "reportPath": "ImageProcessing_Streaming.html", "methodName": "System.Void ImageProcessing.Streaming::processAllFiles(ImageProcessing.RunStrategy/RunStrategy,System.UInt32,System.Collections.Generic.IEnumerable`1<System.String>,System.String,Microsoft.FSharp.Collections.FSharpList`1<ImageProcessing.Transformation/Transformation>)", "methodShortName": "processAllFiles(...)", "fileIndex": 0, "line": 31,
     "metrics": [
       { "value": 8, "exceeded": false },
       { "value": 24, "exceeded": false },
       { "value": 72, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.RunStrategy", "reportPath": "ImageProcessing_RunStrategy.html", "methodName": "ImageProcessing.RunStrategy/RunStrategy ImageProcessing.RunStrategy::switchToCPU(ImageProcessing.RunStrategy/RunStrategy)", "methodShortName": "switchToCPU(...)", "fileIndex": 0, "line": 13,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.RunStrategy", "reportPath": "ImageProcessing_RunStrategy.html", "methodName": "ImageProcessing.RunStrategy/RunStrategy ImageProcessing.RunStrategy::switchToCPU(ImageProcessing.RunStrategy/RunStrategy)", "methodShortName": "switchToCPU(...)", "fileIndex": 0, "line": 24,
     "metrics": [
       { "value": 6, "exceeded": false },
       { "value": 0, "exceeded": false },
       { "value": 42, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.String ImageProcessing.Main/Arguments::Argu.IArgParserTemplate.get_Usage()", "methodShortName": "Argu.IArgParserTemplate.get_Usage()", "fileIndex": 0, "line": 19,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Main", "reportPath": "ImageProcessing_Main.html", "methodName": "System.String ImageProcessing.Main/Arguments::Argu.IArgParserTemplate.get_Usage()", "methodShortName": "Argu.IArgParserTemplate.get_Usage()", "fileIndex": 0, "line": 25,
     "metrics": [
       { "value": 5, "exceeded": false },
       { "value": 5, "exceeded": false },
       { "value": 30, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.Streaming", "reportPath": "ImageProcessing_Streaming.html", "methodName": "Microsoft.FSharp.Core.Unit ImageProcessing.Streaming/async2@91::Invoke(System.Collections.Generic.IEnumerable`1<System.String>,System.String,Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/HelpProviders/Image,ImageProcessing.ImageProcessing/HelpProviders/Image>,System.Int32)", "methodShortName": "Invoke(...)", "fileIndex": 0, "line": 91,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.Streaming", "reportPath": "ImageProcessing_Streaming.html", "methodName": "Microsoft.FSharp.Core.Unit ImageProcessing.Streaming/async2@122::Invoke(System.Collections.Generic.IEnumerable`1<System.String>,System.String,Microsoft.FSharp.Core.FSharpFunc`2<ImageProcessing.ImageProcessing/HelpProviders/Image,ImageProcessing.ImageProcessing/HelpProviders/Image>,System.Int32)", "methodShortName": "Invoke(...)", "fileIndex": 0, "line": 122,
     "metrics": [
       { "value": 5, "exceeded": false },
       { "value": 0, "exceeded": false },
       { "value": 30, "exceeded": true },
     ]},
   {
-    "assembly": "ImageProcessing", "class": "ImageProcessing.ImageProcessing", "reportPath": "ImageProcessing_ImageProcessing.html", "methodName": "State ImageProcessing.ImageProcessing/HelpProviders/VirtualArray`1::fold2(Microsoft.FSharp.Core.FSharpFunc`2<State,Microsoft.FSharp.Core.FSharpFunc`2<A,Microsoft.FSharp.Core.FSharpFunc`2<B,State>>>,State,ImageProcessing.ImageProcessing/HelpProviders/VirtualArray`1<A>,ImageProcessing.ImageProcessing/HelpProviders/VirtualArray`1<B>)", "methodShortName": "fold2(...)", "fileIndex": 0, "line": 76,
+    "assembly": "ImageProcessing", "class": "ImageProcessing.ImageProcessing", "reportPath": "ImageProcessing_ImageProcessing.html", "methodName": "State ImageProcessing.ImageProcessing/HelpProviders/VirtualArray`1::fold2(Microsoft.FSharp.Core.FSharpFunc`2<State,Microsoft.FSharp.Core.FSharpFunc`2<A,Microsoft.FSharp.Core.FSharpFunc`2<B,State>>>,State,ImageProcessing.ImageProcessing/HelpProviders/VirtualArray`1<A>,ImageProcessing.ImageProcessing/HelpProviders/VirtualArray`1<B>)", "methodShortName": "fold2(...)", "fileIndex": 0, "line": 135,
     "metrics": [
       { "value": 4, "exceeded": false },
       { "value": 8, "exceeded": false },
