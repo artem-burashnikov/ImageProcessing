@@ -25,7 +25,7 @@ type Message =
 /// <param name="outDir">The output directory where the image will be saved.</param>
 /// <param name="imgName">The name of the image.</param>
 /// <returns>The full output file path.</returns>
-let outFile (outDir: string) (imgName: string): string = System.IO.Path.Combine(outDir, imgName)
+let outFile (outDir: string) (imgName: string) : string = System.IO.Path.Combine(outDir, imgName)
 
 /// <summary>
 /// Represents an image processing and saving agent.
@@ -40,20 +40,20 @@ type ProcessorAndSaver(id: int, transformation: Image -> Image, outDir: string, 
 
     let agent (inbox: MailboxProcessor<Message>) =
         async {
--            while agentIsRunning do
--                let! msg = inbox.Receive()
--
--                match msg with
--                | EOS ch ->
--                    logger.Log $"%s{(getTime ())}: Agent #%d{id} is finished"
--                    agentIsRunning <- false
--                    ch.Reply()
--                | Img img ->
--                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being processed by Agent #%d{id}"
--                    let transformedImg = transformation img
--                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being saved by Agent #%d{id}"
--                    saveImage transformedImg (outFile outDir img.Name)
--                    logger.Log $"%s{(getTime ())}: %s{img.Name} has been saved successfully by Agent #%d{id}"
+            while agentIsRunning do
+                let! msg = inbox.Receive()
+
+                match msg with
+                | EOS ch ->
+                    logger.Log $"%s{(getTime ())}: Agent #%d{id} is finished"
+                    agentIsRunning <- false
+                    ch.Reply()
+                | Img img ->
+                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being processed by Agent #%d{id}"
+                    let transformedImg = transformation img
+                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being saved by Agent #%d{id}"
+                    saveImage transformedImg (outFile outDir img.Name)
+                    logger.Log $"%s{(getTime ())}: %s{img.Name} has been saved successfully by Agent #%d{id}"
         }
 
     let processorAndSaver = new MailboxProcessor<Message>(agent)
@@ -61,21 +61,18 @@ type ProcessorAndSaver(id: int, transformation: Image -> Image, outDir: string, 
     /// <summary>
     /// Starts the agent for processing and saving images.
     /// </summary>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Start(): Async<unit> = processorAndSaver.Start()
+    member _.Start() = processorAndSaver.Start()
 
     /// <summary>
     /// Stops the agent gracefully.
     /// </summary>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Stop(): Async<unit> = processorAndSaver.PostAndReply(EOS)
+    member _.Stop() = processorAndSaver.PostAndReply(EOS)
 
     /// <summary>
     /// Posts an image for processing and saving by the agent.
     /// </summary>
     /// <param name="img">The image to process and save.</param>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.ProcessAndSave (img: Image): Async<unit> = processorAndSaver.Post(Img img)
+    member _.ProcessAndSave(img: Image) = processorAndSaver.Post(Img img)
 
 
 /// <summary>
@@ -92,18 +89,18 @@ type Saver(id: int, outDir: string, logger: Logger) =
 
     let agent (inbox: MailboxProcessor<Message>) =
         async {
--            while agentIsRunning do
--                let! msg = inbox.Receive()
--
--                match msg with
--                | EOS ch ->
--                    logger.Log $"%s{(getTime ())}: SavingAgent #%d{id} is ready to finish"
--                    agentIsRunning <- false
--                    ch.Reply()
--                | Img img ->
--                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being saved by SavingAgent #%d{id}"
--                    saveImage img (outFile outDir img.Name)
--                    logger.Log $"%s{(getTime ())}: %s{img.Name} has been saved successfully by SavingAgent #%d{id}"
+            while agentIsRunning do
+                let! msg = inbox.Receive()
+
+                match msg with
+                | EOS ch ->
+                    logger.Log $"%s{(getTime ())}: SavingAgent #%d{id} is ready to finish"
+                    agentIsRunning <- false
+                    ch.Reply()
+                | Img img ->
+                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being saved by SavingAgent #%d{id}"
+                    saveImage img (outFile outDir img.Name)
+                    logger.Log $"%s{(getTime ())}: %s{img.Name} has been saved successfully by SavingAgent #%d{id}"
         }
 
     let saver = new MailboxProcessor<Message>(agent)
@@ -111,21 +108,18 @@ type Saver(id: int, outDir: string, logger: Logger) =
     /// <summary>
     /// Starts the image-saving agent.
     /// </summary>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Start(): Async<unit> = saver.Start()
+    member _.Start() = saver.Start()
 
     /// <summary>
     /// Stops the image-saving agent gracefully.
     /// </summary>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Stop(): Async<unit> = saver.PostAndReply(EOS)
+    member _.Stop() = saver.PostAndReply(EOS)
 
     /// <summary>
     /// Posts an image to be saved by the agent.
     /// </summary>
     /// <param name="img">The image to save.</param>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Save (img: Image): Async<unit> = saver.Post(Img img)
+    member _.Save(img: Image) = saver.Post(Img img)
 
 
 /// <summary>
@@ -143,20 +137,20 @@ type Processor(id: int, transformation: Image -> Image, imgSaver: Saver, logger:
 
     let agent (inbox: MailboxProcessor<Message>) =
         async {
--            while agentIsRunning do
--                let! msg = inbox.Receive()
--
--                match msg with
--                | EOS ch ->
--                    logger.Log $"%s{(getTime ())}: ProcessorAgent #%d{id} is ready to finish"
--                    imgSaver.Stop()
--                    logger.Log $"%s{(getTime ())}: ProcessorAgent #%d{id} is finished"
--                    agentIsRunning <- false
--                    ch.Reply()
--                | Img img ->
--                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being processed by ProcessorAgent #%d{id}"
--                    let transformedImg = transformation img
--                    imgSaver.Save transformedImg
+            while agentIsRunning do
+                let! msg = inbox.Receive()
+
+                match msg with
+                | EOS ch ->
+                    logger.Log $"%s{(getTime ())}: ProcessorAgent #%d{id} is ready to finish"
+                    imgSaver.Stop()
+                    logger.Log $"%s{(getTime ())}: ProcessorAgent #%d{id} is finished"
+                    agentIsRunning <- false
+                    ch.Reply()
+                | Img img ->
+                    logger.Log $"%s{(getTime ())}: %s{img.Name} is being processed by ProcessorAgent #%d{id}"
+                    let transformedImg = transformation img
+                    imgSaver.Save transformedImg
         }
 
     let processor = new MailboxProcessor<Message>(agent)
@@ -164,18 +158,15 @@ type Processor(id: int, transformation: Image -> Image, imgSaver: Saver, logger:
     /// <summary>
     /// Starts the image processing agent.
     /// </summary>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Start(): Async<unit> = processor.Start()
+    member _.Start() = processor.Start()
 
     /// <summary>
     /// Stops the image processing agent gracefully.
     /// </summary>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Stop(): Async<unit> = processor.PostAndReply(EOS)
+    member _.Stop() = processor.PostAndReply(EOS)
 
     /// <summary>
     /// Posts an image to be processed by the agent.
     /// </summary>
     /// <param name="img">The image to process.</param>
-    /// <returns>An asynchronous operation representing the agent's operation.</returns>
-    member _.Process (img: Image): Async<unit> = processor.Post(Img img)
+    member _.Process(img: Image) = processor.Post(Img img)
