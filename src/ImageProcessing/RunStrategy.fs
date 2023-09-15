@@ -1,5 +1,11 @@
+/// <summary>
+/// Represents different run strategies for image processing.
+/// </summary>
 module ImageProcessing.RunStrategy
 
+/// <summary>
+/// Defines various run strategies for image processing.
+/// </summary>
 type RunStrategy =
     | CPU
     | GPU
@@ -8,6 +14,11 @@ type RunStrategy =
     | Async1GPU
     | Async2GPU
 
+/// <summary>
+/// Switches to a CPU-based run strategy based on the input strategy.
+/// </summary>
+/// <param name="strategy">The original run strategy.</param>
+/// <returns>The CPU-based run strategy.</returns>q
 let switchToCPU =
     function
     | CPU -> CPU

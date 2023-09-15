@@ -1,7 +1,16 @@
+/// <summary>
+/// Provides GPU-accelerated image processing kernels.
+/// </summary>
 module ImageProcessing.GPUKernel
 
 open Brahma.FSharp
 
+
+/// <summary>
+/// Represents a GPU-accelerated image rotation kernel.
+/// </summary>
+/// <param name="clContext">The OpenCL context for GPU operations.</param>
+/// <param name="localWorkSize">The size of the local workgroup.</param>
 let rotation (clContext: ClContext) localWorkSize =
     let kernel =
         <@
@@ -30,6 +39,11 @@ let rotation (clContext: ClContext) localWorkSize =
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
 
+/// <summary>
+/// Represents a GPU-accelerated image reflection kernel.
+/// </summary>
+/// <param name="clContext">The OpenCL context for GPU operations.</param>
+/// <param name="localWorkSize">The size of the local workgroup.</param>
 let reflection (clContext: ClContext) localWorkSize =
     let kernel =
         <@
@@ -68,6 +82,11 @@ let reflection (clContext: ClContext) localWorkSize =
         commandQueue.Post(Msg.CreateRunMsg<_, _> kernel)
         result
 
+/// <summary>
+/// Represents a GPU-accelerated image filtering kernel.
+/// </summary>
+/// <param name="clContext">The OpenCL context for GPU operations.</param>
+/// <param name="localWorkSize">The size of the local workgroup.</param>
 let filter (clContext: ClContext) localWorkSize =
     let kernel =
         <@

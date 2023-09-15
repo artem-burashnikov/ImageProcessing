@@ -5,8 +5,14 @@ open Argu
 open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 
+/// <summary>
+/// The main module of the ImageProcessing application.
+/// </summary>
 module Main =
 
+    /// <summary>
+    /// Represents the command-line arguments for the application.
+    /// </summary>
     type Arguments =
         | [<MainCommand; Mandatory>] Transformations of Transformation list
         | [<Mandatory>] Strategy of RunStrategy
@@ -25,18 +31,48 @@ module Main =
                 | Output _ -> "Output path: give a path to a folder"
 
 
+    /// <summary>
+    /// Represents the input path for image processing.
+    /// </summary>
     [<RequireQualifiedAccess>]
     type InputPath =
+        /// <summary>
+        /// Specifies that the input is a single image file.
+        /// </summary>
         | File of string
+        /// <summary>
+        /// Specifies that the input is a folder containing image files.
+        /// </summary>
         | Folder of string
+        /// <summary>
+        /// Specifies that the input is a file, but it does not have a supported image format.
+        /// </summary>
         | NoImgFile of string
+        /// <summary>
+        /// Specifies that the input path was not found.
+        /// </summary>
         | NotFound of string
+        /// <summary>
+        /// Specifies that the input path was not provided.
+        /// </summary>
         | Unspecified
 
+    /// <summary>
+    /// Represents the output path for image processing.
+    /// </summary>
     [<RequireQualifiedAccess>]
     type OutputPath =
+        /// <summary>
+        /// Specifies that the output should be a folder where processed images will be saved.
+        /// </summary>
         | Folder of string
+        /// <summary>
+        /// Specifies that the output path was not found.
+        /// </summary>
         | NotFound of string
+        /// <summary>
+        /// Specifies that the output path was not provided.
+        /// </summary>
         | Unspecified
 
     let extensions =
@@ -52,9 +88,23 @@ module Main =
                ".tga"
                ".webp" |]
 
+    /// <summary>
+    /// Checks if a file has an image extension.
+    /// </summary>
+    /// <param name="file">The file path to check.</param>
+    /// <returns>True if the file has an image extension; otherwise, false.</returns>
     let isImg (file: string) =
         Set.contains (Path.GetExtension file) extensions
 
+    /// <summary>
+    /// Runs the image processing based on the provided arguments.
+    /// </summary>
+    /// <param name="inputPath">The input path for image files.</param>
+    /// <param name="outputPath">The output path for processed images.</param>
+    /// <param name="transformations">The list of transformations to apply to the images.</param>
+    /// <param name="strategy">The run strategy to use.</param>
+    /// <param name="threads">The number of threads or agents to use for processing.</param>
+    /// <returns>An exit code.</returns>
     let runEditImage
         (inputPath: InputPath)
         (outputPath: OutputPath)
@@ -97,6 +147,10 @@ module Main =
                 Streaming.processAllFiles strategy threads imgFiles sOut transformations
                 0
 
+    /// <summary>
+    /// The entry point of the application.
+    /// </summary>
+    /// <param name="argv">The command-line arguments.</param>
     [<EntryPoint>]
     let main (argv: string array) =
 

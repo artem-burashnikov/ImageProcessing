@@ -1,3 +1,6 @@
+/// <summary>
+/// Provides image processing utilities and types.
+/// </summary>
 module ImageProcessing.ImageProcessing
 
 open System
@@ -6,22 +9,37 @@ open Microsoft.FSharp.Core
 open SixLabors.ImageSharp
 open SixLabors.ImageSharp.PixelFormats
 
+/// <summary>
+/// Contains helper types and functions for image editing.
+/// </summary>
 module HelpProviders =
 
+    /// <summary>
+    /// Represents the direction of rotation (clockwise or counterclockwise).
+    /// </summary>
     type RotationDirection =
         | Clockwise
         | Counterclockwise
 
+    /// <summary>
+    /// Represents the direction of reflection (horizontal or vertical).
+    /// </summary>
     type ReflectionDirection =
         | Horizontal
         | Vertical
 
+    /// <summary>
+    /// Represents various types of image editing operations.
+    /// </summary>
     [<RequireQualifiedAccess>]
     type EditType =
         | Transformation of float32[,]
         | Rotation of RotationDirection
         | Reflection of ReflectionDirection
 
+    /// <summary>
+    /// Represents a virtual array that provides memory bounds checking.
+    /// </summary>
     type VirtualArray<'A>(memory: array<'A>, head: int, length: int) =
         // When an instance is created, check that it is within the specified memory limits
         do
@@ -29,11 +47,31 @@ module HelpProviders =
                 failwith
                     $"Failed to allocate required memory: %A{length} for VirtualArray at the specified starting index: %A{head}"
 
+        /// <summary>
+        /// Gets the underlying memory array.
+        /// </summary>
         member this.Memory = memory
+
+        /// <summary>
+        /// Gets the starting index within the memory array.
+        /// </summary>
         member this.Head = head
+
+        /// <summary>
+        /// Gets the length of the virtual array.
+        /// </summary>
         member this.Length = length
+
+        /// <summary>
+        /// Gets a value indicating whether the virtual array is empty.
+        /// </summary>
         member this.IsEmpty = length = 0
 
+        /// <summary>
+        /// Gets or sets the value at the specified index in the virtual array.
+        /// </summary>
+        /// <returns>The value at the specified index.</returns>
+        /// <exception cref="System.IndexOutOfRangeException">Thrown if the index is out of bounds.</exception>
         member this.Item
             with get i =
                 if head + i >= memory.Length then
@@ -46,6 +84,13 @@ module HelpProviders =
                 else
                     this.Memory[ this.Head + i ] <- value
 
+        /// <summary>
+        /// Splits the virtual array into a specified number of sub-arrays.
+        /// </summary>
+        /// <param name="count">The number of sub-arrays to create.</param>
+        /// <param name="vArray">The initial array to be split.</param>
+        /// <returns>An array of virtual sub-arrays.</returns>
+        /// <exception cref="System.ArgumentException">Thrown if 'count' is not positive.</exception>
         static member splitInto count (vArray: VirtualArray<'A>) =
             if count <= 0 then
                 failwith $"VirtualArray.SplitIntoCount count argument: {count} must be positive"
@@ -70,8 +115,22 @@ module HelpProviders =
 
                 res
 
+        /// <summary>
+        /// Creates a new virtual array that mirrors an existing array.
+        /// </summary>
+        /// <param name="arr">The array to mirror.</param>
+        /// <returns>A virtual array mirroring 'arr'.</returns>
         static member mirror(arr: array<'A>) = VirtualArray(arr, 0, arr.Length)
 
+        /// <summary>
+        /// Folds two virtual arrays using a folder function.
+        /// </summary>
+        /// <param name="folder">The folder function.</param>
+        /// <param name="state">The initial state.</param>
+        /// <param name="vArray1">The first virtual array.</param>
+        /// <param name="vArray2">The second virtual array.</param>
+        /// <returns>The folded result.</returns>
+        /// <exception cref="System.ArgumentException">Thrown if 'vArray1' and 'vArray2' have different lengths.</exception>
         static member fold2 folder (state: 'State) (vArray1: VirtualArray<'A>) (vArray2: VirtualArray<'B>) =
             if vArray1.Length <> vArray2.Length then
                 failwith $"Invalid argument vArray1.Length: %A{vArray1.Length} vArray2.Length: %A{vArray2.Length}"
@@ -83,12 +142,21 @@ module HelpProviders =
 
             state
 
-        /// Writes the result of an applied function to the output
+        /// <summary>
+        /// Iterates over the virtual array and applies an action to each element.
+        /// </summary>
+        /// <param name="action">The action to apply to each element.</param>
+        /// <param name="vArray">The input array</param>
+        /// <param name="output">The output array to store results.</param>
+        /// <exception cref="System.ArgumentException">Thrown if 'output' does not match the virtual array length.</exception>
         static member iteri2 action (vArray: VirtualArray<'A>) (output: array<'A>) =
             for i in 0 .. vArray.Length - 1 do
                 output[vArray.Head + i] <- action (vArray.Head + i) vArray.Memory[vArray.Head + i]
 
 
+    /// <summary>
+    /// Represents an image with pixel data.
+    /// </summary>
     [<Struct>]
     type Image =
         val Data: array<byte>
@@ -111,7 +179,11 @@ module HelpProviders =
               Height = height
               Name = name }
 
-    /// Convert 2D-array to 1D-array
+    /// <summary>
+    /// Flattens a 2D array into a 1D array.
+    /// </summary>
+    /// <param name="array2D">The 2D array to flatten.</param>
+    /// <returns>A flattened 1D array.</returns>
     let flattenArray2D array2D =
         [| for x in 0 .. (Array2D.length1 array2D) - 1 do
                for y in 0 .. (Array2D.length2 array2D) - 1 do
@@ -119,22 +191,41 @@ module HelpProviders =
                    yield array2D[x, y] |]
 
 
+    /// <summary>
+    /// Loads an image from a file.
+    /// </summary>
+    /// <param name="file">The path to the image file.</param>
+    /// <returns>The loaded image.</returns>
     let loadAsImage (file: string) =
         let img = Image.Load<L8> file
         let buf = Array.zeroCreate<byte> (img.Width * img.Height)
         img.CopyPixelDataTo(Span<byte> buf)
         Image(buf, img.Width, img.Height, System.IO.Path.GetFileName file)
 
+    /// <summary>
+    /// Saves an image to a file.
+    /// </summary>
+    /// <param name="image">The image to save.</param>
+    /// <param name="file">The path to the output file.</param>
     let saveImage (image: Image) file =
         let img = Image.LoadPixelData<L8>(image.Data, image.Width, image.Height)
         img.Save file
 
 
+/// <summary>
+/// Contains functions for applying image transformations using CPU resources.
+/// </summary>
 module CPU =
 
     open HelpProviders
 
-    /// Apply a given transformation using CPU resources
+    /// <summary>
+    /// Applies a given image transformation using CPU resources.
+    /// </summary>
+    /// <param name="threads">The number of CPU threads to use.</param>
+    /// <param name="parameter">The type of transformation to apply.</param>
+    /// <param name="img">The input image.</param>
+    /// <returns>The transformed image.</returns>
     let applyTransform threads parameter (img: Image) =
 
         if threads <= 0 then
@@ -285,11 +376,19 @@ module CPU =
         Image(result, width, height, img.Name)
 
 
+/// <summary>
+/// Contains functions for applying image transformations using GPU resources.
+/// </summary>
 module GPU =
 
     open HelpProviders
 
-    /// Apply a given transformation using GPU resources
+    /// <summary>
+    /// Applies a given image transformation using GPU resources.
+    /// </summary>
+    /// <param name="clContext">The OpenCL context for GPU operations.</param>
+    /// <param name="localWorkSize">The size of the local workgroup.</param>
+    /// <returns>A function that applies the specified transformation to an image.</returns>
     let applyTransform (clContext: ClContext) localWorkSize =
 
         let queue = clContext.QueueProvider.CreateQueue()

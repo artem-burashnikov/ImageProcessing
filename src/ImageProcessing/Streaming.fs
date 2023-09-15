@@ -1,3 +1,6 @@
+/// <summary>
+/// Provides functions for processing a sequence of image files using different run strategies.
+/// </summary>
 module ImageProcessing.Streaming
 
 open System.Diagnostics
@@ -7,8 +10,21 @@ open ImageProcessing.Transformation
 open ImageProcessing.RunStrategy
 open ImageProcessing.Logging
 
+/// <summary>
+/// Lists all files in a directory.
+/// </summary>
+/// <param name="dir">The directory path.</param>
+/// <returns>A sequence of file paths.</returns>
 let listAllFiles dir = System.IO.Directory.GetFiles dir
 
+/// <summary>
+/// Processes a sequence of image files using the specified run strategy and transformations.
+/// </summary>
+/// <param name="runStrategy">The run strategy to use.</param>
+/// <param name="threads">The number of threads or agents to use for processing.</param>
+/// <param name="files">The sequence of image file paths to process.</param>
+/// <param name="outDir">The output directory for saving processed images.</param>
+/// <param name="transformations">The image transformations to apply.</param>
 let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string seq) outDir transformations =
 
     // Fail-safe check
@@ -30,6 +46,12 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
         else
             runStrategy
 
+    /// <summary>
+    /// Processes image files one after another on the main thread.
+    /// </summary>
+    /// <param name="files">The sequence of image file paths to process.</param>
+    /// <param name="outDir">The output directory for saving processed images.</param>
+    /// <param name="transformations">The image transformations to apply.</param>
     /// Edit all image files one after another on the main thread.
     let naive (files: string seq) outDir transformations =
         // Start time it ...
@@ -54,8 +76,12 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
         // Stop the logger
         logger.Stop()
 
-    /// Edit image files utilizing agents pipeline.
-    /// Processing and saving is divided between different agents.
+    /// <summary>
+    /// Processes image files utilizing an agents pipeline.
+    /// </summary>
+    /// <param name="files">The sequence of image file paths to process.</param>
+    /// <param name="outDir">The output directory for saving processed images.</param>
+    /// <param name="transformations">The image transformations to apply.</param>
     let async1 (files: string seq) outDir transformations =
         // Start agents for processing and saving images
         let imgSaver = Saver(1, outDir, logger)
@@ -84,8 +110,13 @@ let processAllFiles (runStrategy: RunStrategy) (threads: uint) (files: string se
         // Stop the logger
         logger.Stop()
 
-    /// Edit images files dividing them between agents.
-    /// Each agent processes and saves image by itself.
+    /// <summary>
+    /// Processes image files dividing them between agents.
+    /// </summary>
+    /// <param name="files">The sequence of image file paths to process.</param>
+    /// <param name="outDir">The output directory for saving processed images.</param>
+    /// <param name="transformations">The image transformations to apply.</param>
+    /// <param name="threads">The number of threads or agents to use for processing.</param>
     let async2 (files: string seq) outDir transformations threads =
         // Get optimal parameters for parallel computations
         let numCores = min threads System.Environment.ProcessorCount
