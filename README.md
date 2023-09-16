@@ -1,6 +1,5 @@
 # ImageProcessing
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/artem-burashnikov/ImageProcessing/build.yml?branch=main)](https://github.com/artem-burashnikov/ImageProcessing/actions)
+[![Build status](https://github.com/artem-burashnikov/ImageProcessing/actions/workflows/build.yml/badge.svg)](https://github.com/artem-burashnikov/ImageProcessing/actions/workflows/build.yml?branch=main)
 [![API docs](https://img.shields.io/badge/Documentation-API-yellowgreen)](https://artem-burashnikov.github.io/)
 [![License: MIT Licence](https://img.shields.io/badge/license-MIT-blue)](https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENSE.md)
 
