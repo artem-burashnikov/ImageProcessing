@@ -1,6 +1,6 @@
 # ImageProcessing
 [![Build status](https://github.com/artem-burashnikov/ImageProcessing/actions/workflows/build.yml/badge.svg)](https://github.com/artem-burashnikov/ImageProcessing/actions/workflows/build.yml?branch=main)
-[![API docs](https://img.shields.io/badge/Documentation-API-yellowgreen)](https://artem-burashnikov.github.io/)
+[![API docs](https://img.shields.io/badge/Documentation-API-yellowgreen)](https://artem-burashnikov.github.io/ImageProcessing/)
 [![License: MIT Licence](https://img.shields.io/badge/license-MIT-blue)](https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENSE.md)
 
 ### An open-source project for editing raster images.
