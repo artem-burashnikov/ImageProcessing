@@ -4,7 +4,7 @@
         <PackageTags>f#, fsharp</PackageTags>
         <PackageProjectUrl>https://github.com/artem-burashnikov/ImageProcessing</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <FsDocsLicenseLink>https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENCE.md</FsDocsLicenseLink>
+        <FsDocsLicenseLink>https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENSE.md</FsDocsLicenseLink>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <Authors>artem-burashnikov</Authors>
