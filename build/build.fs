@@ -36,6 +36,10 @@ let sln = __SOURCE_DIRECTORY__ </> ".." </> "ImageProcessing.sln"
 
 let src = __SOURCE_DIRECTORY__ </> ".." </> "src"
 
+let rootDirectory =
+    __SOURCE_DIRECTORY__
+    </> ".."
+
 let srcCodeGlob =
     !! ( src  @@ "**/*.fs")
     ++ ( src  @@ "**/*.fsx")
@@ -61,15 +65,38 @@ let distGlob =
     ++ (distDir @@ "*.tgz")
     ++ (distDir @@ "*.tar.gz")
 
+let docsDir =
+    rootDirectory
+    </> "docs"
+
+let docsSrcDir =
+    rootDirectory
+    </> "docsSrc"
+
+let temp =
+    rootDirectory
+    </> "temp"
+
+let watchDocsDir =
+    temp
+    </> "watch-docs"
+
 let coverageThresholdPercent = 0
 let coverageReportDir =  __SOURCE_DIRECTORY__ </> ".." </> "docs" @@ "coverage"
 
-let gitOwner = "gsvgit"
+let gitOwner = "artem-burashnikov"
 let gitRepoName = "ImageProcessing"
 
 let gitHubRepoUrl = sprintf "https://github.com/%s/%s" gitOwner gitRepoName
 
+let documentationRootUrl = sprintf "https://%s.github.io/%s/" gitOwner gitRepoName
+
 let releaseBranch = "main"
+let readme = "README.md"
+let changelogFile = "CHANGELOG.md"
+
+let READMElink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{readme}")
+let CHANGELOGlink = Uri(Uri(gitHubRepoUrl), $"blob/{releaseBranch}/{changelogFile}")
 
 let tagFromVersionNumber versionNumber = sprintf "v%s" versionNumber
 
@@ -92,7 +119,7 @@ let runtimes = [
     "win-x64", "CreateZip"
 ]
 
-let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" false
+let disableCodeCoverage = environVarAsBoolOrDefault "DISABLE_COVERAGE" true
 
 let githubToken = Environment.environVarOrNone "GITHUB_TOKEN"
 
@@ -226,6 +253,61 @@ module FSharpAnalyzers =
     with
         interface IArgParserTemplate with
             member s.Usage = ""
+
+module DocsTool =
+    let quoted s = $"\"%s{s}\""
+
+    let fsDocsDotnetOptions (o: DotNet.Options) =
+        { o with
+            WorkingDirectory = rootDirectory
+        }
+
+    let fsDocsBuildParams configuration (p: Fsdocs.BuildCommandParams) =
+        { p with
+            Clean = Some true
+            Input = Some(quoted docsSrcDir)
+            Output = Some(quoted docsDir)
+            Eval = Some true
+            Projects = Some(Seq.map quoted (!!srcGlob))
+            Properties = Some($"Configuration=%s{configuration}")
+            Parameters =
+                Some [
+                    // https://fsprojects.github.io/FSharp.Formatting/content.html#Templates-and-Substitutions
+                    "root", quoted documentationRootUrl
+                    "fsdocs-collection-name", quoted productName
+                    "fsdocs-repository-branch", quoted releaseBranch
+                    "fsdocs-package-version", quoted latestEntry.NuGetVersion
+                    "fsdocs-readme-link", quoted (READMElink.ToString())
+                    "fsdocs-release-notes-link", quoted (CHANGELOGlink.ToString())
+                ]
+            Strict = Some true
+        }
+
+
+    let cleanDocsCache () = Fsdocs.cleanCache rootDirectory
+
+    let build (configuration) =
+        Fsdocs.build fsDocsDotnetOptions (fsDocsBuildParams configuration)
+
+
+    let watch (configuration) =
+        let buildParams bp =
+            let bp =
+                Option.defaultValue Fsdocs.BuildCommandParams.Default bp
+                |> fsDocsBuildParams configuration
+
+            { bp with
+                Output = Some watchDocsDir
+                Strict = None
+            }
+
+        Fsdocs.watch
+            fsDocsDotnetOptions
+            (fun p ->
+                { p with
+                    BuildCommandParams = Some(buildParams p.BuildCommandParams)
+                }
+            )
 
 //-----------------------------------------------------------------------------
 // Target Implementations
@@ -577,6 +659,16 @@ let checkFormatCode _ =
     else
         Trace.logf "Errors while formatting: %A" result.Errors
 
+let cleanDocsCache _ = DocsTool.cleanDocsCache ()
+
+let buildDocs ctx =
+    let configuration = configuration (ctx.Context.AllExecutingTargets)
+    DocsTool.build (string configuration)
+
+let watchDocs ctx =
+    let configuration = configuration (ctx.Context.AllExecutingTargets)
+    DocsTool.watch (string configuration)
+
 let initTargets () =
     BuildServer.install [
         GitHubActions.Installer
@@ -612,6 +704,9 @@ let initTargets () =
     Target.create "FormatCode" formatCode
     Target.create "CheckFormatCode" checkFormatCode
     Target.create "Release" ignore
+    Target.create "CleanDocsCache" cleanDocsCache
+    Target.create "BuildDocs" buildDocs
+    Target.create "WatchDocs" watchDocs
 
     //-----------------------------------------------------------------------------
     // Target Dependencies
@@ -635,18 +730,29 @@ let initTargets () =
     "UpdateChangelog" ==>! "GitRelease"
 
     "DotnetRestore"
-        ==> "CheckFormatCode"
-        ==> "DotnetBuild"
-        // ==> "FSharpAnalyzers"
-        ==> "DotnetTest"
-        =?> ("GenerateCoverageReport", not disableCodeCoverage)
-        ==> "CreatePackages"
-        ==> "GitRelease"
-        ==> "GitHubRelease"
-        ==>! "Release"
+        ==>! "WatchTests"
+
+    "CleanDocsCache"
+    ==>! "BuildDocs"
+
+    "DotnetBuild"
+    ?=>! "BuildDocs"
+
+    "DotnetBuild"
+    ==>! "BuildDocs"
+
+    "DotnetBuild"
+    ==>! "WatchDocs"
 
     "DotnetRestore"
-        ==>! "WatchTests"
+    ==> "CheckFormatCode"
+    ==> "DotnetBuild"
+    ==> "DotnetTest"
+    =?> ("GenerateCoverageReport", not disableCodeCoverage)
+    ==> "CreatePackages"
+    ==> "GitRelease"
+    ==> "GitHubRelease"
+    ==>! "Release"
 
 //-----------------------------------------------------------------------------
 // Target Start
