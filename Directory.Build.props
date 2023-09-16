@@ -3,7 +3,7 @@
         <!-- summary is not migrated from project.json, but you can use the <Description> property for that if needed. -->
         <PackageTags>f#, fsharp</PackageTags>
         <PackageProjectUrl>https://github.com/artem-burashnikov/ImageProcessing</PackageProjectUrl>
-        <PackageReadmeUrl>https://github.com/artem-burashnikov/ImageProcessing/blob/master/README.md<PackageReadmeUrl>
+        <PackageReadmeUrl>https://github.com/artem-burashnikov/ImageProcessing/blob/master/README.md</PackageReadmeUrl>
         <PackageLicenseUrl>https://github.com/artem-burashnikov/ImageProcessing/blob/master/LICENSE.md</PackageLicenseUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
