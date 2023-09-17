@@ -6,8 +6,6 @@
 
 ImageProcessing.ArtemBurashnikov is a library and a concole application to process images that supports both CPU and GPU.
 
-## Why use ImageProcessing.ArtemBurashnikov?
-
 By utilizing this library in your project you can develop custom filters for CPU and kernels for GPU.
 
 ---
