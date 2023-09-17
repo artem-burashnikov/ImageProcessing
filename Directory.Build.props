@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <!-- summary is not migrated from project.json, but you can use the <Description> property for that if needed. -->
-        <PackageTags>f#, fsharp</PackageTags>
+        <PackageTags>f#, fsharp, parallel, image, filter, blur, sharpen, edges, rotate, flip</PackageTags>
         <PackageProjectUrl>https://github.com/artem-burashnikov/ImageProcessing</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <FsDocsLicenseLink>https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENSE.md</FsDocsLicenseLink>
