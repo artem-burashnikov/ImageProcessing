@@ -4,10 +4,14 @@
     <TargetFramework>net7.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AssemblyName>ImageProcessing.ArtemBurashnikov</AssemblyName>
+    <RootNamespace>ImageProcessing.ArtemBurashnikov</RootNamespace>
+    <PackageLicenseUrl>https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENSE.md</PackageLicenseUrl>
+    <PackageTags>f#, fsharp, image, gpu, parallel, editing, filter, rotation, flip, blur, sharpen</PackageTags>
   </PropertyGroup>
   <PropertyGroup>
     <Title>ImageProcessing.ArtemBurashnikov</Title>
-    <Description>ImageProcessing by ArtemBurashnikov is an easy to use and extend processing library written in F# that supports image transformation using GPGPU.</Description>
+    <Description>ImageProcessing by ArtemBurashnikov is an easy to use and extend image processing library written in F# that supports operations on CPU and GPGPU.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
