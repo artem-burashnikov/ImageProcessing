@@ -624,6 +624,28 @@ let githubRelease _ =
     |> GitHub.publishDraft
     |> Async.RunSynchronously
 
+let dotnetPack ctx =
+    // Get release notes with properly-linked version number
+    let releaseNotes =
+        Changelog.mkReleaseNotesLib changelog latestEntry gitHubRepoUrl
+
+    let args = [
+        $"/p:PackageVersion={latestEntry.NuGetVersion}"
+        $"/p:PackageReleaseNotes=\"{releaseNotes}\""
+    ]
+
+    DotNet.pack
+        (fun c ->
+            { c with
+                Configuration = configuration (ctx.Context.AllExecutingTargets)
+                OutputPath = Some distDir
+                Common =
+                    c.Common
+                    |> DotNet.Options.withAdditionalArgs args
+            }
+        )
+        sln
+
 let formatCode _ =
     let result =
         [
@@ -699,6 +721,7 @@ let initTargets () =
     Target.create "WatchTests" watchTests
     Target.create "AssemblyInfo" generateAssemblyInfo
     Target.create "CreatePackages" createPackages
+    Target.create "DotnetPack" dotnetPack
     Target.create "GitRelease" gitRelease
     Target.create "GitHubRelease" githubRelease
     Target.create "FormatCode" formatCode
@@ -716,7 +739,7 @@ let initTargets () =
     // Only call Clean if DotnetPack was in the call chain
     // Ensure Clean is called before DotnetRestore
     "Clean" ?=>! "DotnetRestore"
-    "Clean" ==>! "CreatePackages"
+    "Clean" ==>! "DotnetPack"
 
     // Only call AssemblyInfo if there is a release target in the call chain
     // Ensure AssemblyInfo is called after DotnetRestore and before DotnetBuild

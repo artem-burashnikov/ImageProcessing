@@ -66,7 +66,7 @@ let mkLinkReference (newVersion: SemVerInfo) (changelog: Changelog.Changelog) gi
 
         sprintf "[%s]: %s" newVersion.AsString linkTarget
 
-let mkReleaseNotes changelog (latestEntry: Changelog.ChangelogEntry) gitHubRepoUrl =
+let mkReleaseNotesLib changelog (latestEntry: Changelog.ChangelogEntry) gitHubRepoUrl =
     let linkReference = mkLinkReference latestEntry.SemVer changelog gitHubRepoUrl
 
     if String.isNullOrEmpty linkReference then
