@@ -1,14 +1,14 @@
-# MyCoolNewLib
+# ImageProcessing.ArtemBurashnikov
 
 ---
 
-## What is MyCoolNewLib?
+## What is ImageProcessing.ArtemBurashnikov?
 
-MyCoolNewLib is a library that does this specific thing.  
+ImageProcessing.ArtemBurashnikov is a library and a concole application to process images that supports both CPU and GPU.
 
-## Why use MyCoolNewLib?
+## Why use ImageProcessing.ArtemBurashnikov?
 
-I created it because I had to solve an issue with this other thing.
+By utilizing this library in your project you can develop custom filters for CPU and kernels for GPU.
 
 ---
 
@@ -17,7 +17,7 @@ I created it because I had to solve an issue with this other thing.
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title">Tutorials</h5>
-        <p class="card-text">Takes you by the hand through a series of steps to create your first thing. </p>
+        <p class="card-text">Takes you by the hand through a series of steps to create custom filters and kernels. </p>
       </div>
       <div class="card-footer text-right   border-top-0">
         <a href="{{root}}Tutorials/Getting_Started.html" class="btn btn-primary">Get started</a>
