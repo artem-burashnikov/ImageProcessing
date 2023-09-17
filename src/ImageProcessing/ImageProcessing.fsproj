@@ -6,8 +6,8 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
-    <Title>ImageProcessing</Title>
-    <Description>ImageProcessing does the thing!</Description>
+    <Title>ImageProcessing.ArtemBurashnikov</Title>
+    <Description>ImageProcessing by ArtemBurashnikov is an easy to use and extend processing library written in F# that supports image transformation using GPGPU.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>true</Optimize>
