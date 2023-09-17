@@ -6,7 +6,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyName>ImageProcessing.ArtemBurashnikov</AssemblyName>
     <RootNamespace>ImageProcessing.ArtemBurashnikov</RootNamespace>
-    <PackageLicenseUrl>https://github.com/artem-burashnikov/ImageProcessing/blob/main/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageTags>f#, fsharp, image, gpu, parallel, editing, filter, rotation, flip, blur, sharpen</PackageTags>
   </PropertyGroup>
   <PropertyGroup>
