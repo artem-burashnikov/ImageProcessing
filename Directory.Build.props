@@ -12,7 +12,7 @@
         <RepositoryUrl>https://github.com/artem-burashnikov/ImageProcessing</RepositoryUrl>
         <!-- main page properties-->
         <FsDocsLogoSource>https://github.com/artem-burashnikov/ImageProcessing/blob/main/docsSrc/images/logo.png</FsDocsLogoSource>
-        <FsDocsCollectionName>ImageProcessing.ArtemBurashnikov</FsDocsCollectionName>
+        <FsDocsCollectionNameLink>ImageProcessing.ArtemBurashnikov</FsDocsCollectionNameLink>
         <!-- owners is not supported in MSBuild -->
     </PropertyGroup>
 </Project>
