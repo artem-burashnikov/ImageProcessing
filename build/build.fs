@@ -64,6 +64,7 @@ let distGlob =
     !! (distDir @@ "*.zip")
     ++ (distDir @@ "*.tgz")
     ++ (distDir @@ "*.tar.gz")
+    ++ (distDir @@ "*.nupkg")
 
 let docsDir =
     rootDirectory
