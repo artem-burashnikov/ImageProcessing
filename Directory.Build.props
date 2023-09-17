@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
         <!-- summary is not migrated from project.json, but you can use the <Description> property for that if needed. -->
+        <!-- general info -->
         <PackageTags>f#, fsharp, parallel, image, filter, blur, sharpen, edges, rotate, flip</PackageTags>
         <PackageProjectUrl>https://github.com/artem-burashnikov/ImageProcessing</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -9,6 +10,8 @@
         <RepositoryType>git</RepositoryType>
         <Authors>artem-burashnikov</Authors>
         <RepositoryUrl>https://github.com/artem-burashnikov/ImageProcessing</RepositoryUrl>
+        <!-- main page properties-->
+        <FsDocsLogoSource>https://github.com/artem-burashnikov/ImageProcessing/blob/main/docsSrc/images/logo.png</FsDocsLogoSource>
         <!-- owners is not supported in MSBuild -->
     </PropertyGroup>
 </Project>
