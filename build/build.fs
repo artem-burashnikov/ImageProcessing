@@ -280,6 +280,7 @@ module DocsTool =
                     "fsdocs-package-version", quoted latestEntry.NuGetVersion
                     "fsdocs-readme-link", quoted (READMElink.ToString())
                     "fsdocs-release-notes-link", quoted (CHANGELOGlink.ToString())
+                    "fsdocs-suffix", "ArtemBurashnikov"
                 ]
             Strict = Some true
         }

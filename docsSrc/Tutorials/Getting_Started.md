@@ -22,5 +22,5 @@ let color = Say.FavoriteColor.Red
 ## Install from the command line:
 [Learn more about NuGet packages](https://docs.github.com/articles/configuring-nuget-for-use-with-github-package-registry/)
 ```bash
-dotnet add package {{{{fsdocs-collection-name}}}}.{{PackageSuffix}} --version {{fsdocs-package-version}}
+dotnet add package {{fsdocs-collection-name}}.{{fsdocs-suffix}} --version {{fsdocs-package-version}}
 ```
