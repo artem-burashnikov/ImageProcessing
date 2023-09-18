@@ -4,20 +4,20 @@ open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("ImageProcessing.Tests")>]
 [<assembly: AssemblyProductAttribute("ImageProcessing")>]
-[<assembly: AssemblyVersionAttribute("0.1.0")>]
-[<assembly: AssemblyMetadataAttribute("ReleaseDate","2017-03-17T00:00:00.0000000")>]
-[<assembly: AssemblyFileVersionAttribute("0.1.0")>]
-[<assembly: AssemblyInformationalVersionAttribute("0.1.0")>]
+[<assembly: AssemblyVersionAttribute("1.0.0")>]
+[<assembly: AssemblyMetadataAttribute("ReleaseDate","2023-09-18T00:00:00.0000000+03:00")>]
+[<assembly: AssemblyFileVersionAttribute("1.0.0")>]
+[<assembly: AssemblyInformationalVersionAttribute("1.0.0")>]
 [<assembly: AssemblyMetadataAttribute("ReleaseChannel","release")>]
-[<assembly: AssemblyMetadataAttribute("GitHash","b385af579477bb585016a6b5204121de4a485dac")>]
+[<assembly: AssemblyMetadataAttribute("GitHash","933f54ccaf320ccfb0e49c1c00711fcbb9bac997")>]
 do ()
 
 module internal AssemblyVersionInformation =
     let [<Literal>] AssemblyTitle = "ImageProcessing.Tests"
     let [<Literal>] AssemblyProduct = "ImageProcessing"
-    let [<Literal>] AssemblyVersion = "0.1.0"
-    let [<Literal>] AssemblyMetadata_ReleaseDate = "2017-03-17T00:00:00.0000000"
-    let [<Literal>] AssemblyFileVersion = "0.1.0"
-    let [<Literal>] AssemblyInformationalVersion = "0.1.0"
+    let [<Literal>] AssemblyVersion = "1.0.0"
+    let [<Literal>] AssemblyMetadata_ReleaseDate = "2023-09-18T00:00:00.0000000+03:00"
+    let [<Literal>] AssemblyFileVersion = "1.0.0"
+    let [<Literal>] AssemblyInformationalVersion = "1.0.0"
     let [<Literal>] AssemblyMetadata_ReleaseChannel = "release"
-    let [<Literal>] AssemblyMetadata_GitHash = "b385af579477bb585016a6b5204121de4a485dac"
+    let [<Literal>] AssemblyMetadata_GitHash = "933f54ccaf320ccfb0e49c1c00711fcbb9bac997"
