@@ -9,10 +9,10 @@
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <RepositoryType>git</RepositoryType>
         <Authors>artem-burashnikov</Authors>
+        <PackageSuffix>ArtemBurashnikov</PackageSuffix>
         <RepositoryUrl>https://github.com/artem-burashnikov/ImageProcessing</RepositoryUrl>
         <!-- main page properties-->
         <FsDocsLogoSource>https://github.com/artem-burashnikov/ImageProcessing/blob/main/docsSrc/images/logo.png</FsDocsLogoSource>
-        <FsDocsCollectionNameLink>ImageProcessing.ArtemBurashnikov</FsDocsCollectionNameLink>
         <!-- owners is not supported in MSBuild -->
     </PropertyGroup>
 </Project>

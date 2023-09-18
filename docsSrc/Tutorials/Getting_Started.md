@@ -19,4 +19,8 @@ let color = Say.FavoriteColor.Red
     [lang=bash]
     paket install MyCoolNewLib
 
-
+## Install from the command line:
+[Learn more about NuGet packages](https://docs.github.com/articles/configuring-nuget-for-use-with-github-package-registry/)
+```bash
+dotnet add package {{{{fsdocs-collection-name}}}}.{{PackageSuffix}} --version {{fsdocs-package-version}}
+```
