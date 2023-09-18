@@ -127,7 +127,6 @@ Sequentially applying blur and clockwise rotation on an image using CPU:
 ```
 
 Processing multiple files inside a directory and applying blur, edges and vertical reflect using CPU and utilizing multiple threads:
-
 ```
 ./ImageProcessing --strategy async2cpu --threads 4 -i input/ -o output/ blur edges reflectv
 ```

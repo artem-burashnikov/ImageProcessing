@@ -8,8 +8,8 @@ By utilizing this library in your project you can develop custom filters for CPU
   <div class="col mb-4">
     <div class="card h-100">
       <div class="card-body">
-        <h5 class="card-title">Tutorials</h5>
-        <p class="card-text">Takes you by the hand through a series of steps to create custom filters and kernels. </p>
+        <h5 class="card-title">Getting started</h5>
+        <p class="card-text">Takes you through a series of steps and teaches you the basics.</p>
       </div>
       <div class="card-footer text-right   border-top-0">
         <a href="{{root}}Tutorials/Getting_Started.html" class="btn btn-primary">Get started</a>
@@ -20,10 +20,10 @@ By utilizing this library in your project you can develop custom filters for CPU
     <div class="card h-100">
       <div class="card-body">
         <h5 class="card-title">How-To Guides</h5>
-        <p class="card-text">Guides you through the steps involved in addressing key problems and use-cases. </p>
+        <p class="card-text">Guides you through the steps involved in extending the library by creating your own filters and transformations. </p>
       </div>
       <div class="card-footer text-right   border-top-0">
-        <a href="{{root}}How_Tos/Doing_A_Thing.html" class="btn btn-primary">Learn Usecases</a>
+        <a href="{{root}}How_Tos/Custom_Kernels.html" class="btn btn-primary">Customize the library</a>
       </div>
     </div>
   </div>
