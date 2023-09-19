@@ -1,5 +1,5 @@
 ---
-title: Project's architecture
+title: Architecture
 category: Explanations
 categoryindex: 3
 index: 1
