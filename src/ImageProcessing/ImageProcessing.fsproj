@@ -4,10 +4,11 @@
     <TargetFramework>net7.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyName>ImageProcessing.ArtemBurashnikov</AssemblyName>
-    <RootNamespace>ImageProcessing.ArtemBurashnikov</RootNamespace>
+    <AssemblyName>ArtemBurashnikov.ImageProcessing</AssemblyName>
+    <RootNamespace>ArtemBurashnikov.ImageProcessing</RootNamespace>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageTags>f#, fsharp, image, gpu, parallel, editing, filter, rotation, flip, blur, sharpen</PackageTags>
+    <Product>ArtemBurashnikov.ImageProcessing</Product>
   </PropertyGroup>
   <PropertyGroup>
     <Title>ImageProcessing.ArtemBurashnikov</Title>
